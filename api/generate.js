@@ -33,54 +33,44 @@ export default async function handler(req, res) {
       systemInstruction = "Você é um Engenheiro de Software Full-Stack e Consultor de TI. Responda em texto corrido e amigável tirando dúvidas sem gerar páginas inteiras de código.";
     }
 
-    // Modelos aceitos no v1beta com alias correto
-    const models = ['gemini-1.5-flash-latest', 'gemini-1.5-pro-latest', 'gemini-pro'];
-    let lastError = null;
+    // Usando a rota oficial da v1 com o modelo gemini-1.5-flash
+    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
-    for (const model of models) {
-      try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{
-              parts: [{ text: `${systemInstruction}\n\n${userMessage}` }]
-            }]
-          })
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-          const outputText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-          const cleanCode = outputText.replace(/```html|```jsx|```javascript|```/g, '').trim();
-
-          return res.status(200).json({ 
-            code: cleanCode || '<div>Sem código gerado.</div>', 
-            text: outputText || 'Sem texto gerado.' 
-          });
-        } else {
-          lastError = data.error?.message || `Erro no modelo ${model}`;
-        }
-      } catch (err) {
-        lastError = err.message;
-      }
-    }
-
-    // Retorna mensagem visual caso falhe
-    return res.status(200).json({
-      code: `<div style="padding:2rem; text-align:center; color:#f59e0b; font-family:sans-serif;">
-        <h3>Erro na comunicação com o Gemini</h3>
-        <p>${lastError || 'Tente novamente em alguns instantes.'}</p>
-      </div>`,
-      text: `Erro na API: ${lastError || 'Instabilidade temporária'}`
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{
+          parts: [{ text: `${systemInstruction}\n\n${userMessage}` }]
+        }]
+      })
     });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      const outputText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      const cleanCode = outputText.replace(/```html|```jsx|```javascript|```/g, '').trim();
+
+      return res.status(200).json({ 
+        code: cleanCode || '<div>Sem código gerado.</div>', 
+        text: outputText || 'Sem texto gerado.' 
+      });
+    } else {
+      return res.status(200).json({
+        code: `<div style="padding:2rem; text-align:center; color:#f59e0b; font-family:sans-serif;">
+          <h3>Erro na comunicação com o Gemini</h3>
+          <p>${data.error?.message || 'Erro ao processar na API'}</p>
+        </div>`,
+        text: `Erro na API: ${data.error?.message || 'Erro desconhecido'}`
+      });
+    }
 
   } catch (err) {
     return res.status(200).json({ 
       code: `<div style="padding:2rem; text-align:center; color:#ef4444; font-family:sans-serif;">
         <h3>Erro interno no servidor</h3>
-        <p>Tente novamente.</p>
+        <p>${err.message}</p>
       </div>`,
       text: 'Erro interno ao processar requisição.' 
     });
