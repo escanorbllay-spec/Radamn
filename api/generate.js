@@ -30,8 +30,8 @@ export default async function handler(req, res) {
       systemInstruction = "Você é um Engenheiro de Software Full-Stack e Consultor de TI. Responda em texto corrido e amigável tirando dúvidas sem gerar páginas inteiras de código.";
     }
 
-    // Endpoint direto para o modelo gemini-2.0-flash
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+    // Modelo exatamente exigido pela API atual do Gemini
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`;
 
     const response = await fetch(url, {
       method: 'POST',
@@ -57,7 +57,6 @@ export default async function handler(req, res) {
         text: outputText || 'Sem texto gerado.' 
       });
     } else {
-      // Exibe o erro exato que a API do Gemini devolveu
       const apiErrorMessage = data.error?.message || 'Erro ao processar na API do Gemini';
       return res.status(200).json({
         code: `<div style="padding:2rem; text-align:center; color:#ef4444; font-family:sans-serif;">
