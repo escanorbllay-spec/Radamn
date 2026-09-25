@@ -2,10 +2,21 @@ export default async function handler(req, res) {
   res.setHeader('Content-Type', 'application/json');
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-radamn-key');
 
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Método não permitido' });
+
+  // Validação da Chave Mestra (JoJoStarOx)
+  const clientKey = req.headers['x-radamn-key'];
+  const serverKey = process.env.RADAMN_MASTER_KEY;
+
+  if (serverKey && clientKey !== serverKey) {
+    return res.status(401).json({ 
+      code: '<div style="padding:2rem;color:#ef4444;text-align:center;">Acesso não autorizado. Chave inválida.</div>',
+      text: 'Acesso não autorizado. Chave inválida.' 
+    });
+  }
 
   try {
     const { prompt, mode, currentCode } = req.body || {};
