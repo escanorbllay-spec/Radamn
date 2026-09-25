@@ -30,11 +30,11 @@ export default async function handler(req, res) {
       systemInstruction = "Você é um Engenheiro de Software Full-Stack e Consultor de TI. Responda em texto corrido e amigável tirando dúvidas sem gerar páginas inteiras de código.";
     }
 
-    // Endpoint oficial compatível com OpenAI do Gemini (estável e aceita os novos modelos)
+    // Endpoint compatível OpenAI da Google
     const url = 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions';
 
-    // Modelos na ordem recomendada pela própria API da Google
-    const models = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-3.1-pro-preview'];
+    // Usando gemini-1.5-flash prioritariamente por ter maior quota e estabilidade na camada gratuita
+    const models = ['gemini-1.5-flash', 'gemini-2.5-flash'];
     let lastError = null;
 
     for (const model of models) {
