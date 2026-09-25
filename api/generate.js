@@ -30,32 +30,35 @@ export default async function handler(req, res) {
       systemInstruction = "Você é um Engenheiro de Software Full-Stack e Consultor de TI. Responda em texto corrido e amigável tirando dúvidas sem gerar páginas inteiras de código.";
     }
 
-    // Configuração das rotas de fallback da API Gemini
-    const endpoints = [
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-      `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${apiKey}`
-    ];
+    // Endpoint oficial compatível com OpenAI do Gemini (estável e aceita os novos modelos)
+    const url = 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions';
 
+    // Modelos na ordem recomendada pela própria API da Google
+    const models = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-3.1-pro-preview'];
     let lastError = null;
 
-    for (const url of endpoints) {
+    for (const model of models) {
       try {
         const response = await fetch(url, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
           body: JSON.stringify({
-            contents: [{
-              role: 'user',
-              parts: [{ text: `${systemInstruction}\n\n${userMessage}` }]
-            }]
+            model: model,
+            messages: [
+              { role: 'system', content: systemInstruction },
+              { role: 'user', content: userMessage }
+            ],
+            temperature: 0.2
           })
         });
 
         const data = await response.json();
 
-        if (response.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
-          const outputText = data.candidates[0].content.parts[0].text;
+        if (response.ok && data.choices?.[0]?.message?.content) {
+          const outputText = data.choices[0].message.content;
           const cleanCode = outputText.replace(/```html|```jsx|```javascript|```/g, '').trim();
 
           return res.status(200).json({ 
@@ -64,7 +67,7 @@ export default async function handler(req, res) {
           });
         }
 
-        lastError = data.error?.message || `Erro HTTP ${response.status}`;
+        lastError = data.error?.message || `Erro HTTP ${response.status} no modelo ${model}`;
       } catch (err) {
         lastError = err.message;
       }
@@ -72,8 +75,8 @@ export default async function handler(req, res) {
 
     return res.status(200).json({
       code: `<div style="padding:2rem; text-align:center; color:#ef4444; font-family:sans-serif;">
-        <h3>Erro na comunicação com a API</h3>
-        <p>${lastError || 'Não foi possível conectar ao Gemini.'}</p>
+        <h3>Erro na API do Gemini</h3>
+        <p>${lastError || 'Falha ao comunicar com os modelos do Gemini.'}</p>
       </div>`,
       text: `Erro Gemini: ${lastError}`
     });
