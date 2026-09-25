@@ -25,7 +25,7 @@
 
         <!-- Mode Selector -->
         <div class="grid grid-cols-3 gap-2 bg-slate-900 p-1.5 rounded-xl border border-slate-800">
-            <button onclick="setMode('gerar')" id="btn-gerar" class="py-2 text-sm font-medium rounded-lg bg-indigo-600 text-white transition flex items-center justify-center space-x-2">
+            <button onclick="setMode('gerar')" id="btn-gerar" class="py-2 text-sm font-medium rounded-lg bg-indigo-600 text-white transition flex items-center justify-center space-x-2 shadow-md shadow-indigo-600/20">
                 <i class="fa-solid fa-wand-magic-sparkles"></i> <span>Gerar</span>
             </button>
             <button onclick="setMode('refine')" id="btn-refine" class="py-2 text-sm font-medium rounded-lg text-slate-400 hover:text-white transition flex items-center justify-center space-x-2">
@@ -162,7 +162,7 @@
                 // Mostra no painel de código
                 document.getElementById('code-output').innerText = latestCode;
 
-                // Salva no histórico local
+                // Salva no histórico local com hora formatada
                 const timestamp = new Date().toLocaleTimeString();
                 historyData.unshift({ prompt, code: latestCode, time: timestamp });
                 if (historyData.length > 15) historyData.pop();
@@ -186,11 +186,14 @@
                 list.innerHTML = `<span class="text-slate-500 italic">Sem histórico recente.</span>`;
                 return;
             }
-            list.innerHTML = historyData.map((item, index) => `
-                <button onclick="carregarHistorico(${index})" class="flex-shrink-0 bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 transition text-left max-w-[200px] truncate">
-                    <span class="text-indigo-400 font-mono">${item.time}</span> - ${item.prompt}
-                </button>
-            `).join('');
+            list.innerHTML = historyData.map((item, index) => {
+                const timeStr = item.time ? `<span class="text-indigo-400 font-mono">${item.time}</span> - ` : '';
+                return `
+                    <button onclick="carregarHistorico(${index})" class="flex-shrink-0 bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 transition text-left max-w-[200px] truncate">
+                        ${timeStr}${item.prompt}
+                    </button>
+                `;
+            }).join('');
         }
 
         function carregarHistorico(index) {
