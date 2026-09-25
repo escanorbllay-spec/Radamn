@@ -1,308 +1,253 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Radamn AI Studio</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    * { font-family: 'Inter', sans-serif; }
-    body { background-color: #0b0f19; color: #f3f4f6; }
-    .custom-scroll::-webkit-scrollbar { width: 6px; }
-    .custom-scroll::-webkit-scrollbar-track { background: #111827; }
-    .custom-scroll::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radamn AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="h-screen flex flex-col md:flex-row overflow-hidden">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans">
 
-  <!-- NOTIFICAÇÕES (TOASTS) -->
-  <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
-
-  <!-- PAINEL LATERAL / CONTROLES -->
-  <aside class="w-full md:w-96 bg-gray-900 border-r border-gray-800 flex flex-col h-1/2 md:h-full z-10">
     <!-- Header -->
-    <header class="p-4 border-b border-gray-800 flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <span class="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse"></span>
-        <h1 class="font-bold text-lg bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Radamn AI</h1>
-      </div>
-      <button id="btn-new-project" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 py-1.5 px-3 rounded-lg border border-gray-700 transition">
-        + Novo Projeto
-      </button>
+    <header class="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-900/50 backdrop-blur">
+        <div class="flex items-center space-x-2">
+            <span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
+            <h1 class="font-bold text-lg tracking-wide text-white">Radamn AI</h1>
+        </div>
+        <button onclick="novoProjeto()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 transition">
+            + Novo Projeto
+        </button>
     </header>
 
-    <!-- SELETOR DE MODOS (M1, M2, M3) -->
-    <div class="p-3 border-b border-gray-800 bg-gray-950/50">
-      <div class="grid grid-cols-3 gap-1 bg-gray-900 p-1 rounded-xl border border-gray-800">
-        <button id="mode-generate" onclick="setMode('generate')" class="mode-btn text-xs py-1.5 px-2 rounded-lg font-medium text-center transition bg-indigo-600 text-white shadow">
-          🎨 Gerar
-        </button>
-        <button id="mode-refine" onclick="setMode('refine')" class="mode-btn text-xs py-1.5 px-2 rounded-lg font-medium text-center transition text-gray-400 hover:text-white">
-          🛠️ Refinar
-        </button>
-        <button id="mode-chat" onclick="setMode('chat')" class="mode-btn text-xs py-1.5 px-2 rounded-lg font-medium text-center transition text-gray-400 hover:text-white">
-          💬 Chat
-        </button>
-      </div>
-    </div>
+    <!-- Main Container -->
+    <main class="flex-1 max-w-4xl w-full mx-auto p-4 flex flex-col space-y-4">
 
-    <!-- ÁREA DE HISTÓRICO E MENSAGENS DO CHAT -->
-    <div id="chat-box" class="flex-1 p-4 overflow-y-auto custom-scroll space-y-3">
-      <div id="welcome-message" class="text-center my-auto py-8">
-        <div class="inline-flex p-3 bg-indigo-500/10 text-indigo-400 rounded-full mb-3">
-          ⚡
+        <!-- Mode Selector -->
+        <div class="grid grid-cols-3 gap-2 bg-slate-900 p-1.5 rounded-xl border border-slate-800">
+            <button onclick="setMode('gerar')" id="btn-gerar" class="py-2 text-sm font-medium rounded-lg bg-indigo-600 text-white transition flex items-center justify-center space-x-2">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> <span>Gerar</span>
+            </button>
+            <button onclick="setMode('refine')" id="btn-refine" class="py-2 text-sm font-medium rounded-lg text-slate-400 hover:text-white transition flex items-center justify-center space-x-2">
+                <i class="fa-solid fa-sliders"></i> <span>Refinar</span>
+            </button>
+            <button onclick="setMode('chat')" id="btn-chat" class="py-2 text-sm font-medium rounded-lg text-slate-400 hover:text-white transition flex items-center justify-center space-x-2">
+                <i class="fa-solid fa-comments"></i> <span>Chat</span>
+            </button>
         </div>
-        <h2 class="text-sm font-semibold text-gray-200">O que deseja criar hoje?</h2>
-        <p class="text-xs text-gray-400 mt-1">Escolha um modo acima e envie sua solicitação.</p>
-      </div>
-    </div>
 
-    <!-- PAINEL HISTÓRICO SALVO (LOCALSTORAGE) -->
-    <div class="p-3 border-t border-gray-800 bg-gray-950/30">
-      <div class="flex items-center justify-between mb-2">
-        <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Histórico Local</span>
-        <button onclick="clearHistory()" class="text-[10px] text-red-400 hover:underline">Limpar</button>
-      </div>
-      <div id="history-list" class="flex gap-2 overflow-x-auto pb-1 custom-scroll text-xs">
-        <!-- Itens injetados via JS -->
-      </div>
-    </div>
+        <!-- Input Box -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col space-y-3 shadow-lg">
+            <textarea id="prompt-input" rows="3" placeholder="Descreva a interface ou faça uma pergunta..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition resize-none text-sm"></textarea>
+            
+            <div class="flex items-center justify-between">
+                <span id="current-mode-label" class="text-xs text-slate-400 font-medium px-1">Modo: Gerar</span>
+                <button onclick="enviarPrompt()" id="submit-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2 rounded-xl text-sm font-medium transition flex items-center space-x-2 shadow-md shadow-indigo-600/20">
+                    <span>Enviar</span> <i class="fa-solid fa-paper-plane text-xs"></i>
+                </button>
+            </div>
+        </div>
 
-    <!-- FORMULÁRIO DE ENVIO -->
-    <form id="chat-form" class="p-3 border-t border-gray-800 bg-gray-900 flex gap-2">
-      <input 
-        type="text" 
-        id="prompt-input" 
-        placeholder="Descreva a interface ou faça uma pergunta..." 
-        required 
-        autocomplete="off"
-        class="flex-1 bg-gray-800 border border-gray-700 rounded-xl px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition"
-      />
-      <button type="submit" id="send-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-4 py-2 rounded-xl text-sm transition disabled:opacity-50">
-        Enviar
-      </button>
-    </form>
-  </aside>
+        <!-- Local History -->
+        <div class="bg-slate-900/60 border border-slate-800/80 rounded-xl p-3">
+            <div class="flex items-center justify-between mb-2">
+                <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Histórico Local</h3>
+                <button onclick="limparHistorico()" class="text-xs text-rose-400 hover:text-rose-300 transition">Limpar</button>
+            </div>
+            <div id="history-list" class="flex gap-2 overflow-x-auto pb-1 text-xs">
+                <span class="text-slate-500 italic">Sem histórico recente.</span>
+            </div>
+        </div>
 
-  <!-- PAINEL PRINCIPAL: PREVIEW DE CÓDIGO (ARTEFATOS) -->
-  <main class="flex-1 bg-gray-950 flex flex-col h-1/2 md:h-full relative">
-    <!-- Bar de Ações do Preview -->
-    <div class="h-12 bg-gray-900 border-b border-gray-800 px-4 flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <span class="text-xs font-medium text-gray-400">Preview ao Vivo</span>
-        <span id="current-mode-badge" class="text-[10px] bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-full border border-indigo-500/30">Modo: Gerar</span>
-      </div>
-      <div class="flex items-center gap-2">
-        <button onclick="copyCode()" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2.5 py-1.5 rounded-lg border border-gray-700 transition">
-          📋 Copiar
-        </button>
-        <button onclick="downloadCode()" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2.5 py-1.5 rounded-lg border border-gray-700 transition">
-          💾 Baixar .html
-        </button>
-        <button onclick="openFullPreview()" class="text-xs bg-indigo-600 hover:bg-indigo-500 text-white px-2.5 py-1.5 rounded-lg transition font-medium">
-          🔗 Expandir
-        </button>
-      </div>
-    </div>
+        <!-- Output / Preview Section -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl flex flex-col overflow-hidden shadow-xl flex-1 min-h-[400px]">
+            <!-- Toolbar -->
+            <div class="flex items-center justify-between px-4 py-2.5 bg-slate-900/90 border-b border-slate-800 text-xs">
+                <div class="flex space-x-1">
+                    <button onclick="switchTab('preview')" id="tab-preview" class="px-3 py-1.5 rounded-lg bg-slate-800 text-white font-medium transition">Preview ao Vivo</button>
+                    <button onclick="switchTab('code')" id="tab-code" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition">Código Fonte</button>
+                </div>
+                <div class="flex space-x-2">
+                    <button onclick="copiarCodigo()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg transition flex items-center space-x-1.5">
+                        <i class="fa-regular fa-copy"></i> <span>Copiar</span>
+                    </button>
+                    <button onclick="baixarHtml()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg transition flex items-center space-x-1.5">
+                        <i class="fa-solid fa-download"></i> <span>Baixar</span>
+                    </button>
+                    <button onclick="expandirPreview()" class="bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-400 px-3 py-1.5 rounded-lg transition flex items-center space-x-1.5 border border-indigo-500/30">
+                        <i class="fa-solid fa-expand"></i> <span>Expandir</span>
+                    </button>
+                </div>
+            </div>
 
-    <!-- CONTAINER DO IFRAME ISOLADO -->
-    <div class="flex-1 w-full h-full relative bg-white">
-      <iframe 
-        id="preview-frame" 
-        class="w-full h-full border-none"
-        sandbox="allow-scripts allow-modals allow-popups allow-forms allow-same-origin"
-      ></iframe>
-    </div>
-  </main>
+            <!-- Content View -->
+            <div class="relative flex-1 bg-slate-950 flex flex-col">
+                <!-- Iframe Preview -->
+                <div id="view-preview" class="absolute inset-0 w-full h-full flex flex-col">
+                    <iframe id="preview-frame" class="w-full h-full border-0 bg-white"></iframe>
+                </div>
+                <!-- Code View -->
+                <div id="view-code" class="absolute inset-0 w-full h-full p-4 overflow-auto hidden">
+                    <pre><code id="code-output" class="text-xs font-mono text-indigo-300">Aguardando geração de código...</code></pre>
+                </div>
+            </div>
+        </div>
 
-  <script>
-    // ESTADO DA APLICAÇÃO
-    let currentMode = 'generate'; // 'generate', 'refine', 'chat'
-    let currentCode = '';
-    let history = JSON.parse(localStorage.getItem('radamn_history') || '[]');
+    </main>
 
-    // ELEMENTOS DO DOM
-    const chatForm = document.getElementById('chat-form');
-    const promptInput = document.getElementById('prompt-input');
-    const chatBox = document.getElementById('chat-box');
-    const sendBtn = document.getElementById('send-btn');
-    const previewFrame = document.getElementById('preview-frame');
-    const historyList = document.getElementById('history-list');
-    const welcomeMsg = document.getElementById('welcome-message');
+    <!-- JavaScript Logic -->
+    <script>
+        let currentMode = 'gerar';
+        let latestCode = '';
+        let historyData = JSON.parse(localStorage.getItem('radamn_history') || '[]');
 
-    // MUDANÇA DE MODO (TABS)
-    function setMode(mode) {
-      currentMode = mode;
-      document.querySelectorAll('.mode-btn').forEach(btn => {
-        btn.classList.remove('bg-indigo-600', 'text-white', 'shadow');
-        btn.classList.add('text-gray-400');
-      });
-
-      const activeBtn = document.getElementById(`mode-${mode}`);
-      activeBtn.classList.add('bg-indigo-600', 'text-white', 'shadow');
-      activeBtn.classList.remove('text-gray-400');
-
-      document.getElementById('current-mode-badge').textContent = `Modo: ${mode.toUpperCase()}`;
-      showToast(`Modo alterado para: ${mode.toUpperCase()}`);
-    }
-
-    // EXIBIR NOTIFICAÇÕES TOAST
-    function showToast(message, type = 'info') {
-      const container = document.getElementById('toast-container');
-      const toast = document.createElement('div');
-      toast.className = `pointer-events-auto text-xs px-3 py-2 rounded-lg shadow-lg border transition duration-300 transform translate-y-2 ${
-        type === 'error' ? 'bg-red-900 border-red-700 text-red-200' : 'bg-gray-800 border-gray-700 text-gray-200'
-      }`;
-      toast.textContent = message;
-      container.appendChild(toast);
-
-      setTimeout(() => {
-        toast.classList.add('opacity-0', '-translate-y-2');
-        setTimeout(() => toast.remove(), 300);
-      }, 3000);
-    }
-
-    // RENDERIZAR IFRAME COM O CÓDIGO HTML
-    function updatePreview(code) {
-      currentCode = code;
-      const doc = previewFrame.contentDocument || previewFrame.contentWindow.document;
-      doc.open();
-      doc.write(code);
-      doc.close();
-    }
-
-    // REGISTRO DE MENSAGENS NO CHAT LATERAL
-    function appendChatMessage(text, sender) {
-      if (welcomeMsg) welcomeMsg.style.display = 'none';
-
-      const div = document.createElement('div');
-      div.className = `p-2.5 rounded-xl text-xs leading-relaxed max-w-[90%] ${
-        sender === 'user' 
-          ? 'bg-indigo-600 text-white ml-auto' 
-          : 'bg-gray-800 text-gray-200 border border-gray-700 mr-auto whitespace-pre-wrap'
-      }`;
-      div.textContent = text;
-      chatBox.appendChild(div);
-      chatBox.scrollTop = chatBox.scrollHeight;
-      return div;
-    }
-
-    // SUBMIT DO FORMULÁRIO (GERAR / REFINAR / CHAT)
-    chatForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const prompt = promptInput.value.trim();
-      if (!prompt) return;
-
-      appendChatMessage(prompt, 'user');
-      promptInput.value = '';
-      sendBtn.disabled = true;
-
-      const loadingToast = showToast("Processando solicitação...", "info");
-      const botMsg = appendChatMessage("Pensando e gerando...", "bot");
-
-      try {
-        const payload = {
-          prompt: prompt,
-          mode: currentMode,
-          currentCode: currentMode === 'refine' ? currentCode : ''
-        };
-
-        const response = await fetch('/api/generate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-
-        const data = await response.json();
-
-        if (data.code && (currentMode === 'generate' || currentMode === 'refine')) {
-          updatePreview(data.code);
-          saveToHistory(prompt, data.code);
-          botMsg.textContent = "✨ Interface atualizada no Preview!";
-          showToast("Código gerado com sucesso!");
-        } else if (data.text || data.code) {
-          botMsg.textContent = data.text || data.code;
-        } else {
-          botMsg.textContent = "Sem resposta do servidor.";
+        function setMode(mode) {
+            currentMode = mode;
+            ['gerar', 'refine', 'chat'].forEach(m => {
+                const btn = document.getElementById(`btn-${m}`);
+                if (m === mode) {
+                    btn.className = "py-2 text-sm font-medium rounded-lg bg-indigo-600 text-white transition flex items-center justify-center space-x-2 shadow-md shadow-indigo-600/20";
+                } else {
+                    btn.className = "py-2 text-sm font-medium rounded-lg text-slate-400 hover:text-white transition flex items-center justify-center space-x-2";
+                }
+            });
+            document.getElementById('current-mode-label').innerText = `Modo: ${mode.charAt(0).toUpperCase() + mode.slice(1)}`;
         }
-      } catch (err) {
-        botMsg.textContent = "Erro de conexão com o servidor.";
-        showToast("Falha na requisição", "error");
-      } finally {
-        sendBtn.disabled = false;
-      }
-    });
 
-    // HISTÓRICO LOCAL (LOCALSTORAGE)
-    function saveToHistory(prompt, code) {
-      const item = { id: Date.now(), prompt, code, date: new Date().toLocaleTimeString() };
-      history.unshift(item);
-      if (history.length > 10) history.pop();
-      localStorage.setItem('radamn_history', JSON.stringify(history));
-      renderHistory();
-    }
+        function switchTab(tab) {
+            if (tab === 'preview') {
+                document.getElementById('tab-preview').className = "px-3 py-1.5 rounded-lg bg-slate-800 text-white font-medium transition";
+                document.getElementById('tab-code').className = "px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition";
+                document.getElementById('view-preview').classList.remove('hidden');
+                document.getElementById('view-code').classList.add('hidden');
+            } else {
+                document.getElementById('tab-code').className = "px-3 py-1.5 rounded-lg bg-slate-800 text-white font-medium transition";
+                document.getElementById('tab-preview').className = "px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition";
+                document.getElementById('view-code').classList.remove('hidden');
+                document.getElementById('view-preview').classList.add('hidden');
+            }
+        }
 
-    function renderHistory() {
-      historyList.innerHTML = '';
-      if (history.length === 0) {
-        historyList.innerHTML = '<span class="text-gray-600 text-[10px]">Nenhum histórico</span>';
-        return;
-      }
+        async function enviarPrompt() {
+            const promptInput = document.getElementById('prompt-input');
+            const prompt = promptInput.value.trim();
+            if (!prompt) return;
 
-      history.forEach(item => {
-        const btn = document.createElement('button');
-        btn.className = "bg-gray-800 hover:bg-gray-700 border border-gray-700 px-2 py-1 rounded text-gray-300 text-[10px] whitespace-nowrap transition flex-shrink-0";
-        btn.textContent = `${item.date} - ${item.prompt.substring(0, 12)}...`;
-        btn.onclick = () => {
-          updatePreview(item.code);
-          showToast("Carregado do histórico!");
-        };
-        historyList.appendChild(btn);
-      });
-    }
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>A gerar...</span>`;
 
-    function clearHistory() {
-      history = [];
-      localStorage.removeItem('radamn_history');
-      renderHistory();
-      showToast("Histórico limpo!");
-    }
+            try {
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        prompt: prompt,
+                        mode: currentMode,
+                        currentCode: latestCode
+                    })
+                });
 
-    // BOTÃO NOVO PROJETO
-    document.getElementById('btn-new-project').addEventListener('click', () => {
-      currentCode = '';
-      updatePreview('<div style="display:flex;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;color:#6b7280;">Novo projeto pronto. Digite uma instrução!</div>');
-      setMode('generate');
-      showToast("Projeto zerado!");
-    });
+                const data = await response.json();
+                
+                latestCode = data.code || '<div>Sem código gerado.</div>';
+                
+                // Renderiza no iframe
+                const frame = document.getElementById('preview-frame');
+                const frameDoc = frame.contentDocument || frame.contentWindow.document;
+                frameDoc.open();
+                frameDoc.write(latestCode);
+                frameDoc.close();
 
-    // EXPORTAÇÃO E DOWNLOAD
-    function copyCode() {
-      if (!currentCode) return showToast("Nenhum código para copiar!", "error");
-      navigator.clipboard.writeText(currentCode);
-      showToast("Código copiado!");
-    }
+                // Mostra no painel de código
+                document.getElementById('code-output').innerText = latestCode;
 
-    function downloadCode() {
-      if (!currentCode) return showToast("Nenhum código para baixar!", "error");
-      const blob = new Blob([currentCode], { type: 'text/html' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'index.html';
-      a.click();
-      showToast("Download iniciado!");
-    }
+                // Salva no histórico local
+                const timestamp = new Date().toLocaleTimeString();
+                historyData.unshift({ prompt, code: latestCode, time: timestamp });
+                if (historyData.length > 15) historyData.pop();
+                localStorage.setItem('radamn_history', JSON.stringify(historyData));
+                renderHistory();
 
-    function openFullPreview() {
-      if (!currentCode) return showToast("Nenhum código no preview!", "error");
-      const win = window.open();
-      win.document.write(currentCode);
-      win.document.close();
-    }
+                promptInput.value = '';
+                switchTab('preview');
 
-    // INICIALIZAÇÃO
-    renderHistory();
-  </script>
+            } catch (err) {
+                alert('Erro ao comunicar com o servidor: ' + err.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `<span>Enviar</span> <i class="fa-solid fa-paper-plane text-xs"></i>`;
+            }
+        }
+
+        function renderHistory() {
+            const list = document.getElementById('history-list');
+            if (historyData.length === 0) {
+                list.innerHTML = `<span class="text-slate-500 italic">Sem histórico recente.</span>`;
+                return;
+            }
+            list.innerHTML = historyData.map((item, index) => `
+                <button onclick="carregarHistorico(${index})" class="flex-shrink-0 bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 transition text-left max-w-[200px] truncate">
+                    <span class="text-indigo-400 font-mono">${item.time}</span> - ${item.prompt}
+                </button>
+            `).join('');
+        }
+
+        function carregarHistorico(index) {
+            const item = historyData[index];
+            if (!item) return;
+            latestCode = item.code;
+            
+            const frame = document.getElementById('preview-frame');
+            const frameDoc = frame.contentDocument || frame.contentWindow.document;
+            frameDoc.open();
+            frameDoc.write(latestCode);
+            frameDoc.close();
+
+            document.getElementById('code-output').innerText = latestCode;
+            switchTab('preview');
+        }
+
+        function limparHistorico() {
+            historyData = [];
+            localStorage.removeItem('radamn_history');
+            renderHistory();
+        }
+
+        function novoProjeto() {
+            latestCode = '';
+            document.getElementById('prompt-input').value = '';
+            document.getElementById('code-output').innerText = 'Aguardando geração de código...';
+            const frame = document.getElementById('preview-frame');
+            const frameDoc = frame.contentDocument || frame.contentWindow.document;
+            frameDoc.open();
+            frameDoc.write('<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;color:#64748b;">Novo projeto pronto. Envie um prompt!</div>');
+            frameDoc.close();
+        }
+
+        function copiarCodigo() {
+            navigator.clipboard.writeText(latestCode);
+            alert('Código copiado para a área de transferência!');
+        }
+
+        function baixarHtml() {
+            const blob = new Blob([latestCode], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'radamn-project.html';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function expandirPreview() {
+            const newWindow = window.open();
+            newWindow.document.write(latestCode);
+            newWindow.document.close();
+        }
+
+        // Inicializa histórico ao carregar
+        renderHistory();
+    </script>
 </body>
 </html>
