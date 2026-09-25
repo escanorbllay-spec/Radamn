@@ -33,34 +33,26 @@ export default async function handler(req, res) {
       systemInstruction = "Você é um Engenheiro de Software Full-Stack e Consultor de TI. Responda em texto corrido e amigável tirando dúvidas sem gerar páginas inteiras de código.";
     }
 
-    // Usando a rota de compatibilidade oficial do Gemini
-    const url = 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions';
-
-    // Lista de modelos suportados para fallback automático
-    const models = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-2.0-flash'];
+    // Lista com os modelos atuais disponíveis no Google AI Studio (2026)
+    const models = ['gemini-2.5-flash', 'gemini-3.5-flash', 'gemini-2.5-pro'];
     let lastError = null;
 
     for (const model of models) {
       try {
-        const response = await fetch(url, {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
           method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            model: model,
-            messages: [
-              { role: 'system', content: systemInstruction },
-              { role: 'user', content: userMessage }
-            ]
+            contents: [{
+              parts: [{ text: `${systemInstruction}\n\n${userMessage}` }]
+            }]
           })
         });
 
         const data = await response.json();
 
         if (response.ok) {
-          const outputText = data.choices?.[0]?.message?.content || '';
+          const outputText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
           const cleanCode = outputText.replace(/```html|```jsx|```javascript|```/g, '').trim();
 
           return res.status(200).json({ 
@@ -75,10 +67,10 @@ export default async function handler(req, res) {
       }
     }
 
-    // Retorno amigável caso haja erro de cota ou conexão
+    // Retorno visual amigável em caso de erro na API
     return res.status(200).json({
       code: `<div style="padding:2rem; text-align:center; color:#f59e0b; font-family:sans-serif;">
-        <h3>Erro na comunicação com a API</h3>
+        <h3>Erro na comunicação com a API Gemini</h3>
         <p>${lastError || 'Tente novamente em alguns instantes.'}</p>
       </div>`,
       text: `Erro na API: ${lastError || 'Instabilidade temporária'}`
