@@ -1,39 +1,58 @@
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ text: 'Método não permitido.' });
-  }
+  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  const { prompt } = req.body || {};
-  if (!prompt) {
-    return res.status(400).json({ text: 'Por favor, digite uma mensagem.' });
-  }
-
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    return res.status(500).json({ text: 'Erro: A GEMINI_API_KEY não foi encontrada na Vercel.' });
-  }
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Método não permitido' });
 
   try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }]
-        })
-      }
-    );
+    const { prompt, mode, currentCode } = req.body || {};
+    if (!prompt) return res.status(400).json({ error: 'Prompt não fornecido' });
+
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({ error: 'Chave GEMINI_API_KEY não configurada na Vercel.' });
+    }
+
+    let systemInstruction = "Você é um Engenheiro de Software Full-Stack Sênior e UI/UX Designer. Sua função é gerar código limpo, moderno, responsivo com Tailwind CSS e TOTALMENTE INTERATIVO em JavaScript nativo. Retorne EXCLUSIVAMENTE o código HTML/JS completo sem explicações em texto.";
+    
+    let userMessage = prompt;
+    if (mode === 'refine' && currentCode) {
+      userMessage = `Código HTML/JS Atual:\n${currentCode}\n\nSolicitação de Alteração do Usuário: ${prompt}`;
+    } else if (mode === 'chat') {
+      systemInstruction = "Você é um Engenheiro de Software Full-Stack e Consultor de TI. Responda em texto corrido e amigável tirando dúvidas sem gerar páginas inteiras de código.";
+    }
+
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{
+          parts: [{ text: `${systemInstruction}\n\n${userMessage}` }]
+        }]
+      })
+    });
 
     const data = await response.json();
 
     if (!response.ok) {
-      return res.status(500).json({ text: `Erro no Gemini: ${data.error?.message || 'Falha na comunicação.'}` });
+      return res.status(response.status).json({
+        error: `Erro no Gemini: ${data.error?.message || 'Erro ao comunicar com a IA'}`
+      });
     }
 
-    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    return res.status(200).json({ text: reply || 'Sem resposta recebida da IA.' });
-  } catch (error) {
-    return res.status(500).json({ text: `Erro interno: ${error.message}` });
+    const outputText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    const cleanCode = outputText.replace(/```html|```jsx|```javascript|```/g, '').trim();
+
+    if (mode === 'chat') {
+      return res.status(200).json({ text: outputText });
+    } else {
+      return res.status(200).json({ code: cleanCode });
+    }
+
+  } catch (err) {
+    return res.status(500).json({ error: 'Erro interno no servidor ao processar o prompt.' });
   }
 }
