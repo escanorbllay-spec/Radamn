@@ -33,8 +33,8 @@ export default async function handler(req, res) {
       systemInstruction = "Você é um Engenheiro de Software Full-Stack e Consultor de TI. Responda em texto corrido e amigável tirando dúvidas sem gerar páginas inteiras de código.";
     }
 
-    // Lista de modelos suportados para tentar fallback automático em caso de instabilidade
-    const models = ['gemini-2.0-flash', 'gemini-1.5-flash'];
+    // Modelos aceitos no v1beta com alias correto
+    const models = ['gemini-1.5-flash-latest', 'gemini-1.5-pro-latest', 'gemini-pro'];
     let lastError = null;
 
     for (const model of models) {
@@ -67,10 +67,10 @@ export default async function handler(req, res) {
       }
     }
 
-    // Fallback caso todos falhem
+    // Retorna mensagem visual caso falhe
     return res.status(200).json({
       code: `<div style="padding:2rem; text-align:center; color:#f59e0b; font-family:sans-serif;">
-        <h3>Servidores ocupados ou limite excedido</h3>
+        <h3>Erro na comunicação com o Gemini</h3>
         <p>${lastError || 'Tente novamente em alguns instantes.'}</p>
       </div>`,
       text: `Erro na API: ${lastError || 'Instabilidade temporária'}`
