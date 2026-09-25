@@ -140,7 +140,10 @@
             try {
                 const response = await fetch('/api/generate', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'x-radamn-key': 'JoJoStarOx'
+                    },
                     body: JSON.stringify({
                         prompt: prompt,
                         mode: currentMode,
