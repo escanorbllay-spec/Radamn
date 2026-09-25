@@ -30,35 +30,26 @@ export default async function handler(req, res) {
       systemInstruction = "Você é um Engenheiro de Software Full-Stack e Consultor de TI. Responda em texto corrido e amigável tirando dúvidas sem gerar páginas inteiras de código.";
     }
 
-    // Endpoint compatível OpenAI da Google
-    const url = 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions';
-
-    // Usando gemini-1.5-flash prioritariamente por ter maior quota e estabilidade na camada gratuita
-    const models = ['gemini-1.5-flash', 'gemini-2.5-flash'];
+    // Lista de modelos padrão garantidos
+    const candidateModels = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-1.0-pro'];
     let lastError = null;
 
-    for (const model of models) {
+    // Tenta primeiro os modelos conhecidos
+    for (const model of candidateModels) {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
       try {
         const response = await fetch(url, {
           method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            model: model,
-            messages: [
-              { role: 'system', content: systemInstruction },
-              { role: 'user', content: userMessage }
-            ],
-            temperature: 0.2
+            contents: [{ parts: [{ text: `${systemInstruction}\n\n${userMessage}` }] }]
           })
         });
 
         const data = await response.json();
 
-        if (response.ok && data.choices?.[0]?.message?.content) {
-          const outputText = data.choices[0].message.content;
+        if (response.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
+          const outputText = data.candidates[0].content.parts[0].text;
           const cleanCode = outputText.replace(/```html|```jsx|```javascript|```/g, '').trim();
 
           return res.status(200).json({ 
@@ -66,17 +57,46 @@ export default async function handler(req, res) {
             text: outputText || 'Sem texto gerado.' 
           });
         }
-
-        lastError = data.error?.message || `Erro HTTP ${response.status} no modelo ${model}`;
+        lastError = data.error?.message || `HTTP ${response.status} no modelo ${model}`;
       } catch (err) {
         lastError = err.message;
       }
     }
 
+    // Se todos falharem, faz busca dinâmica dos modelos disponíveis na sua chave
+    try {
+      const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
+      const listRes = await fetch(listUrl);
+      const listData = await listRes.json();
+      
+      if (listData.models && listData.models.length > 0) {
+        const dynamicModel = listData.models.find(m => m.supportedGenerationMethods?.includes('generateContent'))?.name;
+        
+        if (dynamicModel) {
+          const dynUrl = `https://generativelanguage.googleapis.com/v1beta/${dynamicModel}:generateContent?key=${apiKey}`;
+          const dynRes = await fetch(dynUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: `${systemInstruction}\n\n${userMessage}` }] }]
+            })
+          });
+          const dynData = await dynRes.json();
+          if (dynRes.ok && dynData.candidates?.[0]?.content?.parts?.[0]?.text) {
+            const outputText = dynData.candidates[0].content.parts[0].text;
+            const cleanCode = outputText.replace(/```html|```jsx|```javascript|```/g, '').trim();
+            return res.status(200).json({ code: cleanCode, text: outputText });
+          }
+        }
+      }
+    } catch (e) {
+      // Ignora erro de busca dinâmica
+    }
+
     return res.status(200).json({
       code: `<div style="padding:2rem; text-align:center; color:#ef4444; font-family:sans-serif;">
         <h3>Erro na API do Gemini</h3>
-        <p>${lastError || 'Falha ao comunicar com os modelos do Gemini.'}</p>
+        <p>${lastError || 'Nenhum modelo disponível para esta chave de API.'}</p>
       </div>`,
       text: `Erro Gemini: ${lastError}`
     });
