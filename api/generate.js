@@ -15,13 +15,13 @@ export default async function handler(req, res) {
 
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      return res.status(500).json({ 
+      return res.status(200).json({ 
         code: '<div style="padding:2rem;color:#ef4444;text-align:center;">Chave GEMINI_API_KEY não configurada na Vercel.</div>',
         text: 'Chave GEMINI_API_KEY não configurada na Vercel.' 
       });
     }
 
-    let systemInstruction = "Você é um Engenheiro de Software Full-Stack Sênior e UI/UX Designer. Sua função é gerar código limpo, moderno, responsivo com Tailwind CSS e TOTALMENTE INTERATIVO em JavaScript nativo. Retorne EXCLUSIVAMENTE o código HTML/JS completo em um único bloco sem explicações em texto.";
+    let systemInstruction = "Você é um Engenheiro de Software Full-Stack Sênior e UI/UX Designer. Sua função é gerar código limpo, moderno, responsivo com Tailwind CSS e TOTALMENTE INTERATIVO em JavaScript nativo. Retorne EXCLUSIVAMENTE o código HTML/JS completo sem explicações em texto.";
     
     let userMessage = prompt;
     if (mode === 'refine' && currentCode) {
@@ -30,53 +30,51 @@ export default async function handler(req, res) {
       systemInstruction = "Você é um Engenheiro de Software Full-Stack e Consultor de TI. Responda em texto corrido e amigável tirando dúvidas sem gerar páginas inteiras de código.";
     }
 
-    // Lista de modelos suportados para tentar na ordem caso um esteja saturado
-    const models = ['gemini-1.5-flash', 'gemini-1.5-pro'];
-    let lastError = null;
+    // Endpoint direto para o modelo gemini-2.0-flash
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
-    for (const model of models) {
-      try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: `${systemInstruction}\n\n${userMessage}` }] }]
-          })
-        });
-
-        const data = await response.json();
-
-        if (response.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
-          const outputText = data.candidates[0].content.parts[0].text;
-          const cleanCode = outputText.replace(/```html|```jsx|```javascript|```/g, '').trim();
-
-          return res.status(200).json({ 
-            code: cleanCode || '<div>Sem código gerado.</div>', 
-            text: outputText || 'Sem texto gerado.' 
-          });
-        } else {
-          lastError = data.error?.message || `Erro no modelo ${model}`;
-        }
-      } catch (err) {
-        lastError = err.message;
-      }
-    }
-
-    // Caso a quota da chave Gemini tenha esgotado temporariamente
-    return res.status(200).json({
-      code: `<div style="padding:2rem; text-align:center; color:#f59e0b; font-family:sans-serif;">
-        <h3>Limite da API Gemini Atingido</h3>
-        <p>A tua chave atingiu o limite temporário de requisições por minuto da Google. Aguarda cerca de 30 a 60 segundos e tenta novamente.</p>
-      </div>`,
-      text: `Erro Gemini: ${lastError || 'Quota temporariamente excedida'}`
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [
+          {
+            role: 'user',
+            parts: [{ text: `${systemInstruction}\n\n${userMessage}` }]
+          }
+        ]
+      })
     });
+
+    const data = await response.json();
+
+    if (response.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
+      const outputText = data.candidates[0].content.parts[0].text;
+      const cleanCode = outputText.replace(/```html|```jsx|```javascript|```/g, '').trim();
+
+      return res.status(200).json({ 
+        code: cleanCode || '<div>Sem código gerado.</div>', 
+        text: outputText || 'Sem texto gerado.' 
+      });
+    } else {
+      // Exibe o erro exato que a API do Gemini devolveu
+      const apiErrorMessage = data.error?.message || 'Erro ao processar na API do Gemini';
+      return res.status(200).json({
+        code: `<div style="padding:2rem; text-align:center; color:#ef4444; font-family:sans-serif;">
+          <h3>Erro na API do Gemini</h3>
+          <p>${apiErrorMessage}</p>
+        </div>`,
+        text: `Erro Gemini: ${apiErrorMessage}`
+      });
+    }
 
   } catch (err) {
     return res.status(200).json({ 
       code: `<div style="padding:2rem; text-align:center; color:#ef4444; font-family:sans-serif;">
-        <h3>Erro de servidor</h3>
+        <h3>Erro no Servidor</h3>
+        <p>${err.message}</p>
       </div>`,
-      text: 'Erro de servidor.' 
+      text: `Erro: ${err.message}` 
     });
   }
 }
