@@ -33,8 +33,8 @@ export default async function handler(req, res) {
       systemInstruction = "Você é um Engenheiro de Software Full-Stack e Consultor de TI. Responda em texto corrido e amigável tirando dúvidas sem gerar páginas inteiras de código.";
     }
 
-    // Lista com os modelos atuais disponíveis no Google AI Studio (2026)
-    const models = ['gemini-2.5-flash', 'gemini-3.5-flash', 'gemini-2.5-pro'];
+    // Modelo exigido pela API oficial do Gemini
+    const models = ['gemini-3.1-pro-preview', 'gemini-3.5-flash'];
     let lastError = null;
 
     for (const model of models) {
@@ -67,7 +67,6 @@ export default async function handler(req, res) {
       }
     }
 
-    // Retorno visual amigável em caso de erro na API
     return res.status(200).json({
       code: `<div style="padding:2rem; text-align:center; color:#f59e0b; font-family:sans-serif;">
         <h3>Erro na comunicação com a API Gemini</h3>
