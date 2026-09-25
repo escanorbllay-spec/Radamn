@@ -21,7 +21,7 @@ export default async function handler(req, res) {
       });
     }
 
-    let systemInstruction = "Você é um Engenheiro de Software Full-Stack Sênior e UI/UX Designer. Sua função é gerar código limpo, moderno, responsivo com Tailwind CSS e TOTALMENTE INTERATIVO em JavaScript nativo. Retorne EXCLUSIVAMENTE o código HTML/JS completo sem explicações em texto.";
+    let systemInstruction = "Você é um Engenheiro de Software Full-Stack Sênior e UI/UX Designer. Sua função é gerar código limpo, moderno, responsivo com Tailwind CSS e TOTALMENTE INTERATIVO em JavaScript nativo. Retorne EXCLUSIVAMENTE o código HTML/JS completo em um único bloco sem explicações em texto.";
     
     let userMessage = prompt;
     if (mode === 'refine' && currentCode) {
@@ -30,57 +30,50 @@ export default async function handler(req, res) {
       systemInstruction = "Você é um Engenheiro de Software Full-Stack e Consultor de TI. Responda em texto corrido e amigável tirando dúvidas sem gerar páginas inteiras de código.";
     }
 
-    // Lista de modelos em ordem de estabilidade
-    const models = ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-1.5-flash'];
+    // Configuração das rotas de fallback da API Gemini
+    const endpoints = [
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${apiKey}`
+    ];
+
     let lastError = null;
 
-    for (const model of models) {
-      // Tenta até 2 vezes por modelo em caso de servidor ocupado
-      for (let attempt = 0; attempt < 2; attempt++) {
-        try {
-          const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-          
-          const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: [{
-                role: 'user',
-                parts: [{ text: `${systemInstruction}\n\n${userMessage}` }]
-              }]
-            })
+    for (const url of endpoints) {
+      try {
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{
+              role: 'user',
+              parts: [{ text: `${systemInstruction}\n\n${userMessage}` }]
+            }]
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
+          const outputText = data.candidates[0].content.parts[0].text;
+          const cleanCode = outputText.replace(/```html|```jsx|```javascript|```/g, '').trim();
+
+          return res.status(200).json({ 
+            code: cleanCode || '<div>Sem código gerado.</div>', 
+            text: outputText || 'Sem texto gerado.' 
           });
-
-          const data = await response.json();
-
-          if (response.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
-            const outputText = data.candidates[0].content.parts[0].text;
-            const cleanCode = outputText.replace(/```html|```jsx|```javascript|```/g, '').trim();
-
-            return res.status(200).json({ 
-              code: cleanCode || '<div>Sem código gerado.</div>', 
-              text: outputText || 'Sem texto gerado.' 
-            });
-          }
-
-          lastError = data.error?.message || `Erro HTTP ${response.status}`;
-
-          // Se for alta demanda (503/429), espera 1 segundo e tenta de novo antes de mudar de modelo
-          if (response.status === 503 || response.status === 429 || lastError.includes('demand')) {
-            await new Promise(resolve => setTimeout(resolve, 1000));
-          } else {
-            break; // Se for erro de nome ou permissão, pula pro próximo modelo
-          }
-        } catch (err) {
-          lastError = err.message;
         }
+
+        lastError = data.error?.message || `Erro HTTP ${response.status}`;
+      } catch (err) {
+        lastError = err.message;
       }
     }
 
     return res.status(200).json({
       code: `<div style="padding:2rem; text-align:center; color:#ef4444; font-family:sans-serif;">
-        <h3>Servidores em alta demanda</h3>
-        <p>${lastError}</p>
+        <h3>Erro na comunicação com a API</h3>
+        <p>${lastError || 'Não foi possível conectar ao Gemini.'}</p>
       </div>`,
       text: `Erro Gemini: ${lastError}`
     });
