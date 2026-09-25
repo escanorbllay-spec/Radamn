@@ -30,42 +30,60 @@ export default async function handler(req, res) {
       systemInstruction = "Você é um Engenheiro de Software Full-Stack e Consultor de TI. Responda em texto corrido e amigável tirando dúvidas sem gerar páginas inteiras de código.";
     }
 
-    // Modelo exatamente exigido pela API atual do Gemini
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`;
+    // Lista de modelos em ordem de estabilidade
+    const models = ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-1.5-flash'];
+    let lastError = null;
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [
-          {
-            role: 'user',
-            parts: [{ text: `${systemInstruction}\n\n${userMessage}` }]
+    for (const model of models) {
+      // Tenta até 2 vezes por modelo em caso de servidor ocupado
+      for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+          const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+          
+          const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{
+                role: 'user',
+                parts: [{ text: `${systemInstruction}\n\n${userMessage}` }]
+              }]
+            })
+          });
+
+          const data = await response.json();
+
+          if (response.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
+            const outputText = data.candidates[0].content.parts[0].text;
+            const cleanCode = outputText.replace(/```html|```jsx|```javascript|```/g, '').trim();
+
+            return res.status(200).json({ 
+              code: cleanCode || '<div>Sem código gerado.</div>', 
+              text: outputText || 'Sem texto gerado.' 
+            });
           }
-        ]
-      })
-    });
 
-    const data = await response.json();
+          lastError = data.error?.message || `Erro HTTP ${response.status}`;
 
-    if (response.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
-      const outputText = data.candidates[0].content.parts[0].text;
-      const cleanCode = outputText.replace(/```html|```jsx|```javascript|```/g, '').trim();
-
-      return res.status(200).json({ 
-        code: cleanCode || '<div>Sem código gerado.</div>', 
-        text: outputText || 'Sem texto gerado.' 
-      });
-    } else {
-      const apiErrorMessage = data.error?.message || 'Erro ao processar na API do Gemini';
-      return res.status(200).json({
-        code: `<div style="padding:2rem; text-align:center; color:#ef4444; font-family:sans-serif;">
-          <h3>Erro na API do Gemini</h3>
-          <p>${apiErrorMessage}</p>
-        </div>`,
-        text: `Erro Gemini: ${apiErrorMessage}`
-      });
+          // Se for alta demanda (503/429), espera 1 segundo e tenta de novo antes de mudar de modelo
+          if (response.status === 503 || response.status === 429 || lastError.includes('demand')) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          } else {
+            break; // Se for erro de nome ou permissão, pula pro próximo modelo
+          }
+        } catch (err) {
+          lastError = err.message;
+        }
+      }
     }
+
+    return res.status(200).json({
+      code: `<div style="padding:2rem; text-align:center; color:#ef4444; font-family:sans-serif;">
+        <h3>Servidores em alta demanda</h3>
+        <p>${lastError}</p>
+      </div>`,
+      text: `Erro Gemini: ${lastError}`
+    });
 
   } catch (err) {
     return res.status(200).json({ 
