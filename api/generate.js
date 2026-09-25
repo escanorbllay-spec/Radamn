@@ -30,9 +30,42 @@ export default async function handler(req, res) {
       systemInstruction = "Você é um Engenheiro de Software Full-Stack e Consultor de TI. Responda em texto corrido e amigável tirando dúvidas sem gerar páginas inteiras de código.";
     }
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    // 1. Pergunta diretamente à API quais modelos estão disponíveis para esta chave
+    const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
+    const listRes = await fetch(listUrl);
+    const listData = await listRes.json();
 
-    const response = await fetch(url, {
+    if (!listRes.ok || !listData.models) {
+      return res.status(200).json({
+        code: `<div style="padding:2rem; text-align:center; color:#ef4444; font-family:sans-serif;">
+          <h3>Erro na Chave de API</h3>
+          <p>${listData.error?.message || 'Não foi possível listar os modelos. Verifique se a chave está correta.'}</p>
+        </div>`,
+        text: `Erro ao listar modelos: ${listData.error?.message || 'Chave inválida'}`
+      });
+    }
+
+    // 2. Encontra automaticamente um modelo válido que suporte geração de conteúdo
+    const validModel = listData.models.find(m => 
+      m.supportedGenerationMethods?.includes('generateContent') && 
+      (m.name.includes('flash') || m.name.includes('pro'))
+    ) || listData.models.find(m => m.supportedGenerationMethods?.includes('generateContent'));
+
+    if (!validModel) {
+      return res.status(200).json({
+        code: `<div style="padding:2rem; text-align:center; color:#ef4444; font-family:sans-serif;">
+          <h3>Nenhum modelo compatível</h3>
+          <p>Sua chave não possui modelos com suporte a generateContent habilitados.</p>
+        </div>`,
+        text: 'Nenhum modelo compatível encontrado.'
+      });
+    }
+
+    const modelName = validModel.name; // Ex: "models/gemini-1.5-flash"
+    const generateUrl = `https://generativelanguage.googleapis.com/v1beta/${modelName}:generateContent?key=${apiKey}`;
+
+    // 3. Executa a geração usando o modelo detetado
+    const response = await fetch(generateUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -55,7 +88,7 @@ export default async function handler(req, res) {
     const apiErrorMessage = data.error?.message || 'Erro ao processar na API do Gemini';
     return res.status(200).json({
       code: `<div style="padding:2rem; text-align:center; color:#ef4444; font-family:sans-serif;">
-        <h3>Erro na API do Gemini</h3>
+        <h3>Erro na API do Gemini (${modelName})</h3>
         <p>${apiErrorMessage}</p>
       </div>`,
       text: `Erro Gemini: ${apiErrorMessage}`
