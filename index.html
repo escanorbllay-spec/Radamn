@@ -249,11 +249,16 @@
 
                 if (data.type === 'image') {
                     target.innerHTML = `
-                        <p class="mb-2 text-slate-300">${data.response.split('\n')[0]}</p>
+                        <p class="mb-2 text-slate-300">${data.response ? data.response.split('\n')[0] : 'Imagem gerada:'}</p>
                         <img src="${data.imageUrl}" class="w-full max-w-sm rounded-2xl border border-slate-800 shadow-2xl">
                     `;
                 } else {
-                    target.innerHTML = typeof marked !== 'undefined' ? marked.parse(data.response) : data.response;
+                    // BLINDAAGEM CONTRA O ERRO DO MARKED
+                    let respostaTexto = data.response;
+                    if (!respostaTexto || typeof respostaTexto !== 'string') {
+                        respostaTexto = "⚠️ A resposta da API veio vazia ou ocorreu um erro de conexão.";
+                    }
+                    target.innerHTML = typeof marked !== 'undefined' ? marked.parse(respostaTexto) : respostaTexto;
                 }
 
             } catch (err) {
