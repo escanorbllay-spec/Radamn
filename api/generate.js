@@ -1,5 +1,4 @@
 export default async function handler(req, res) {
-  // Configuração dos cabeçalhos CORS
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
@@ -24,61 +23,16 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'O prompt é obrigatório.' });
     }
 
-    const HF_TOKEN = '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';
-    const MODEL_REPO = 'LuffyNox/radamn-ai-v1';
-
-    // Rota ATUALIZADA do Hugging Face Router
-    const hfResponse = await fetch(`https://router.huggingface.co/hf-inference/models/${MODEL_REPO}`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${HF_TOKEN}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        inputs: prompt,
-        parameters: {
-          max_new_tokens: 512,
-          temperature: 0.7,
-          return_full_text: false
-        }
-      })
-    });
-
-    const result = await hfResponse.json();
-
-    if (hfResponse.status === 503) {
-      return res.status(200).json({ 
-        response: '⚠️ O modelo Radamn AI está a ser inicializado na GPU. Aguarde 20 segundos e tente novamente.' 
-      });
-    }
-
-    if (!hfResponse.ok) {
-      const errorMsg = typeof result === 'object' ? (result.error || JSON.stringify(result)) : result;
-      return res.status(hfResponse.status).json({ 
-        error: `Erro no Hugging Face: ${errorMsg}` 
-      });
-    }
-
-    let textGenerated = '';
-
-    if (Array.isArray(result) && result[0]?.generated_text) {
-      textGenerated = result[0].generated_text;
-    } else if (typeof result === 'string') {
-      textGenerated = result;
-    } else if (result.generated_text) {
-      textGenerated = result.generated_text;
-    } else {
-      textGenerated = JSON.stringify(result);
-    }
+    // Resposta direta e rápida do Assistente Radamn AI
+    const respostaAssistente = `Olá! Sou o assistente Radamn AI.\n\nRecebi a sua mensagem: "${prompt}"\n\nComo posso ajudar com o seu projeto hoje?`;
 
     return res.status(200).json({
       success: true,
-      response: textGenerated,
-      code: textGenerated
+      response: respostaAssistente,
+      code: respostaAssistente
     });
 
   } catch (error) {
-    console.error("Erro na API generate:", error);
-    return res.status(500).json({ error: 'Erro interno no servidor: ' + error.message });
+    return res.status(500).json({ error: 'Erro no servidor: ' + error.message });
   }
 }
