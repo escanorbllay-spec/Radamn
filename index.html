@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR" class="dark">
 <head>
@@ -6,11 +7,6 @@
     <title>Radamn AI — Gemini Edition</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Marked.js para Markdown -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <!-- Highlight.js para destaque de sintaxe em códigos -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/tokyo-night-dark.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <style>
         ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: #090d16; }
@@ -18,17 +14,6 @@
         ::-webkit-scrollbar-thumb:hover { background: #334155; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        /* Estilização da renderização Markdown estilo Gemini */
-        .gemini-markdown p { margin-bottom: 0.75rem; line-height: 1.6; }
-        .gemini-markdown ul { list-style-type: disc; margin-left: 1.25rem; margin-bottom: 0.75rem; }
-        .gemini-markdown ol { list-style-type: decimal; margin-left: 1.25rem; margin-bottom: 0.75rem; }
-        .gemini-markdown code { background-color: #1e293b; padding: 0.2rem 0.4rem; border-radius: 0.375rem; font-family: monospace; font-size: 0.85em; }
-        .gemini-markdown pre code { background-color: transparent; padding: 0; }
-        .gemini-markdown pre { background-color: #0f172a; padding: 1rem; border-radius: 0.75rem; overflow-x: auto; border: 1px solid #1e293b; margin-bottom: 0.75rem; }
-        .gemini-markdown table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.85rem; }
-        .gemini-markdown th, .gemini-markdown td { border: 1px solid #334155; padding: 0.5rem 0.75rem; text-align: left; }
-        .gemini-markdown th { background-color: #1e293b; color: #cbd5e1; }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-indigo-500/30">
@@ -47,12 +32,10 @@
             </div>
         </div>
 
-        <div class="flex items-center space-x-2">
-            <button onclick="novoChat()" type="button" class="text-xs bg-slate-900 hover:bg-slate-800 text-slate-200 px-3 py-1.5 rounded-xl border border-slate-800 transition flex items-center space-x-1.5 shadow-sm active:scale-95">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                <span class="hidden sm:inline">Nova Conversa</span>
-            </button>
-        </div>
+        <button onclick="novoChat()" type="button" class="text-xs bg-slate-900 hover:bg-slate-800 text-slate-200 px-3 py-1.5 rounded-xl border border-slate-800 transition flex items-center space-x-1.5 shadow-sm active:scale-95">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            <span class="hidden sm:inline">Nova Conversa</span>
+        </button>
     </header>
 
     <!-- Side Menu Drawer -->
@@ -78,15 +61,15 @@
         </div>
 
         <div class="pt-4 border-t border-slate-800 text-[11px] text-slate-500 flex items-center justify-between">
-            <span>Powered by Vercel & AI Engine</span>
+            <span>Vercel Platform</span>
             <button onclick="limparHistorico()" class="text-rose-400 hover:underline">Limpar</button>
         </div>
     </aside>
 
     <!-- Main Chat Window -->
-    <main class="flex-1 max-w-4xl w-full mx-auto p-3 md:p-6 flex flex-col justify-between space-y-4 mb-28">
+    <main class="flex-1 max-w-3xl w-full mx-auto p-3 md:p-6 flex flex-col justify-between space-y-4 mb-32">
 
-        <!-- Modos de Operação (Tabs) -->
+        <!-- Modos de Operação -->
         <div class="grid grid-cols-3 gap-1.5 bg-slate-900/80 p-1.5 rounded-2xl border border-slate-800/80 shadow-inner">
             <button onclick="setMode('chat')" id="btn-chat" type="button" class="py-2 text-xs md:text-sm font-medium rounded-xl bg-indigo-600 text-white transition flex items-center justify-center space-x-1.5 shadow-lg shadow-indigo-600/20">
                 <span>💬 Assistente Gemini</span>
@@ -99,11 +82,11 @@
             </button>
         </div>
 
-        <!-- Feed do Chat / Mensagens -->
-        <div id="chat-feed" class="flex-1 space-y-6 min-h-[380px] pb-6">
+        <!-- Feed do Chat -->
+        <div id="chat-feed" class="flex-1 space-y-4 min-h-[350px] pb-6">
             
-            <!-- Mensagem de Boas-vindas Estilo Gemini -->
-            <div class="flex flex-col items-start space-y-3 bg-slate-900/40 border border-slate-800/60 rounded-3xl p-5 md:p-6 shadow-xl">
+            <!-- Mensagem Inicial -->
+            <div id="welcome-card" class="flex flex-col items-start space-y-3 bg-slate-900/40 border border-slate-800/60 rounded-3xl p-5 md:p-6 shadow-xl">
                 <div class="flex items-center space-x-3">
                     <div class="w-8 h-8 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-md">
                         ✦
@@ -114,74 +97,55 @@
                     </div>
                 </div>
 
-                <!-- Atalhos / Sugestões Rápidas em Cards -->
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 w-full pt-3">
-                    <button onclick="usarSugestao('Explique o conceito de computação quântica em linguagem simples.')" class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-indigo-500/50 hover:bg-slate-800/80 text-left transition group">
-                        <span class="text-xs font-semibold text-indigo-400 group-hover:text-indigo-300 block mb-1">💡 Explicar Conceito</span>
-                        <span class="text-[11px] text-slate-400 block line-clamp-2">Computação quântica em linguagem simples.</span>
+                    <button onclick="usarSugestao('Explique o conceito de inteligência artificial de forma simples.')" class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-indigo-500/50 text-left transition group">
+                        <span class="text-xs font-semibold text-indigo-400 block mb-1">💡 Explicar Conceito</span>
+                        <span class="text-[11px] text-slate-400 block line-clamp-2">Inteligência artificial de forma simples.</span>
                     </button>
-                    <button onclick="usarSugestao('Crie uma Landing Page moderna com Tailwind CSS para uma startup de IA.')" class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-indigo-500/50 hover:bg-slate-800/80 text-left transition group">
-                        <span class="text-xs font-semibold text-purple-400 group-hover:text-purple-300 block mb-1">🚀 Criar Interface</span>
-                        <span class="text-[11px] text-slate-400 block line-clamp-2">Landing page moderna com Tailwind.</span>
+                    <button onclick="usarSugestao('Crie uma Landing Page moderna em HTML e Tailwind CSS.')" class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-indigo-500/50 text-left transition group">
+                        <span class="text-xs font-semibold text-purple-400 block mb-1">🚀 Criar Interface</span>
+                        <span class="text-[11px] text-slate-400 block line-clamp-2">Landing page moderna em HTML/Tailwind.</span>
                     </button>
-                    <button onclick="usarSugestao('Escreva um script em Python para automação de tarefas diárias.')" class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-indigo-500/50 hover:bg-slate-800/80 text-left transition group">
-                        <span class="text-xs font-semibold text-emerald-400 group-hover:text-emerald-300 block mb-1">🐍 Código & Scripts</span>
-                        <span class="text-[11px] text-slate-400 block line-clamp-2">Script em Python para automação.</span>
+                    <button onclick="usarSugestao('Escreva um script em Python para organizar arquivos.')" class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-indigo-500/50 text-left transition group">
+                        <span class="text-xs font-semibold text-emerald-400 block mb-1">🐍 Código & Scripts</span>
+                        <span class="text-[11px] text-slate-400 block line-clamp-2">Script em Python para organizar arquivos.</span>
                     </button>
                 </div>
             </div>
 
         </div>
 
-        <!-- Seção de Preview Interativo de UI (Ativado no modo 'gerar UI') -->
+        <!-- Seção de Preview de UI -->
         <div id="ui-preview-section" class="hidden bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl transition-all">
             <div class="flex items-center justify-between px-4 py-2.5 bg-slate-950 border-b border-slate-800 text-xs">
-                <div class="flex space-x-1 bg-slate-900 p-1 rounded-xl border border-slate-800">
-                    <button onclick="switchPreviewTab('preview')" id="tab-prev" class="px-3 py-1 rounded-lg bg-indigo-600 text-white font-medium">Preview ao Vivo</button>
-                    <button onclick="switchPreviewTab('code')" id="tab-code" class="px-3 py-1 rounded-lg text-slate-400 hover:text-white">Código Fonte</button>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <button onclick="copiarCodigoUI()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1 rounded-lg border border-slate-700">📋 Copiar</button>
-                    <button onclick="expandirUI()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1 rounded-lg border border-slate-700">⛶ Tela Cheia</button>
-                </div>
+                <span class="text-indigo-400 font-mono">Preview de Interface</span>
+                <button onclick="expandirUI()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1 rounded-lg border border-slate-700">⛶ Tela Cheia</button>
             </div>
-            <div id="preview-tab-view" class="h-[400px] bg-slate-950 p-2">
+            <div class="h-[350px] bg-slate-950 p-2">
                 <iframe id="ui-iframe" class="w-full h-full bg-slate-900 rounded-xl border-0"></iframe>
-            </div>
-            <div id="code-tab-view" class="hidden h-[400px] bg-slate-950 p-2">
-                <textarea id="ui-code-editor" readonly class="w-full h-full bg-slate-900 text-indigo-300 font-mono text-xs p-3 rounded-xl border-0 resize-none focus:outline-none"></textarea>
             </div>
         </div>
 
     </main>
 
-    <!-- Floating Input Container (Estilo Gemini) -->
+    <!-- Floating Input Box -->
     <div class="fixed bottom-0 left-0 right-0 p-3 md:p-4 bg-gradient-to-t from-slate-950 via-slate-950/90 to-transparent backdrop-blur-md z-30">
         <div class="max-w-3xl mx-auto bg-slate-900/90 border border-slate-800 focus-within:border-indigo-500/60 rounded-3xl p-3 shadow-2xl transition-all">
-            <textarea id="prompt-input" rows="2" placeholder="Pergunte à Radamn AI ou descreva uma interface..." class="w-full bg-transparent text-slate-100 placeholder-slate-500 text-xs md:text-sm focus:outline-none resize-none px-2 leading-relaxed"></textarea>
+            <textarea id="prompt-input" rows="2" placeholder="Escreva a sua mensagem..." class="w-full bg-transparent text-slate-100 placeholder-slate-500 text-xs md:text-sm focus:outline-none resize-none px-2 leading-relaxed"></textarea>
             
             <div class="flex items-center justify-between pt-2 border-t border-slate-800/50">
-                <div class="flex items-center space-x-2">
-                    <span id="current-mode-badge" class="text-[10px] font-mono font-medium text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-2.5 py-0.5 rounded-full">Modo: Assistente</span>
-                </div>
+                <span id="current-mode-badge" class="text-[10px] font-mono font-medium text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-2.5 py-0.5 rounded-full">Modo: Assistente</span>
 
-                <button onclick="enviarMensagem()" id="submit-btn" type="button" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-2xl text-xs font-semibold transition-all flex items-center space-x-2 shadow-lg shadow-indigo-600/30 active:scale-95">
-                    <span>Enviar</span>
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                <button onclick="enviarMensagem()" id="submit-btn" type="button" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2 rounded-2xl text-xs font-semibold transition-all flex items-center space-x-2 shadow-lg shadow-indigo-600/30 active:scale-95">
+                    <span>Enviar</span> ➔
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- JavaScript Integrado -->
     <script>
         let currentMode = 'chat';
-        let latestGeneratedCode = '';
-        let chatHistory = [];
-
-        try {
-            chatHistory = JSON.parse(localStorage.getItem('radamn_gemini_history') || '[]');
-        } catch(e) { chatHistory = []; }
+        let latestCode = '';
 
         function toggleDrawer() {
             document.getElementById('drawer').classList.toggle('-translate-x-full');
@@ -198,34 +162,14 @@
             currentMode = mode;
             ['chat', 'gerar', 'refine'].forEach(m => {
                 const btn = document.getElementById(`btn-${m}`);
-                if (m === mode) {
-                    btn.className = "py-2 text-xs md:text-sm font-medium rounded-xl bg-indigo-600 text-white transition flex items-center justify-center space-x-1.5 shadow-lg shadow-indigo-600/20";
-                } else {
-                    btn.className = "py-2 text-xs md:text-sm font-medium rounded-xl text-slate-400 hover:text-white transition flex items-center justify-center space-x-1.5";
+                if (btn) {
+                    btn.className = m === mode 
+                        ? "py-2 text-xs md:text-sm font-medium rounded-xl bg-indigo-600 text-white transition flex items-center justify-center space-x-1.5 shadow-lg shadow-indigo-600/20"
+                        : "py-2 text-xs md:text-sm font-medium rounded-xl text-slate-400 hover:text-white transition flex items-center justify-center space-x-1.5";
                 }
             });
 
-            const badge = document.getElementById('current-mode-badge');
-            badge.innerText = `Modo: ${mode === 'chat' ? 'Assistente' : mode === 'gerar' ? 'Gerar UI' : 'Refinar'}`;
-
-            const uiSection = document.getElementById('ui-preview-section');
-            if (mode === 'gerar' && latestGeneratedCode) {
-                uiSection.classList.remove('hidden');
-            }
-        }
-
-        function switchPreviewTab(tab) {
-            if (tab === 'preview') {
-                document.getElementById('tab-prev').className = "px-3 py-1 rounded-lg bg-indigo-600 text-white font-medium";
-                document.getElementById('tab-code').className = "px-3 py-1 rounded-lg text-slate-400 hover:text-white";
-                document.getElementById('preview-tab-view').classList.remove('hidden');
-                document.getElementById('code-tab-view').classList.add('hidden');
-            } else {
-                document.getElementById('tab-code').className = "px-3 py-1 rounded-lg bg-indigo-600 text-white font-medium";
-                document.getElementById('tab-prev').className = "px-3 py-1 rounded-lg text-slate-400 hover:text-white";
-                document.getElementById('code-tab-view').classList.remove('hidden');
-                document.getElementById('preview-tab-view').classList.add('hidden');
-            }
+            document.getElementById('current-mode-badge').innerText = `Modo: ${mode === 'chat' ? 'Assistente' : mode === 'gerar' ? 'Gerar UI' : 'Refinar'}`;
         }
 
         async function enviarMensagem() {
@@ -236,40 +180,37 @@
 
             if (!texto) return;
 
-            // Insere a bolha do utilizador no chat (Alinhado à direita estilo Gemini)
-            const userMsgId = 'msg-' + Date.now();
+            // Esconde card inicial após primeiro envio
+            const welcomeCard = document.getElementById('welcome-card');
+            if (welcomeCard) welcomeCard.style.display = 'none';
+
+            // Bolha do Utilizador
             feed.innerHTML += `
-                <div class="flex justify-end">
-                    <div class="bg-indigo-600 text-white p-4 rounded-3xl rounded-tr-sm max-w-[85%] text-xs md:text-sm shadow-md">
+                <div class="flex justify-end my-3">
+                    <div class="bg-indigo-600 text-white p-3.5 rounded-2xl rounded-tr-sm max-w-[85%] text-xs md:text-sm shadow-md">
                         <p class="font-semibold text-[10px] text-indigo-200 mb-1">Você</p>
-                        <div class="whitespace-pre-wrap">${escapeHtml(texto)}</div>
+                        <p class="whitespace-pre-wrap">${texto}</p>
                     </div>
                 </div>
             `;
 
             input.value = '';
             btn.disabled = true;
-            btn.innerHTML = `<span>A processar...</span>`;
-            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+            btn.innerText = 'Enviando...';
 
-            // Cria o container de resposta com animação de a carregar
-            const aiMsgId = 'ai-' + Date.now();
+            // Container de carregamento da IA
+            const aiId = 'ai-' + Date.now();
             feed.innerHTML += `
-                <div class="flex items-start space-x-3" id="${aiMsgId}">
-                    <div class="w-7 h-7 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold shadow-md flex-shrink-0 mt-1">
-                        ✦
-                    </div>
-                    <div class="bg-slate-900 border border-slate-800/80 p-4 rounded-3xl rounded-tl-sm max-w-[90%] text-xs md:text-sm shadow-xl flex-1">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="font-semibold text-[10px] text-indigo-400 uppercase tracking-wider">Radamn AI</span>
-                            <button onclick="copiarTexto('${aiMsgId}-content')" class="text-[10px] text-slate-500 hover:text-slate-300 transition">📋 Copiar</button>
-                        </div>
-                        <div id="${aiMsgId}-content" class="gemini-markdown text-slate-200">
-                            <span class="animate-pulse text-indigo-400 font-mono">✦ A pensar...</span>
-                        </div>
+                <div class="flex items-start space-x-3 my-3" id="${aiId}">
+                    <div class="w-7 h-7 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold shadow-md flex-shrink-0 mt-1">✦</div>
+                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl rounded-tl-sm max-w-[90%] text-xs md:text-sm shadow-xl flex-1">
+                        <p class="font-semibold text-[10px] text-indigo-400 uppercase tracking-wider mb-1">Radamn AI</p>
+                        <div id="${aiId}-text" class="text-slate-200 whitespace-pre-wrap leading-relaxed"><span class="animate-pulse text-indigo-400 font-mono">A processar resposta...</span></div>
                     </div>
                 </div>
             `;
+
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
 
             try {
                 const response = await fetch('/api/generate', {
@@ -279,29 +220,48 @@
                 });
 
                 const data = await response.json();
-                const rawResponse = data.response || data.error || 'Sem resposta.';
+                const resposta = data.response || data.error || 'Sem resposta.';
 
-                const contentEl = document.getElementById(`${aiMsgId}-content`);
+                const target = document.getElementById(`${aiId}-text`);
+                if (target) target.innerText = resposta;
 
-                // Formatação Markdown com Marked.js
-                if (typeof marked !== 'undefined') {
-                    contentEl.innerHTML = marked.parse(rawResponse);
-                    // Aplica syntax highlight
-                    contentEl.querySelectorAll('pre code').forEach((block) => {
-                        hljs.highlightElement(block);
-                    });
-                } else {
-                    contentEl.innerText = rawResponse;
+                if (currentMode === 'gerar' || resposta.trim().startsWith('<')) {
+                    latestCode = resposta;
+                    renderizarIframe(resposta);
                 }
 
-                // Se for o modo 'gerar' UI e retornar código HTML
-                if (currentMode === 'gerar' || rawResponse.trim().startsWith('<')) {
-                    latestGeneratedCode = rawResponse;
-                    renderizarUI(rawResponse);
-                }
+            } catch (err) {
+                const target = document.getElementById(`${aiId}-text`);
+                if (target) target.innerText = '⚠️ Erro de conexão com a IA: ' + err.message;
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Enviar ➔';
+                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+            }
+        }
 
-                // Salva no histórico local
-                chatHistory.unshift({ prompt: texto, response: rawResponse, time: new Date().toLocaleTimeString() });
-                if (chatHistory.length > 20) chatHistory.pop();
-                localStorage.setItem('radamn_gemini_history', JSON.stringify(chatHistory));
-        
+        function renderizarIframe(codigo) {
+            const section = document.getElementById('ui-preview-section');
+            const iframe = document.getElementById('ui-iframe');
+            section.classList.remove('hidden');
+
+            const frameDoc = iframe.contentDocument || iframe.contentWindow.document;
+            frameDoc.open();
+            frameDoc.write(codigo);
+            frameDoc.close();
+        }
+
+        function expandirUI() {
+            if (latestCode) {
+                const win = window.open('', '_blank');
+                win.document.write(latestCode);
+                win.document.close();
+            }
+        }
+
+        function novoChat() {
+            location.reload();
+        }
+    </script>
+</body>
+</html>
