@@ -17,22 +17,29 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { prompt, mode } = req.body;
+    const { prompt } = req.body;
 
     if (!prompt) {
       return res.status(400).json({ error: 'O prompt é obrigatório.' });
     }
 
-    // Resposta direta e rápida do Assistente Radamn AI
-    const respostaAssistente = `Olá! Sou o assistente Radamn AI.\n\nRecebi a sua mensagem: "${prompt}"\n\nComo posso ajudar com o seu projeto hoje?`;
+    // Chamada para modelo de IA ativo e dinâmico (Pollinations AI / Llama-3 livre de cota)
+    const aiResponse = await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}?system=${encodeURIComponent("Você é a Radamn AI, um assistente inteligente e prestativo. Responda em português de forma clara e natural.")}`);
+
+    if (!aiResponse.ok) {
+      throw new Error("Falha ao obter resposta da IA");
+    }
+
+    const textGenerated = await aiResponse.text();
 
     return res.status(200).json({
       success: true,
-      response: respostaAssistente,
-      code: respostaAssistente
+      response: textGenerated,
+      code: textGenerated
     });
 
   } catch (error) {
-    return res.status(500).json({ error: 'Erro no servidor: ' + error.message });
+    console.error("Erro na API generate:", error);
+    return res.status(500).json({ error: 'Erro interno ao gerar resposta: ' + error.message });
   }
 }
