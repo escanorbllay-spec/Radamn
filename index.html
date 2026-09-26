@@ -4,8 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Radamn AI — Gateway Interface</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Prism.js para Destaque de Sintaxe -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
     <style>
         ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: #000000; }
@@ -13,6 +19,9 @@
         ::-webkit-scrollbar-thumb:hover { background: #334155; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Transição suave para o simulador de telas */
+        #preview-wrapper { transition: width 0.3s ease-in-out; }
     </style>
 </head>
 <body class="bg-black text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-indigo-500/30">
@@ -128,13 +137,29 @@
         </div>
 
         <!-- Output / Preview Section -->
-        <div class="bg-slate-950 border border-slate-800 rounded-2xl flex flex-col overflow-hidden shadow-2xl flex-1 min-h-[420px]">
-            <!-- Toolbar -->
+        <div class="bg-slate-950 border border-slate-800 rounded-2xl flex flex-col overflow-hidden shadow-2xl flex-1 min-h-[460px]">
+            <!-- Toolbar Superior -->
             <div class="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5 bg-black/80 border-b border-slate-800 text-xs">
+                <!-- Abas Preview/Código -->
                 <div class="flex space-x-1 bg-slate-900/80 p-1 rounded-xl border border-slate-800">
                     <button onclick="switchTab('preview')" id="tab-preview" type="button" class="px-3 py-1 rounded-lg bg-slate-800 text-white font-medium transition">Preview</button>
-                    <button onclick="switchTab('code')" id="tab-code" type="button" class="px-3 py-1 rounded-lg text-slate-400 hover:text-white transition">Código</button>
+                    <button onclick="switchTab('code')" id="tab-code" type="button" class="px-3 py-1 rounded-lg text-slate-400 hover:text-white transition">Código Interativo</button>
                 </div>
+
+                <!-- Simulador de Dispositivos (Device Toggle) -->
+                <div id="device-selector" class="flex space-x-1 bg-slate-900/80 p-1 rounded-xl border border-slate-800">
+                    <button onclick="setDevice('mobile')" id="dev-mobile" type="button" class="px-2.5 py-1 rounded-lg text-slate-400 hover:text-white transition" title="Telemóvel (375px)">
+                        <i class="fa-solid fa-mobile-screen-button"></i>
+                    </button>
+                    <button onclick="setDevice('tablet')" id="dev-tablet" type="button" class="px-2.5 py-1 rounded-lg text-slate-400 hover:text-white transition" title="Tablet (768px)">
+                        <i class="fa-solid fa-tablet-screen-button"></i>
+                    </button>
+                    <button onclick="setDevice('desktop')" id="dev-desktop" type="button" class="px-2.5 py-1 rounded-lg bg-slate-800 text-white transition" title="Desktop (100%)">
+                        <i class="fa-solid fa-desktop"></i>
+                    </button>
+                </div>
+
+                <!-- Botões de Ação -->
                 <div class="flex items-center space-x-1.5">
                     <button onclick="copiarCodigo()" type="button" class="bg-slate-900 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-xl transition flex items-center space-x-1.5 border border-slate-800">
                         <i class="fa-regular fa-copy"></i> <span>Copiar</span>
@@ -149,19 +174,36 @@
             </div>
 
             <!-- Content Area -->
-            <div class="relative flex-1 bg-black flex flex-col">
-                <div id="view-preview" class="absolute inset-0 w-full h-full flex flex-col">
-                    <iframe id="preview-frame" class="w-full h-full border-0 bg-white"></iframe>
+            <div class="relative flex-1 bg-black flex flex-col justify-center items-center overflow-hidden">
+                
+                <!-- Skeleton / Loading Screen Overlay -->
+                <div id="loading-overlay" class="absolute inset-0 bg-black/90 backdrop-blur-sm z-20 flex flex-col items-center justify-center space-y-3 hidden">
+                    <div class="w-10 h-10 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin"></div>
+                    <span class="text-xs text-indigo-400 font-mono tracking-wider animate-pulse">A GERAR INTERFACE...</span>
                 </div>
-                <div id="view-code" class="absolute inset-0 w-full h-full p-4 overflow-auto hidden bg-black">
-                    <pre><code id="code-output" class="text-xs font-mono text-indigo-300 leading-relaxed">Aguardando geração de código...</code></pre>
+
+                <!-- Preview Frame Container com simulador de tela -->
+                <div id="view-preview" class="w-full h-full flex justify-center items-center p-2">
+                    <div id="preview-wrapper" class="w-full h-full bg-white rounded-lg overflow-hidden shadow-2xl">
+                        <iframe id="preview-frame" class="w-full h-full border-0"></iframe>
+                    </div>
                 </div>
+
+                <!-- Code View (Live Editor com Destaque Syntax) -->
+                <div id="view-code" class="absolute inset-0 w-full h-full flex flex-col hidden bg-slate-950 p-2">
+                    <div class="flex items-center justify-between pb-2 px-2 text-[11px] text-slate-400 border-b border-slate-800">
+                        <span>Edição Direta: Altere o código abaixo e veja o preview atualizar em tempo real</span>
+                        <span class="text-indigo-400 font-mono">HTML + Tailwind</span>
+                    </div>
+                    <textarea id="code-editor" oninput="atualizarPreviewDoEditor()" class="w-full h-full bg-slate-900 text-indigo-200 font-mono text-xs p-3 focus:outline-none resize-none border-0 leading-relaxed rounded-b-xl"></textarea>
+                </div>
+
             </div>
         </div>
 
     </main>
 
-    <!-- JavaScript Preservado e Integrado -->
+    <!-- JavaScript Unificado -->
     <script>
         let currentMode = 'gerar';
         let latestCode = '';
@@ -199,12 +241,50 @@
                 document.getElementById('tab-code').className = "px-3 py-1 rounded-lg text-slate-400 hover:text-white transition";
                 document.getElementById('view-preview').classList.remove('hidden');
                 document.getElementById('view-code').classList.add('hidden');
+                document.getElementById('device-selector').classList.remove('hidden');
             } else {
                 document.getElementById('tab-code').className = "px-3 py-1 rounded-lg bg-slate-800 text-white font-medium transition";
                 document.getElementById('tab-preview').className = "px-3 py-1 rounded-lg text-slate-400 hover:text-white transition";
                 document.getElementById('view-code').classList.remove('hidden');
                 document.getElementById('view-preview').classList.add('hidden');
+                document.getElementById('device-selector').classList.add('hidden');
             }
+        }
+
+        /* Simulador de Dispositivos (Mobile / Tablet / Desktop) */
+        function setDevice(device) {
+            const wrapper = document.getElementById('preview-wrapper');
+            ['mobile', 'tablet', 'desktop'].forEach(d => {
+                const btn = document.getElementById(`dev-${d}`);
+                if (d === device) {
+                    btn.className = "px-2.5 py-1 rounded-lg bg-slate-800 text-white transition";
+                } else {
+                    btn.className = "px-2.5 py-1 rounded-lg text-slate-400 hover:text-white transition";
+                }
+            });
+
+            if (device === 'mobile') {
+                wrapper.style.width = '375px';
+            } else if (device === 'tablet') {
+                wrapper.style.width = '768px';
+            } else {
+                wrapper.style.width = '100%';
+            }
+        }
+
+        /* Atualização do Iframe */
+        function renderizarIframe(codigo) {
+            const frame = document.getElementById('preview-frame');
+            const frameDoc = frame.contentDocument || frame.contentWindow.document;
+            frameDoc.open();
+            frameDoc.write(codigo);
+            frameDoc.close();
+        }
+
+        /* Atualiza Preview quando o utilizador edita o código direto na aba "Código" */
+        function atualizarPreviewDoEditor() {
+            latestCode = document.getElementById('code-editor').value;
+            renderizarIframe(latestCode);
         }
 
         async function enviarPrompt() {
@@ -213,8 +293,11 @@
             if (!prompt) return;
 
             const submitBtn = document.getElementById('submit-btn');
+            const loadingOverlay = document.getElementById('loading-overlay');
+
             submitBtn.disabled = true;
             submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>A gerar...</span>`;
+            loadingOverlay.classList.remove('hidden');
 
             try {
                 const response = await fetch('/api/generate', {
@@ -236,107 +319,4 @@
                     throw new Error(data.error);
                 }
                 
-                latestCode = data.code || '<div>Sem código gerado.</div>';
-                
-                const frame = document.getElementById('preview-frame');
-                const frameDoc = frame.contentDocument || frame.contentWindow.document;
-                frameDoc.open();
-                frameDoc.write(latestCode);
-                frameDoc.close();
-
-                document.getElementById('code-output').innerText = latestCode;
-
-                const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                historyData.unshift({ prompt, code: latestCode, time: timestamp });
-                if (historyData.length > 15) historyData.pop();
-                localStorage.setItem('radamn_history', JSON.stringify(historyData));
-                renderHistory();
-
-                promptInput.value = '';
-                switchTab('preview');
-
-            } catch (err) {
-                alert('Erro na requisição: ' + err.message);
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = `<span>Gerar Código</span> <i class="fa-solid fa-paper-plane text-xs"></i>`;
-            }
-        }
-
-        function renderHistory() {
-            const list = document.getElementById('history-list');
-            if (historyData.length === 0) {
-                list.innerHTML = `<span class="text-slate-500 italic text-xs">Nenhuma geração salva ainda.</span>`;
-                return;
-            }
-            list.innerHTML = historyData.map((item, index) => {
-                const timeStr = item.time ? `<span class="text-indigo-400 font-mono">${item.time}</span> - ` : '';
-                return `
-                    <button onclick="carregarHistorico(${index})" type="button" class="flex-shrink-0 bg-slate-900/80 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-xl border border-slate-800 transition text-left max-w-[200px] truncate">
-                        ${timeStr}${item.prompt}
-                    </button>
-                `;
-            }).join('');
-        }
-
-        function carregarHistorico(index) {
-            const item = historyData[index];
-            if (!item) return;
-            latestCode = item.code;
-            
-            const frame = document.getElementById('preview-frame');
-            const frameDoc = frame.contentDocument || frame.contentWindow.document;
-            frameDoc.open();
-            frameDoc.write(latestCode);
-            frameDoc.close();
-
-            document.getElementById('code-output').innerText = latestCode;
-            switchTab('preview');
-        }
-
-        function limparHistorico() {
-            historyData = [];
-            localStorage.removeItem('radamn_history');
-            renderHistory();
-        }
-
-        function novoProjeto() {
-            latestCode = '';
-            document.getElementById('prompt-input').value = '';
-            document.getElementById('code-output').innerText = 'Aguardando geração de código...';
-            const frame = document.getElementById('preview-frame');
-            const frameDoc = frame.contentDocument || frame.contentWindow.document;
-            frameDoc.open();
-            frameDoc.write('<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;color:#64748b;background:#000000;">Novo projeto pronto. Digite um prompt!</div>');
-            frameDoc.close();
-        }
-
-        function copiarCodigo() {
-            if(!latestCode) return;
-            navigator.clipboard.writeText(latestCode);
-            alert('Código copiado!');
-        }
-
-        function baixarHtml() {
-            if(!latestCode) return;
-            const blob = new Blob([latestCode], { type: 'text/html' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'radamn-project.html';
-            a.click();
-            URL.revokeObjectURL(url);
-        }
-
-        function expandirPreview() {
-            if(!latestCode) return;
-            const newWindow = window.open();
-            newWindow.document.write(latestCode);
-            newWindow.document.close();
-        }
-
-        renderHistory();
-    </script>
-</body>
-</html>
-
+                latestCode = data.code
