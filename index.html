@@ -1,175 +1,202 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Radamn AI — Gemini Edition</title>
-    <!-- Tailwind CSS -->
+    <title>Radamn AI — Gemini Ultra Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
-        ::-webkit-scrollbar { width: 5px; height: 5px; }
-        ::-webkit-scrollbar-track { background: #090d16; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #000; }
         ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 9999px; }
-        ::-webkit-scrollbar-thumb:hover { background: #334155; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-indigo-500/30">
+<body class="bg-black text-slate-100 min-h-screen flex flex-col font-sans antialiased select-none">
 
-    <!-- Header Principal -->
-    <header class="flex items-center justify-between px-4 py-3 border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-md sticky top-0 z-30">
+    <!-- Header Estilo Gemini -->
+    <header class="flex items-center justify-between px-4 py-3 border-b border-slate-900 bg-slate-950/90 sticky top-0 z-30 backdrop-blur-md">
         <div class="flex items-center space-x-3">
-            <button onclick="toggleDrawer()" type="button" class="text-slate-400 hover:text-white p-2 rounded-xl border border-slate-800 bg-slate-900/60 active:scale-95 transition">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            <button onclick="toggleDrawer()" type="button" class="text-slate-300 p-1.5 hover:bg-slate-900 rounded-xl transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
             </button>
-            <div class="flex items-center space-x-2">
-                <div class="w-3 h-3 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 animate-pulse"></div>
-                <h1 class="font-bold text-base tracking-wide text-white flex items-center gap-2">
-                    Radamn <span class="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent font-mono text-xs px-2 py-0.5 rounded-full border border-indigo-500/30 bg-indigo-500/10">v1.0 Gemini Style</span>
-                </h1>
+            <div class="flex items-center space-x-1.5">
+                <span class="font-bold text-base text-white">Radamn</span>
+                <span class="text-xs text-slate-400">Flash ▾</span>
             </div>
         </div>
 
-        <button onclick="novoChat()" type="button" class="text-xs bg-slate-900 hover:bg-slate-800 text-slate-200 px-3 py-1.5 rounded-xl border border-slate-800 transition flex items-center space-x-1.5 shadow-sm active:scale-95">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-            <span class="hidden sm:inline">Nova Conversa</span>
-        </button>
+        <div class="flex items-center space-x-2">
+            <button onclick="novoChat()" class="text-slate-300 p-2 hover:bg-slate-900 rounded-xl">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+            </button>
+            <button onclick="toggleOptionsMenu()" class="text-slate-300 p-2 hover:bg-slate-900 rounded-xl relative">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path></svg>
+            </button>
+        </div>
     </header>
 
-    <!-- Side Menu Drawer -->
-    <div id="drawer-overlay" onclick="toggleDrawer()" class="fixed inset-0 bg-black/80 backdrop-blur-md z-40 hidden transition-opacity"></div>
-    <aside id="drawer" class="fixed top-0 left-0 bottom-0 w-72 bg-slate-950 border-r border-slate-800 z-50 transform -translate-x-full transition-transform duration-300 ease-in-out p-4 flex flex-col justify-between shadow-2xl">
-        <div class="space-y-6">
-            <div class="flex items-center justify-between pb-4 border-b border-slate-800">
-                <div class="flex items-center space-x-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span>
-                    <span class="font-bold text-sm uppercase text-white tracking-widest">Radamn AI</span>
-                </div>
-                <button onclick="toggleDrawer()" type="button" class="text-slate-400 hover:text-white p-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
+    <!-- Menu de Opções (3 Pontos no Topo Direito) -->
+    <div id="options-menu" class="hidden fixed top-14 right-4 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-2 w-56 z-50 text-xs space-y-1">
+        <button onclick="alert('Link da conversa copiado!')" class="w-full flex items-center space-x-2 p-2.5 hover:bg-slate-800 rounded-xl text-slate-200"><span>🔗</span><span>Partilhar conversa</span></button>
+        <button onclick="alert('Conversa fixada!')" class="w-full flex items-center space-x-2 p-2.5 hover:bg-slate-800 rounded-xl text-slate-200"><span>📌</span><span>Fixar</span></button>
+        <button onclick="renomearChat()" class="w-full flex items-center space-x-2 p-2.5 hover:bg-slate-800 rounded-xl text-slate-200"><span>✏️</span><span>Renomear</span></button>
+        <div class="border-t border-slate-800 my-1"></div>
+        <button onclick="alert('Centro de Ajuda Radamn AI')" class="w-full flex items-center space-x-2 p-2.5 hover:bg-slate-800 rounded-xl text-slate-200"><span>❓</span><span>Ajuda</span></button>
+        <button onclick="alert('Obrigado pelo feedback!')" class="w-full flex items-center space-x-2 p-2.5 hover:bg-slate-800 rounded-xl text-slate-200"><span>💬</span><span>Feedback</span></button>
+        <button onclick="novoChat()" class="w-full flex items-center space-x-2 p-2.5 hover:bg-slate-800 rounded-xl text-rose-400"><span>🗑️</span><span>Eliminar</span></button>
+    </div>
+
+    <!-- Side Menu Drawer (Esquerda) -->
+    <div id="drawer-overlay" onclick="toggleDrawer()" class="fixed inset-0 bg-black/80 backdrop-blur-md z-40 hidden"></div>
+    <aside id="drawer" class="fixed top-0 left-0 bottom-0 w-80 bg-slate-950 border-r border-slate-900 z-50 transform -translate-x-full transition-transform duration-300 p-4 flex flex-col justify-between">
+        <div class="space-y-4">
+            <div class="flex items-center justify-between pb-2">
+                <span class="font-bold text-base text-white">Radamn AI</span>
+                <button onclick="toggleDrawer()" class="text-slate-400 p-1">✕</button>
             </div>
 
-            <div>
-                <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-3">Histórico de Sessões</p>
-                <div id="drawer-history-list" class="space-y-2 overflow-y-auto max-h-[60vh] no-scrollbar">
-                    <span class="text-xs text-slate-600 italic">Sem histórico.</span>
+            <nav class="space-y-1 text-xs">
+                <button onclick="novoChat(); toggleDrawer();" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl hover:bg-slate-900 text-slate-200"><span>✏️</span><span>Nova conversa</span></button>
+                <button class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl hover:bg-slate-900 text-slate-200"><span>🔍</span><span>Pesquisar conversas</span></button>
+                <button onclick="ativarModoImagem(); toggleDrawer();" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl hover:bg-slate-900 text-slate-200"><span>🎨</span><span>Gerar Imagens HD</span></button>
+            </nav>
+
+            <div class="pt-4 border-t border-slate-900">
+                <p class="text-[10px] font-semibold text-slate-500 uppercase px-3 mb-2">Recentes</p>
+                <div id="drawer-history" class="space-y-1 max-h-60 overflow-y-auto text-xs text-slate-300">
+                    <div class="p-2.5 rounded-xl bg-slate-900/60 truncate">Conversa Ativa</div>
                 </div>
             </div>
         </div>
 
-        <div class="pt-4 border-t border-slate-800 text-[11px] text-slate-500 flex items-center justify-between">
-            <span>Vercel Platform</span>
-            <button onclick="limparHistorico()" class="text-rose-400 hover:underline">Limpar</button>
+        <div class="pt-4 border-t border-slate-900 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <div class="w-7 h-7 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-xs">W</div>
+                <span class="text-xs font-semibold text-slate-200">Wellerson Blay</span>
+            </div>
+            <button class="bg-indigo-600 text-white text-[10px] px-2.5 py-1 rounded-full font-semibold">Upgrade</button>
         </div>
     </aside>
 
-    <!-- Main Chat Window -->
-    <main class="flex-1 max-w-3xl w-full mx-auto p-3 md:p-6 flex flex-col justify-between space-y-4 mb-32">
+    <!-- Inputs Invisíveis para Abrir Recursos do Telemóvel -->
+    <input type="file" id="file-gallery" accept="image/*" class="hidden" onchange="processarImagemEnviada(event)">
+    <input type="file" id="file-camera" accept="image/*" capture="environment" class="hidden" onchange="processarImagemEnviada(event)">
+    <input type="file" id="file-docs" class="hidden" onchange="alert('Ficheiro anexado!')">
 
-        <!-- Modos de Operação -->
-        <div class="grid grid-cols-3 gap-1.5 bg-slate-900/80 p-1.5 rounded-2xl border border-slate-800/80 shadow-inner">
-            <button onclick="setMode('chat')" id="btn-chat" type="button" class="py-2 text-xs md:text-sm font-medium rounded-xl bg-indigo-600 text-white transition flex items-center justify-center space-x-1.5 shadow-lg shadow-indigo-600/20">
-                <span>💬 Assistente Gemini</span>
+    <!-- Modal / Drawer Inferior de Ferramentas (Botão +) -->
+    <div id="tools-modal-overlay" onclick="toggleToolsModal()" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 hidden"></div>
+    <div id="tools-modal" class="fixed bottom-0 left-0 right-0 bg-slate-950 border-t border-slate-800 rounded-t-3xl z-50 transform translate-y-full transition-transform duration-300 p-5 max-w-2xl mx-auto shadow-2xl">
+        <div class="w-12 h-1 bg-slate-800 rounded-full mx-auto mb-4"></div>
+
+        <!-- Grade de Ícones de Acesso Rápido ao Telemóvel -->
+        <div class="grid grid-cols-4 gap-3 mb-6 text-center text-xs text-slate-300">
+            <button onclick="document.getElementById('file-gallery').click(); toggleToolsModal();" class="flex flex-col items-center p-3 rounded-2xl bg-slate-900 hover:bg-slate-800 border border-slate-800">
+                <span class="text-2xl mb-1">🖼️</span>
+                <span>Fotos</span>
             </button>
-            <button onclick="setMode('gerar')" id="btn-gerar" type="button" class="py-2 text-xs md:text-sm font-medium rounded-xl text-slate-400 hover:text-white transition flex items-center justify-center space-x-1.5">
-                <span>✨ Gerar UI HTML</span>
+            <button onclick="document.getElementById('file-camera').click(); toggleToolsModal();" class="flex flex-col items-center p-3 rounded-2xl bg-slate-900 hover:bg-slate-800 border border-slate-800">
+                <span class="text-2xl mb-1">📷</span>
+                <span>Câmara</span>
             </button>
-            <button onclick="setMode('refine')" id="btn-refine" type="button" class="py-2 text-xs md:text-sm font-medium rounded-xl text-slate-400 hover:text-white transition flex items-center justify-center space-x-1.5">
-                <span>🎛️ Refinar Código</span>
+            <button onclick="document.getElementById('file-docs').click(); toggleToolsModal();" class="flex flex-col items-center p-3 rounded-2xl bg-slate-900 hover:bg-slate-800 border border-slate-800">
+                <span class="text-2xl mb-1">📎</span>
+                <span>Arquivos</span>
+            </button>
+            <button onclick="alert('Conectado ao Drive!'); toggleToolsModal();" class="flex flex-col items-center p-3 rounded-2xl bg-slate-900 hover:bg-slate-800 border border-slate-800">
+                <span class="text-2xl mb-1">☁️</span>
+                <span>Drive</span>
             </button>
         </div>
 
-        <!-- Feed do Chat -->
-        <div id="chat-feed" class="flex-1 space-y-4 min-h-[350px] pb-6">
-            
-            <!-- Mensagem Inicial -->
-            <div id="welcome-card" class="flex flex-col items-start space-y-3 bg-slate-900/40 border border-slate-800/60 rounded-3xl p-5 md:p-6 shadow-xl">
+        <!-- Lista de Modos de IA -->
+        <div class="space-y-2 text-xs">
+            <button onclick="ativarModoImagem(); toggleToolsModal();" class="w-full flex items-center justify-between p-3 rounded-2xl bg-slate-900 border border-slate-800 hover:border-indigo-500">
                 <div class="flex items-center space-x-3">
-                    <div class="w-8 h-8 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-md">
-                        ✦
-                    </div>
-                    <div>
-                        <h2 class="font-bold text-sm md:text-base text-white">Olá, Eu sou a Radamn AI</h2>
-                        <p class="text-xs text-slate-400">Como posso ajudar na sua criação hoje?</p>
-                    </div>
+                    <span class="text-lg">🎨</span>
+                    <div class="text-left"><p class="font-semibold text-slate-100">Imagens</p><p class="text-[10px] text-slate-400">Crie e edite imagens HD</p></div>
                 </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 w-full pt-3">
-                    <button onclick="usarSugestao('Explique o conceito de inteligência artificial de forma simples.')" class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-indigo-500/50 text-left transition group">
-                        <span class="text-xs font-semibold text-indigo-400 block mb-1">💡 Explicar Conceito</span>
-                        <span class="text-[11px] text-slate-400 block line-clamp-2">Inteligência artificial de forma simples.</span>
-                    </button>
-                    <button onclick="usarSugestao('Crie uma Landing Page moderna em HTML e Tailwind CSS.')" class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-indigo-500/50 text-left transition group">
-                        <span class="text-xs font-semibold text-purple-400 block mb-1">🚀 Criar Interface</span>
-                        <span class="text-[11px] text-slate-400 block line-clamp-2">Landing page moderna em HTML/Tailwind.</span>
-                    </button>
-                    <button onclick="usarSugestao('Escreva um script em Python para organizar arquivos.')" class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-indigo-500/50 text-left transition group">
-                        <span class="text-xs font-semibold text-emerald-400 block mb-1">🐍 Código & Scripts</span>
-                        <span class="text-[11px] text-slate-400 block line-clamp-2">Script em Python para organizar arquivos.</span>
-                    </button>
+            </button>
+            <button onclick="alert('Modo Canvas ativado'); toggleToolsModal();" class="w-full flex items-center justify-between p-3 rounded-2xl bg-slate-900 border border-slate-800 hover:border-indigo-500">
+                <div class="flex items-center space-x-3">
+                    <span class="text-lg">📊</span>
+                    <div class="text-left"><p class="font-semibold text-slate-100">Canvas</p><p class="text-[10px] text-slate-400">Programe, escreva ou crie apresentações</p></div>
                 </div>
-            </div>
-
+            </button>
         </div>
+    </div>
 
-        <!-- Seção de Preview de UI -->
-        <div id="ui-preview-section" class="hidden bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl transition-all">
-            <div class="flex items-center justify-between px-4 py-2.5 bg-slate-950 border-b border-slate-800 text-xs">
-                <span class="text-indigo-400 font-mono">Preview de Interface</span>
-                <button onclick="expandirUI()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1 rounded-lg border border-slate-700">⛶ Tela Cheia</button>
-            </div>
-            <div class="h-[350px] bg-slate-950 p-2">
-                <iframe id="ui-iframe" class="w-full h-full bg-slate-900 rounded-xl border-0"></iframe>
-            </div>
+    <!-- Feed de Mensagens -->
+    <main id="chat-feed" class="flex-1 max-w-3xl w-full mx-auto p-4 space-y-4 mb-32">
+        <div id="welcome-msg" class="bg-slate-900/40 border border-slate-800/80 p-4 rounded-3xl text-xs text-slate-300">
+            💬 <b>Radamn AI:</b> Olá! Como posso ajudar na sua criação hoje?
         </div>
-
     </main>
 
-    <!-- Floating Input Box -->
-    <div class="fixed bottom-0 left-0 right-0 p-3 md:p-4 bg-gradient-to-t from-slate-950 via-slate-950/90 to-transparent backdrop-blur-md z-30">
-        <div class="max-w-3xl mx-auto bg-slate-900/90 border border-slate-800 focus-within:border-indigo-500/60 rounded-3xl p-3 shadow-2xl transition-all">
-            <textarea id="prompt-input" rows="2" placeholder="Escreva a sua mensagem..." class="w-full bg-transparent text-slate-100 placeholder-slate-500 text-xs md:text-sm focus:outline-none resize-none px-2 leading-relaxed"></textarea>
+    <!-- Barra de Entrada Flutuante (Estilo Gemini) -->
+    <div class="fixed bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black via-black/90 to-transparent z-30">
+        <div class="max-w-2xl mx-auto bg-slate-900 border border-slate-800 rounded-3xl p-2.5 shadow-2xl flex flex-col space-y-2">
             
-            <div class="flex items-center justify-between pt-2 border-t border-slate-800/50">
-                <span id="current-mode-badge" class="text-[10px] font-mono font-medium text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-2.5 py-0.5 rounded-full">Modo: Assistente</span>
+            <!-- Preview da Imagem Selecionada -->
+            <div id="image-preview-container" class="hidden relative w-16 h-16 rounded-xl overflow-hidden border border-indigo-500">
+                <img id="image-preview-img" class="w-full h-full object-cover">
+                <button onclick="removerImagemAnexa()" class="absolute top-0 right-0 bg-black/80 text-white rounded-bl p-0.5 text-[10px]">✕</button>
+            </div>
 
-                <button onclick="enviarMensagem()" id="submit-btn" type="button" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2 rounded-2xl text-xs font-semibold transition-all flex items-center space-x-2 shadow-lg shadow-indigo-600/30 active:scale-95">
-                    <span>Enviar</span> ➔
+            <textarea id="prompt-input" rows="2" placeholder="Escreva a sua mensagem..." class="w-full bg-transparent text-slate-100 placeholder-slate-500 text-xs focus:outline-none resize-none px-2 leading-relaxed"></textarea>
+            
+            <div class="flex items-center justify-between pt-1 border-t border-slate-800/60">
+                <button onclick="toggleToolsModal()" type="button" class="p-2 text-slate-300 hover:text-white bg-slate-800 rounded-full transition active:scale-95">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                </button>
+
+                <button onclick="enviarMensagem()" id="submit-btn" type="button" class="w-9 h-9 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full flex items-center justify-center transition shadow-lg shadow-indigo-600/30 active:scale-90">
+                    <svg class="w-4 h-4 transform rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19V5m0 0l-7 7m7-7l7 7"></path></svg>
                 </button>
             </div>
         </div>
     </div>
 
     <script>
-        let currentMode = 'chat';
-        let latestCode = '';
+        let base64Image = null;
 
         function toggleDrawer() {
             document.getElementById('drawer').classList.toggle('-translate-x-full');
             document.getElementById('drawer-overlay').classList.toggle('hidden');
         }
 
-        function usarSugestao(texto) {
-            const input = document.getElementById('prompt-input');
-            input.value = texto;
-            input.focus();
+        function toggleOptionsMenu() {
+            document.getElementById('options-menu').classList.toggle('hidden');
         }
 
-        function setMode(mode) {
-            currentMode = mode;
-            ['chat', 'gerar', 'refine'].forEach(m => {
-                const btn = document.getElementById(`btn-${m}`);
-                if (btn) {
-                    btn.className = m === mode 
-                        ? "py-2 text-xs md:text-sm font-medium rounded-xl bg-indigo-600 text-white transition flex items-center justify-center space-x-1.5 shadow-lg shadow-indigo-600/20"
-                        : "py-2 text-xs md:text-sm font-medium rounded-xl text-slate-400 hover:text-white transition flex items-center justify-center space-x-1.5";
-                }
-            });
+        function toggleToolsModal() {
+            document.getElementById('tools-modal').classList.toggle('translate-y-full');
+            document.getElementById('tools-modal-overlay').classList.toggle('hidden');
+        }
 
-            document.getElementById('current-mode-badge').innerText = `Modo: ${mode === 'chat' ? 'Assistente' : mode === 'gerar' ? 'Gerar UI' : 'Refinar'}`;
+        function processarImagemEnviada(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    base64Image = e.target.result;
+                    document.getElementById('image-preview-img').src = base64Image;
+                    document.getElementById('image-preview-container').classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function removerImagemAnexa() {
+            base64Image = null;
+            document.getElementById('image-preview-container').classList.add('hidden');
+        }
+
+        function ativarModoImagem() {
+            const input = document.getElementById('prompt-input');
+            input.value = "Crie uma imagem em alta definição de ";
+            input.focus();
         }
 
         async function enviarMensagem() {
@@ -178,34 +205,32 @@
             const btn = document.getElementById('submit-btn');
             const texto = input.value.trim();
 
-            if (!texto) return;
+            if (!texto && !base64Image) return;
 
-            // Esconde card inicial após primeiro envio
-            const welcomeCard = document.getElementById('welcome-card');
-            if (welcomeCard) welcomeCard.style.display = 'none';
+            const welcome = document.getElementById('welcome-msg');
+            if (welcome) welcome.remove();
 
-            // Bolha do Utilizador
+            // Mensagem do Utilizador
             feed.innerHTML += `
-                <div class="flex justify-end my-3">
-                    <div class="bg-indigo-600 text-white p-3.5 rounded-2xl rounded-tr-sm max-w-[85%] text-xs md:text-sm shadow-md">
-                        <p class="font-semibold text-[10px] text-indigo-200 mb-1">Você</p>
+                <div class="flex justify-end my-2">
+                    <div class="bg-indigo-600 text-white p-3 rounded-2xl rounded-tr-sm max-w-[85%] text-xs shadow-md">
+                        ${base64Image ? `<img src="${base64Image}" class="w-32 h-32 object-cover rounded-lg mb-2">` : ''}
                         <p class="whitespace-pre-wrap">${texto}</p>
                     </div>
                 </div>
             `;
 
+            const imgTemp = base64Image;
             input.value = '';
+            removerImagemAnexa();
             btn.disabled = true;
-            btn.innerText = 'Enviando...';
 
-            // Container de carregamento da IA
             const aiId = 'ai-' + Date.now();
             feed.innerHTML += `
-                <div class="flex items-start space-x-3 my-3" id="${aiId}">
-                    <div class="w-7 h-7 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold shadow-md flex-shrink-0 mt-1">✦</div>
-                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl rounded-tl-sm max-w-[90%] text-xs md:text-sm shadow-xl flex-1">
-                        <p class="font-semibold text-[10px] text-indigo-400 uppercase tracking-wider mb-1">Radamn AI</p>
-                        <div id="${aiId}-text" class="text-slate-200 whitespace-pre-wrap leading-relaxed"><span class="animate-pulse text-indigo-400 font-mono">A processar resposta...</span></div>
+                <div class="flex items-start space-x-2 my-2" id="${aiId}">
+                    <div class="w-6 h-6 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0 mt-1">✦</div>
+                    <div class="bg-slate-900 border border-slate-800 p-3 rounded-2xl rounded-tl-sm max-w-[90%] text-xs shadow-xl flex-1">
+                        <div id="${aiId}-text" class="text-slate-200"><span class="animate-pulse text-indigo-400">A processar...</span></div>
                     </div>
                 </div>
             `;
@@ -216,51 +241,36 @@
                 const response = await fetch('/api/generate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt: texto, mode: currentMode })
+                    body: JSON.stringify({ prompt: texto, image: imgTemp })
                 });
 
                 const data = await response.json();
-                const resposta = data.response || data.error || 'Sem resposta.';
-
                 const target = document.getElementById(`${aiId}-text`);
-                if (target) target.innerText = resposta;
 
-                if (currentMode === 'gerar' || resposta.trim().startsWith('<')) {
-                    latestCode = resposta;
-                    renderizarIframe(resposta);
+                if (data.type === 'image') {
+                    target.innerHTML = `
+                        <p class="mb-2 text-slate-300">${data.response.split('\n')[0]}</p>
+                        <img src="${data.imageUrl}" class="w-full max-w-sm rounded-2xl border border-slate-800 shadow-2xl">
+                    `;
+                } else {
+                    target.innerHTML = typeof marked !== 'undefined' ? marked.parse(data.response) : data.response;
                 }
 
             } catch (err) {
-                const target = document.getElementById(`${aiId}-text`);
-                if (target) target.innerText = '⚠️ Erro de conexão com a IA: ' + err.message;
+                document.getElementById(`${aiId}-text`).innerText = '⚠️ Erro ao comunicar com a IA: ' + err.message;
             } finally {
                 btn.disabled = false;
-                btn.innerText = 'Enviar ➔';
                 window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-            }
-        }
-
-        function renderizarIframe(codigo) {
-            const section = document.getElementById('ui-preview-section');
-            const iframe = document.getElementById('ui-iframe');
-            section.classList.remove('hidden');
-
-            const frameDoc = iframe.contentDocument || iframe.contentWindow.document;
-            frameDoc.open();
-            frameDoc.write(codigo);
-            frameDoc.close();
-        }
-
-        function expandirUI() {
-            if (latestCode) {
-                const win = window.open('', '_blank');
-                win.document.write(latestCode);
-                win.document.close();
             }
         }
 
         function novoChat() {
             location.reload();
+        }
+
+        function renomearChat() {
+            const novoNome = prompt("Nome da conversa:");
+            if (novoNome) alert("Conversa renomeada para: " + novoNome);
         }
     </script>
 </body>
