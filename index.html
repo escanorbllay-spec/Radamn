@@ -6,109 +6,194 @@
     <title>Radamn AI</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Personalização de Scrollbar estilo v0 */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #020617; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-indigo-500/30">
+
+    <!-- Drawer / Menu Lateral Secreto -->
+    <div id="drawer-overlay" onclick="toggleDrawer()" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-40 hidden transition-opacity"></div>
+    <aside id="drawer" class="fixed top-0 left-0 bottom-0 w-72 bg-slate-900 border-r border-slate-800 z-50 transform -translate-x-full transition-transform duration-300 ease-in-out p-4 flex flex-col justify-between shadow-2xl">
+        <div class="space-y-6">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+                <div class="flex items-center space-x-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse"></span>
+                    <span class="font-bold text-sm tracking-wider uppercase text-white">Radamn Workspace</span>
+                </div>
+                <button onclick="toggleDrawer()" class="text-slate-400 hover:text-white p-1 rounded-lg">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            
+            <nav class="space-y-1">
+                <button onclick="novoProjeto(); toggleDrawer();" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs transition shadow-md shadow-indigo-600/20">
+                    <i class="fa-solid fa-plus"></i> <span>Criar Novo Projeto</span>
+                </button>
+                <div class="pt-4">
+                    <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider px-3 mb-2">Projetos & Sessões</p>
+                    <a href="#" class="flex items-center space-x-3 px-3 py-2 rounded-xl text-xs text-slate-300 bg-slate-800/60 border border-slate-700/50">
+                        <i class="fa-solid fa-code text-indigo-400"></i>
+                        <span class="truncate">Sessão Atual</span>
+                    </a>
+                </div>
+            </nav>
+        </div>
+
+        <div class="pt-4 border-t border-slate-800 text-xs text-slate-500 flex items-center justify-between">
+            <span>Gateway V1 Active</span>
+            <span class="text-emerald-400 flex items-center gap-1"><i class="fa-solid fa-shield-halved text-[10px]"></i> Protegido</span>
+        </div>
+    </aside>
 
     <!-- Header -->
-    <header class="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-900/50 backdrop-blur">
-        <div class="flex items-center space-x-2">
-            <span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
-            <h1 class="font-bold text-lg tracking-wide text-white">Radamn AI</h1>
+    <header class="flex items-center justify-between px-4 md:px-6 py-3.5 border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md sticky top-0 z-30">
+        <div class="flex items-center space-x-3">
+            <button onclick="toggleDrawer()" class="text-slate-400 hover:text-white p-1.5 rounded-lg border border-slate-800 bg-slate-900 transition">
+                <i class="fa-solid fa-bars text-sm"></i>
+            </button>
+            <div class="flex items-center space-x-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <h1 class="font-bold text-base tracking-wide text-white">Radamn <span class="text-indigo-400 text-xs px-1.5 py-0.5 rounded border border-indigo-500/30 bg-indigo-500/10">v0.dev</span></h1>
+            </div>
         </div>
-        <button onclick="novoProjeto()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 transition">
-            + Novo Projeto
-        </button>
+        
+        <div class="flex items-center space-x-2">
+            <button onclick="novoProjeto()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-xl border border-slate-700/80 transition flex items-center space-x-1.5 shadow-sm">
+                <i class="fa-solid fa-plus text-[10px]"></i> <span class="hidden sm:inline">Novo Projeto</span>
+            </button>
+        </div>
     </header>
 
     <!-- Main Container -->
-    <main class="flex-1 max-w-4xl w-full mx-auto p-4 flex flex-col space-y-4">
+    <main class="flex-1 max-w-5xl w-full mx-auto p-3 md:p-6 flex flex-col space-y-4">
 
-        <!-- Mode Selector -->
-        <div class="grid grid-cols-3 gap-2 bg-slate-900 p-1.5 rounded-xl border border-slate-800">
-            <button onclick="setMode('gerar')" id="btn-gerar" class="py-2 text-sm font-medium rounded-lg bg-indigo-600 text-white transition flex items-center justify-center space-x-2 shadow-md shadow-indigo-600/20">
-                <i class="fa-solid fa-wand-magic-sparkles"></i> <span>Gerar</span>
+        <!-- Mode Selector Tabs (Estilo v0) -->
+        <div class="grid grid-cols-3 gap-1.5 bg-slate-900/90 p-1.5 rounded-2xl border border-slate-800/80 shadow-inner">
+            <button onclick="setMode('gerar')" id="btn-gerar" class="py-2 text-xs md:text-sm font-medium rounded-xl bg-indigo-600 text-white transition flex items-center justify-center space-x-2 shadow-lg shadow-indigo-600/25">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> <span>Gerar UI</span>
             </button>
-            <button onclick="setMode('refine')" id="btn-refine" class="py-2 text-sm font-medium rounded-lg text-slate-400 hover:text-white transition flex items-center justify-center space-x-2">
+            <button onclick="setMode('refine')" id="btn-refine" class="py-2 text-xs md:text-sm font-medium rounded-xl text-slate-400 hover:text-white transition flex items-center justify-center space-x-2">
                 <i class="fa-solid fa-sliders"></i> <span>Refinar</span>
             </button>
-            <button onclick="setMode('chat')" id="btn-chat" class="py-2 text-sm font-medium rounded-lg text-slate-400 hover:text-white transition flex items-center justify-center space-x-2">
-                <i class="fa-solid fa-comments"></i> <span>Chat</span>
+            <button onclick="setMode('chat')" id="btn-chat" class="py-2 text-xs md:text-sm font-medium rounded-xl text-slate-400 hover:text-white transition flex items-center justify-center space-x-2">
+                <i class="fa-solid fa-comments"></i> <span>Assistente</span>
             </button>
         </div>
 
-        <!-- Input Box -->
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col space-y-3 shadow-lg">
-            <textarea id="prompt-input" rows="3" placeholder="Descreva a interface ou faça uma pergunta..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition resize-none text-sm"></textarea>
+        <!-- Sugestões Rápidas (Chips v0) -->
+        <div class="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar text-xs">
+            <span class="text-slate-500 font-medium whitespace-nowrap flex items-center gap-1">
+                <i class="fa-solid fa-lightbulb text-amber-400"></i> Atalhos:
+            </span>
+            <button onclick="usarSugestao('Criar uma Landing Page moderna para um SaaS de Inteligência Artificial com modo escuro')" class="bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 px-3 py-1.5 rounded-full whitespace-nowrap transition flex items-center space-x-1.5">
+                <span>🚀 Landing Page SaaS</span>
+            </button>
+            <button onclick="usarSugestao('Formulário de Login responsivo com botões de login social e modo dark')" class="bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 px-3 py-1.5 rounded-full whitespace-nowrap transition flex items-center space-x-1.5">
+                <span>🔑 Tela de Login</span>
+            </button>
+            <button onclick="usarSugestao('Dashboard financeiro responsivo com gráficos, métricas principais e tabela de transações')" class="bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 px-3 py-1.5 rounded-full whitespace-nowrap transition flex items-center space-x-1.5">
+                <span>📊 Dashboard</span>
+            </button>
+            <button onclick="usarSugestao('Card de produto moderno para E-commerce com foto, preço, avaliações e botão comprar')" class="bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 px-3 py-1.5 rounded-full whitespace-nowrap transition flex items-center space-x-1.5">
+                <span>🛍️ Card E-commerce</span>
+            </button>
+        </div>
+
+        <!-- Input Box Centralizada -->
+        <div class="bg-slate-900/90 border border-slate-800/90 rounded-2xl p-3.5 md:p-4 flex flex-col space-y-3 shadow-xl focus-within:border-indigo-500/50 transition">
+            <textarea id="prompt-input" rows="3" placeholder="Descreva o componente ou interface que deseja criar..." class="w-full bg-slate-950 border border-slate-800/80 rounded-xl p-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition resize-none text-xs md:text-sm leading-relaxed"></textarea>
             
-            <div class="flex items-center justify-between">
-                <span id="current-mode-label" class="text-xs text-slate-400 font-medium px-1">Modo: Gerar</span>
-                <button onclick="enviarPrompt()" id="submit-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2 rounded-xl text-sm font-medium transition flex items-center space-x-2 shadow-md shadow-indigo-600/20">
-                    <span>Enviar</span> <i class="fa-solid fa-paper-plane text-xs"></i>
+            <div class="flex items-center justify-between pt-1">
+                <div class="flex items-center space-x-2">
+                    <span id="current-mode-label" class="text-[11px] text-indigo-400 font-medium bg-indigo-500/10 border border-indigo-500/20 px-2.5 py-1 rounded-lg">Modo: Gerar</span>
+                </div>
+                <button onclick="enviarPrompt()" id="submit-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2 rounded-xl text-xs md:text-sm font-medium transition flex items-center space-x-2 shadow-lg shadow-indigo-600/20 active:scale-95">
+                    <span>Gerar Código</span> <i class="fa-solid fa-paper-plane text-xs"></i>
                 </button>
             </div>
         </div>
 
-        <!-- Local History -->
-        <div class="bg-slate-900/60 border border-slate-800/80 rounded-xl p-3">
-            <div class="flex items-center justify-between mb-2">
-                <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Histórico Local</h3>
-                <button onclick="limparHistorico()" class="text-xs text-rose-400 hover:text-rose-300 transition">Limpar</button>
+        <!-- Histórico Local em Carrossel -->
+        <div class="bg-slate-900/50 border border-slate-800/60 rounded-2xl p-3">
+            <div class="flex items-center justify-between mb-2 px-1">
+                <h3 class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <i class="fa-solid fa-clock-rotate-left text-slate-500"></i> Histórico Recente
+                </h3>
+                <button onclick="limparHistorico()" class="text-[11px] text-rose-400 hover:text-rose-300 transition">Limpar</button>
             </div>
-            <div id="history-list" class="flex gap-2 overflow-x-auto pb-1 text-xs">
-                <span class="text-slate-500 italic">Sem histórico recente.</span>
+            <div id="history-list" class="flex gap-2 overflow-x-auto pb-1 text-xs no-scrollbar">
+                <span class="text-slate-500 italic text-xs">Nenhuma geração salva ainda.</span>
             </div>
         </div>
 
-        <!-- Output / Preview Section -->
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl flex flex-col overflow-hidden shadow-xl flex-1 min-h-[400px]">
-            <!-- Toolbar -->
-            <div class="flex items-center justify-between px-4 py-2.5 bg-slate-900/90 border-b border-slate-800 text-xs">
-                <div class="flex space-x-1">
-                    <button onclick="switchTab('preview')" id="tab-preview" class="px-3 py-1.5 rounded-lg bg-slate-800 text-white font-medium transition">Preview ao Vivo</button>
-                    <button onclick="switchTab('code')" id="tab-code" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition">Código Fonte</button>
+        <!-- Painel Principal de Output / Preview -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl flex flex-col overflow-hidden shadow-2xl flex-1 min-h-[420px]">
+            <!-- Toolbar da Workspace -->
+            <div class="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5 bg-slate-900/90 border-b border-slate-800 text-xs">
+                <div class="flex space-x-1 bg-slate-950 p-1 rounded-xl border border-slate-800/80">
+                    <button onclick="switchTab('preview')" id="tab-preview" class="px-3 py-1 rounded-lg bg-slate-800 text-white font-medium transition">Preview ao Vivo</button>
+                    <button onclick="switchTab('code')" id="tab-code" class="px-3 py-1 rounded-lg text-slate-400 hover:text-white transition">Código Fonte</button>
                 </div>
-                <div class="flex space-x-2">
-                    <button onclick="copiarCodigo()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg transition flex items-center space-x-1.5">
-                        <i class="fa-regular fa-copy"></i> <span>Copiar</span>
+                <div class="flex items-center space-x-1.5">
+                    <button onclick="copiarCodigo()" class="bg-slate-800/80 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-xl transition flex items-center space-x-1.5 border border-slate-700/50">
+                        <i class="fa-regular fa-copy"></i> <span class="hidden sm:inline">Copiar</span>
                     </button>
-                    <button onclick="baixarHtml()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg transition flex items-center space-x-1.5">
-                        <i class="fa-solid fa-download"></i> <span>Baixar</span>
+                    <button onclick="baixarHtml()" class="bg-slate-800/80 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-xl transition flex items-center space-x-1.5 border border-slate-700/50">
+                        <i class="fa-solid fa-download"></i> <span class="hidden sm:inline">Baixar</span>
                     </button>
-                    <button onclick="expandirPreview()" class="bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-400 px-3 py-1.5 rounded-lg transition flex items-center space-x-1.5 border border-indigo-500/30">
+                    <button onclick="expandirPreview()" class="bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 px-3 py-1.5 rounded-xl transition flex items-center space-x-1.5 border border-indigo-500/30">
                         <i class="fa-solid fa-expand"></i> <span>Expandir</span>
                     </button>
                 </div>
             </div>
 
-            <!-- Content View -->
+            <!-- Área Visual do Código / Preview -->
             <div class="relative flex-1 bg-slate-950 flex flex-col">
-                <!-- Iframe Preview -->
                 <div id="view-preview" class="absolute inset-0 w-full h-full flex flex-col">
                     <iframe id="preview-frame" class="w-full h-full border-0 bg-white"></iframe>
                 </div>
-                <!-- Code View -->
-                <div id="view-code" class="absolute inset-0 w-full h-full p-4 overflow-auto hidden">
-                    <pre><code id="code-output" class="text-xs font-mono text-indigo-300">Aguardando geração de código...</code></pre>
+                <div id="view-code" class="absolute inset-0 w-full h-full p-4 overflow-auto hidden bg-slate-950">
+                    <pre><code id="code-output" class="text-xs font-mono text-indigo-300 leading-relaxed">Aguardando geração de código...</code></pre>
                 </div>
             </div>
         </div>
 
     </main>
 
-    <!-- JavaScript Logic -->
+    <!-- JavaScript Preservado e Atualizado -->
     <script>
         let currentMode = 'gerar';
         let latestCode = '';
         let historyData = JSON.parse(localStorage.getItem('radamn_history') || '[]');
+
+        function toggleDrawer() {
+            const drawer = document.getElementById('drawer');
+            const overlay = document.getElementById('drawer-overlay');
+            drawer.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        }
+
+        function usarSugestao(texto) {
+            const promptInput = document.getElementById('prompt-input');
+            promptInput.value = texto;
+            promptInput.focus();
+        }
 
         function setMode(mode) {
             currentMode = mode;
             ['gerar', 'refine', 'chat'].forEach(m => {
                 const btn = document.getElementById(`btn-${m}`);
                 if (m === mode) {
-                    btn.className = "py-2 text-sm font-medium rounded-lg bg-indigo-600 text-white transition flex items-center justify-center space-x-2 shadow-md shadow-indigo-600/20";
+                    btn.className = "py-2 text-xs md:text-sm font-medium rounded-xl bg-indigo-600 text-white transition flex items-center justify-center space-x-2 shadow-lg shadow-indigo-600/25";
                 } else {
-                    btn.className = "py-2 text-sm font-medium rounded-lg text-slate-400 hover:text-white transition flex items-center justify-center space-x-2";
+                    btn.className = "py-2 text-xs md:text-sm font-medium rounded-xl text-slate-400 hover:text-white transition flex items-center justify-center space-x-2";
                 }
             });
             document.getElementById('current-mode-label').innerText = `Modo: ${mode.charAt(0).toUpperCase() + mode.slice(1)}`;
@@ -116,13 +201,13 @@
 
         function switchTab(tab) {
             if (tab === 'preview') {
-                document.getElementById('tab-preview').className = "px-3 py-1.5 rounded-lg bg-slate-800 text-white font-medium transition";
-                document.getElementById('tab-code').className = "px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition";
+                document.getElementById('tab-preview').className = "px-3 py-1 rounded-lg bg-slate-800 text-white font-medium transition";
+                document.getElementById('tab-code').className = "px-3 py-1 rounded-lg text-slate-400 hover:text-white transition";
                 document.getElementById('view-preview').classList.remove('hidden');
                 document.getElementById('view-code').classList.add('hidden');
             } else {
-                document.getElementById('tab-code').className = "px-3 py-1.5 rounded-lg bg-slate-800 text-white font-medium transition";
-                document.getElementById('tab-preview').className = "px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition";
+                document.getElementById('tab-code').className = "px-3 py-1 rounded-lg bg-slate-800 text-white font-medium transition";
+                document.getElementById('tab-preview').className = "px-3 py-1 rounded-lg text-slate-400 hover:text-white transition";
                 document.getElementById('view-code').classList.remove('hidden');
                 document.getElementById('view-preview').classList.add('hidden');
             }
@@ -152,6 +237,10 @@
                 });
 
                 const data = await response.json();
+
+                if (data.error) {
+                    throw new Error(data.error);
+                }
                 
                 latestCode = data.code || '<div>Sem código gerado.</div>';
                 
@@ -165,8 +254,8 @@
                 // Mostra no painel de código
                 document.getElementById('code-output').innerText = latestCode;
 
-                // Salva no histórico local com hora formatada
-                const timestamp = new Date().toLocaleTimeString();
+                // Salva no histórico local com hora
+                const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                 historyData.unshift({ prompt, code: latestCode, time: timestamp });
                 if (historyData.length > 15) historyData.pop();
                 localStorage.setItem('radamn_history', JSON.stringify(historyData));
@@ -176,23 +265,23 @@
                 switchTab('preview');
 
             } catch (err) {
-                alert('Erro ao comunicar com o servidor: ' + err.message);
+                alert('Erro na requisição: ' + err.message);
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = `<span>Enviar</span> <i class="fa-solid fa-paper-plane text-xs"></i>`;
+                submitBtn.innerHTML = `<span>Gerar Código</span> <i class="fa-solid fa-paper-plane text-xs"></i>`;
             }
         }
 
         function renderHistory() {
             const list = document.getElementById('history-list');
             if (historyData.length === 0) {
-                list.innerHTML = `<span class="text-slate-500 italic">Sem histórico recente.</span>`;
+                list.innerHTML = `<span class="text-slate-500 italic text-xs">Nenhuma geração salva ainda.</span>`;
                 return;
             }
             list.innerHTML = historyData.map((item, index) => {
                 const timeStr = item.time ? `<span class="text-indigo-400 font-mono">${item.time}</span> - ` : '';
                 return `
-                    <button onclick="carregarHistorico(${index})" class="flex-shrink-0 bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 transition text-left max-w-[200px] truncate">
+                    <button onclick="carregarHistorico(${index})" class="flex-shrink-0 bg-slate-800/80 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-xl border border-slate-700/50 transition text-left max-w-[200px] truncate">
                         ${timeStr}${item.prompt}
                     </button>
                 `;
@@ -227,7 +316,7 @@
             const frame = document.getElementById('preview-frame');
             const frameDoc = frame.contentDocument || frame.contentWindow.document;
             frameDoc.open();
-            frameDoc.write('<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;color:#64748b;">Novo projeto pronto. Envie um prompt!</div>');
+            frameDoc.write('<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;color:#64748b;background:#020617;">Novo projeto pronto. Digite um prompt!</div>');
             frameDoc.close();
         }
 
@@ -248,12 +337,4 @@
 
         function expandirPreview() {
             const newWindow = window.open();
-            newWindow.document.write(latestCode);
-            newWindow.document.close();
-        }
-
-        // Inicializa histórico ao carregar
-        renderHistory();
-    </script>
-</body>
-</html>
+            newWindo
