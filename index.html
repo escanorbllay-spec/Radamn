@@ -1,4 +1,4 @@
-
+ 
 <!DOCTYPE html>
 <html lang="pt-BR" class="dark">
 <head>
@@ -7,8 +7,6 @@
     <title>Radamn AI — Gateway Interface</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: #000000; }
@@ -31,19 +29,20 @@
                     <span class="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse"></span>
                     <span class="font-bold text-sm tracking-widest uppercase text-white">Radamn AI</span>
                 </div>
-                <button onclick="toggleDrawer()" type="button" class="text-slate-400 hover:text-white p-2 rounded-lg transition">
-                    <i class="fa-solid fa-xmark text-lg"></i>
+                <button onclick="toggleDrawer()" type="button" class="text-slate-400 hover:text-white p-2 rounded-lg transition active:bg-slate-800">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
             
             <nav class="space-y-2">
-                <button onclick="novoProjeto(); toggleDrawer();" type="button" class="w-full flex items-center justify-center space-x-2 px-3 py-2.5 rounded-xl bg-white text-black font-semibold text-xs hover:bg-slate-200 transition shadow-sm">
-                    <i class="fa-solid fa-plus text-xs"></i> <span>Criar Novo Projeto</span>
+                <button onclick="novoProjeto(); toggleDrawer();" type="button" class="w-full flex items-center justify-center space-x-2 px-3 py-2.5 rounded-xl bg-white text-black font-semibold text-xs hover:bg-slate-200 transition shadow-sm active:scale-95">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    <span>Criar Novo Projeto</span>
                 </button>
                 <div class="pt-4">
                     <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider px-3 mb-2">Painel de Segurança</p>
                     <div class="px-3 py-2 rounded-xl text-xs text-slate-300 bg-slate-900/80 border border-slate-800 flex items-center space-x-2">
-                        <i class="fa-solid fa-shield-halved text-emerald-400"></i>
+                        <span class="text-emerald-400">🛡️</span>
                         <span>Master Key: Ativa</span>
                     </div>
                 </div>
@@ -59,8 +58,8 @@
     <!-- Header -->
     <header class="flex items-center justify-between px-4 py-3 border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-md sticky top-0 z-30">
         <div class="flex items-center space-x-3">
-            <button onclick="toggleDrawer()" type="button" class="text-slate-300 hover:text-white p-2 rounded-xl border border-slate-800 bg-slate-900/60 active:scale-95 transition">
-                <i class="fa-solid fa-bars text-sm"></i>
+            <button onclick="toggleDrawer()" type="button" class="text-slate-300 hover:text-white p-2 rounded-xl border border-slate-800 bg-slate-900/60 active:scale-90 transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
             </button>
             <div class="flex items-center space-x-2">
                 <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -71,7 +70,8 @@
         </div>
         
         <button onclick="novoProjeto()" type="button" class="text-xs bg-slate-900 hover:bg-slate-800 text-slate-200 px-3 py-1.5 rounded-xl border border-slate-800 transition flex items-center space-x-1.5 shadow-sm active:scale-95">
-            <i class="fa-solid fa-plus text-xs"></i> <span class="hidden sm:inline">Novo Projeto</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            <span class="hidden sm:inline">Novo Projeto</span>
         </button>
     </header>
 
@@ -80,22 +80,20 @@
 
         <!-- Mode Selector Tabs -->
         <div class="grid grid-cols-3 gap-1.5 bg-slate-950 p-1.5 rounded-2xl border border-slate-800/80 shadow-inner">
-            <button onclick="setMode('gerar')" id="btn-gerar" type="button" class="py-2 text-xs md:text-sm font-medium rounded-xl bg-indigo-600 text-white transition flex items-center justify-center space-x-2 shadow-lg shadow-indigo-600/25">
-                <i class="fa-solid fa-wand-magic-sparkles"></i> <span>Gerar UI</span>
+            <button onclick="setMode('gerar')" id="btn-gerar" type="button" class="py-2 text-xs md:text-sm font-medium rounded-xl bg-indigo-600 text-white transition flex items-center justify-center space-x-1 shadow-lg shadow-indigo-600/25">
+                <span>✨ Gerar UI</span>
             </button>
-            <button onclick="setMode('refine')" id="btn-refine" type="button" class="py-2 text-xs md:text-sm font-medium rounded-xl text-slate-400 hover:text-white transition flex items-center justify-center space-x-2">
-                <i class="fa-solid fa-sliders"></i> <span>Refinar</span>
+            <button onclick="setMode('refine')" id="btn-refine" type="button" class="py-2 text-xs md:text-sm font-medium rounded-xl text-slate-400 hover:text-white transition flex items-center justify-center space-x-1">
+                <span>🎛️ Refinar</span>
             </button>
-            <button onclick="setMode('chat')" id="btn-chat" type="button" class="py-2 text-xs md:text-sm font-medium rounded-xl text-slate-400 hover:text-white transition flex items-center justify-center space-x-2">
-                <i class="fa-solid fa-comments"></i> <span>Assistente</span>
+            <button onclick="setMode('chat')" id="btn-chat" type="button" class="py-2 text-xs md:text-sm font-medium rounded-xl text-slate-400 hover:text-white transition flex items-center justify-center space-x-1">
+                <span>💬 Assistente</span>
             </button>
         </div>
 
         <!-- Sugestões Rápidas (Chips) -->
         <div class="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar text-xs">
-            <span class="text-slate-500 font-medium whitespace-nowrap flex items-center gap-1">
-                <i class="fa-solid fa-bolt text-amber-400"></i> Atalhos:
-            </span>
+            <span class="text-slate-500 font-medium whitespace-nowrap flex items-center gap-1">⚡ Atalhos:</span>
             <button onclick="usarSugestao('Criar uma Landing Page moderna para um SaaS de IA em modo escuro')" type="button" class="bg-slate-950 hover:bg-slate-900 text-slate-300 border border-slate-800 px-3 py-1.5 rounded-full whitespace-nowrap transition">
                 🚀 Landing Page SaaS
             </button>
@@ -114,7 +112,7 @@
             <div class="flex items-center justify-between pt-1">
                 <span id="current-mode-label" class="text-[11px] text-indigo-400 font-medium bg-indigo-500/10 border border-indigo-500/20 px-2.5 py-1 rounded-lg">Modo: Gerar</span>
                 <button onclick="enviarPrompt()" id="submit-btn" type="button" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2 rounded-xl text-xs md:text-sm font-medium transition flex items-center space-x-2 shadow-lg shadow-indigo-600/20 active:scale-95">
-                    <span>Gerar Código</span> <i class="fa-solid fa-paper-plane text-xs"></i>
+                    <span>Gerar Código</span> ➔
                 </button>
             </div>
         </div>
@@ -123,7 +121,7 @@
         <div class="bg-slate-950/60 border border-slate-800/60 rounded-2xl p-3">
             <div class="flex items-center justify-between mb-2 px-1">
                 <h3 class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                    <i class="fa-solid fa-clock-rotate-left text-slate-500"></i> Histórico Recente
+                    🕒 Histórico Recente
                 </h3>
                 <button onclick="limparHistorico()" type="button" class="text-[11px] text-rose-400 hover:text-rose-300 transition">Limpar</button>
             </div>
@@ -144,28 +142,16 @@
 
                 <!-- Simulador de Dispositivos -->
                 <div id="device-selector" class="flex space-x-1 bg-slate-900/80 p-1 rounded-xl border border-slate-800">
-                    <button onclick="setDevice('mobile')" id="dev-mobile" type="button" class="px-2.5 py-1 rounded-lg text-slate-400 hover:text-white transition" title="Telemóvel (375px)">
-                        <i class="fa-solid fa-mobile-screen-button"></i>
-                    </button>
-                    <button onclick="setDevice('tablet')" id="dev-tablet" type="button" class="px-2.5 py-1 rounded-lg text-slate-400 hover:text-white transition" title="Tablet (768px)">
-                        <i class="fa-solid fa-tablet-screen-button"></i>
-                    </button>
-                    <button onclick="setDevice('desktop')" id="dev-desktop" type="button" class="px-2.5 py-1 rounded-lg bg-slate-800 text-white transition" title="Desktop (100%)">
-                        <i class="fa-solid fa-desktop"></i>
-                    </button>
+                    <button onclick="setDevice('mobile')" id="dev-mobile" type="button" class="px-2.5 py-1 rounded-lg text-slate-400 hover:text-white transition" title="Telemóvel (375px)">📱</button>
+                    <button onclick="setDevice('tablet')" id="dev-tablet" type="button" class="px-2.5 py-1 rounded-lg text-slate-400 hover:text-white transition" title="Tablet (768px)">📟</button>
+                    <button onclick="setDevice('desktop')" id="dev-desktop" type="button" class="px-2.5 py-1 rounded-lg bg-slate-800 text-white transition" title="Desktop (100%)">💻</button>
                 </div>
 
                 <!-- Botões de Ação -->
                 <div class="flex items-center space-x-1.5">
-                    <button onclick="copiarCodigo()" type="button" class="bg-slate-900 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-xl transition flex items-center space-x-1.5 border border-slate-800">
-                        <i class="fa-regular fa-copy"></i> <span>Copiar</span>
-                    </button>
-                    <button onclick="baixarHtml()" type="button" class="bg-slate-900 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-xl transition flex items-center space-x-1.5 border border-slate-800">
-                        <i class="fa-solid fa-download"></i> <span>Baixar</span>
-                    </button>
-                    <button onclick="expandirPreview()" type="button" class="bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 px-3 py-1.5 rounded-xl transition flex items-center space-x-1.5 border border-indigo-500/30">
-                        <i class="fa-solid fa-expand"></i> <span>Expandir</span>
-                    </button>
+                    <button onclick="copiarCodigo()" type="button" class="bg-slate-900 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-xl transition border border-slate-800 active:scale-95">📋 Copiar</button>
+                    <button onclick="baixarHtml()" type="button" class="bg-slate-900 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-xl transition border border-slate-800 active:scale-95">💾 Baixar</button>
+                    <button onclick="expandirPreview()" type="button" class="bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 px-3 py-1.5 rounded-xl transition border border-indigo-500/30 active:scale-95">⛶ Expandir</button>
                 </div>
             </div>
 
@@ -199,36 +185,51 @@
 
     </main>
 
-    <!-- JavaScript Correto e Nativo -->
+    <!-- JavaScript Puro e sem bloqueios -->
     <script>
         let currentMode = 'gerar';
         let latestCode = '';
-        let historyData = JSON.parse(localStorage.getItem('radamn_history') || '[]');
+        let historyData = [];
+
+        try {
+            historyData = JSON.parse(localStorage.getItem('radamn_history') || '[]');
+        } catch (e) {
+            historyData = [];
+        }
 
         function toggleDrawer() {
             const drawer = document.getElementById('drawer');
             const overlay = document.getElementById('drawer-overlay');
-            drawer.classList.toggle('-translate-x-full');
-            overlay.classList.toggle('hidden');
+            if (drawer && overlay) {
+                drawer.classList.toggle('-translate-x-full');
+                overlay.classList.toggle('hidden');
+            }
         }
 
         function usarSugestao(texto) {
             const promptInput = document.getElementById('prompt-input');
-            promptInput.value = texto;
-            promptInput.focus();
+            if (promptInput) {
+                promptInput.value = texto;
+                promptInput.focus();
+            }
         }
 
         function setMode(mode) {
             currentMode = mode;
             ['gerar', 'refine', 'chat'].forEach(m => {
                 const btn = document.getElementById(`btn-${m}`);
-                if (m === mode) {
-                    btn.className = "py-2 text-xs md:text-sm font-medium rounded-xl bg-indigo-600 text-white transition flex items-center justify-center space-x-2 shadow-lg shadow-indigo-600/25";
-                } else {
-                    btn.className = "py-2 text-xs md:text-sm font-medium rounded-xl text-slate-400 hover:text-white transition flex items-center justify-center space-x-2";
+                if (btn) {
+                    if (m === mode) {
+                        btn.className = "py-2 text-xs md:text-sm font-medium rounded-xl bg-indigo-600 text-white transition flex items-center justify-center space-x-1 shadow-lg shadow-indigo-600/25";
+                    } else {
+                        btn.className = "py-2 text-xs md:text-sm font-medium rounded-xl text-slate-400 hover:text-white transition flex items-center justify-center space-x-1";
+                    }
                 }
             });
-            document.getElementById('current-mode-label').innerText = `Modo: ${mode.charAt(0).toUpperCase() + mode.slice(1)}`;
+            const label = document.getElementById('current-mode-label');
+            if (label) {
+                label.innerText = `Modo: ${mode.charAt(0).toUpperCase() + mode.slice(1)}`;
+            }
         }
 
         function switchTab(tab) {
@@ -251,28 +252,30 @@
             const wrapper = document.getElementById('preview-wrapper');
             ['mobile', 'tablet', 'desktop'].forEach(d => {
                 const btn = document.getElementById(`dev-${d}`);
-                if (d === device) {
-                    btn.className = "px-2.5 py-1 rounded-lg bg-slate-800 text-white transition";
-                } else {
-                    btn.className = "px-2.5 py-1 rounded-lg text-slate-400 hover:text-white transition";
+                if (btn) {
+                    if (d === device) {
+                        btn.className = "px-2.5 py-1 rounded-lg bg-slate-800 text-white transition";
+                    } else {
+                        btn.className = "px-2.5 py-1 rounded-lg text-slate-400 hover:text-white transition";
+                    }
                 }
             });
 
-            if (device === 'mobile') {
-                wrapper.style.width = '375px';
-            } else if (device === 'tablet') {
-                wrapper.style.width = '768px';
-            } else {
-                wrapper.style.width = '100%';
+            if (wrapper) {
+                if (device === 'mobile') wrapper.style.width = '375px';
+                else if (device === 'tablet') wrapper.style.width = '768px';
+                else wrapper.style.width = '100%';
             }
         }
 
         function renderizarIframe(codigo) {
             const frame = document.getElementById('preview-frame');
-            const frameDoc = frame.contentDocument || frame.contentWindow.document;
-            frameDoc.open();
-            frameDoc.write(codigo);
-            frameDoc.close();
+            if (frame) {
+                const frameDoc = frame.contentDocument || frame.contentWindow.document;
+                frameDoc.open();
+                frameDoc.write(codigo);
+                frameDoc.close();
+            }
         }
 
         function atualizarPreviewDoEditor() {
@@ -282,15 +285,17 @@
 
         async function enviarPrompt() {
             const promptInput = document.getElementById('prompt-input');
-            const prompt = promptInput.value.trim();
+            const prompt = promptInput ? promptInput.value.trim() : '';
             if (!prompt) return;
 
             const submitBtn = document.getElementById('submit-btn');
             const loadingOverlay = document.getElementById('loading-overlay');
 
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>A gerar...</span>`;
-            loadingOverlay.classList.remove('hidden');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `<span>A gerar...</span>`;
+            }
+            if (loadingOverlay) loadingOverlay.classList.remove('hidden');
 
             try {
                 const response = await fetch('/api/generate', {
@@ -308,9 +313,7 @@
 
                 const data = await response.json();
 
-                if (data.error) {
-                    throw new Error(data.error);
-                }
+                if (data.error) throw new Error(data.error);
                 
                 latestCode = data.code || '<div>Sem código gerado.</div>';
                 
@@ -327,4 +330,81 @@
                 switchTab('preview');
 
             } catch (err) {
-      
+                alert('Erro na requisição: ' + err.message);
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = `<span>Gerar Código</span> ➔`;
+                }
+                if (loadingOverlay) loadingOverlay.classList.add('hidden');
+            }
+        }
+
+        function renderHistory() {
+            const list = document.getElementById('history-list');
+            if (!list) return;
+            if (historyData.length === 0) {
+                list.innerHTML = `<span class="text-slate-500 italic text-xs">Nenhuma geração salva ainda.</span>`;
+                return;
+            }
+            list.innerHTML = historyData.map((item, index) => {
+                const timeStr = item.time ? `<span class="text-indigo-400 font-mono">${item.time}</span> - ` : '';
+                return `
+                    <button onclick="carregarHistorico(${index})" type="button" class="flex-shrink-0 bg-slate-900/80 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-xl border border-slate-800 transition text-left max-w-[200px] truncate active:scale-95">
+                        ${timeStr}${item.prompt}
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function carregarHistorico(index) {
+            const item = historyData[index];
+            if (!item) return;
+            latestCode = item.code;
+            
+            renderizarIframe(latestCode);
+            document.getElementById('code-editor').value = latestCode;
+            switchTab('preview');
+        }
+
+        function limparHistorico() {
+            historyData = [];
+            localStorage.removeItem('radamn_history');
+            renderHistory();
+        }
+
+        function novoProjeto() {
+            latestCode = '';
+            document.getElementById('prompt-input').value = '';
+            document.getElementById('code-editor').value = '';
+            renderizarIframe('<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;color:#64748b;background:#000000;">Novo projeto pronto. Digite um prompt!</div>');
+        }
+
+        function copiarCodigo() {
+            if(!latestCode) return;
+            navigator.clipboard.writeText(latestCode);
+            alert('Código copiado!');
+        }
+
+        function baixarHtml() {
+            if(!latestCode) return;
+            const blob = new Blob([latestCode], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'radamn-project.html';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function expandirPreview() {
+            if(!latestCode) return;
+            const newWindow = window.open();
+            newWindow.document.write(latestCode);
+            newWindow.document.close();
+        }
+
+        renderHistory();
+    </script>
+</body>
+</html>
