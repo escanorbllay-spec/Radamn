@@ -313,98 +313,17 @@
                 if (data.error) throw new Error(data.error);
                 
                 // Extrai o resultado vindo do seu modelo Radamn AI
-                const resultadoText = data.response || data.code || 'Sem resposta gerada.';
-                latestCode = typeof resultadoText === 'string' ? resultadoText : JSON.stringify(resultadoText);
-                
-                renderizarIframe(latestCode);
-                document.getElementById('code-editor').value = latestCode;
+                let resultadoText = data.response || data.code || 'Sem resposta gerada.';
 
-                const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                historyData.unshift({ prompt, code: latestCode, time: timestamp });
-                if (historyData.length > 15) historyData.pop();
-                localStorage.setItem('radamn_history', JSON.stringify(historyData));
-                renderHistory();
-
-                promptInput.value = '';
-            } catch (err) {
-                alert("Erro ao comunicar com a Radamn AI: " + err.message);
-            } finally {
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = `<span>Enviar para Radamn AI</span> ➔`;
+                if (typeof resultadoText !== 'string') {
+                    resultadoText = JSON.stringify(resultadoText);
                 }
-                if (loadingOverlay) loadingOverlay.classList.add('hidden');
-            }
-        }
 
-        function renderHistory() {
-            const list = document.getElementById('history-list');
-            if (!list) return;
-
-            if (historyData.length === 0) {
-                list.innerHTML = `<span class="text-slate-500 italic text-xs">Nenhuma geração salva ainda.</span>`;
-                return;
-            }
-
-            list.innerHTML = historyData.map((item, index) => `
-                <button onclick="carregarHistorico(${index})" type="button" class="bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 px-3 py-1.5 rounded-xl whitespace-nowrap transition text-left flex items-center space-x-2">
-                    <span class="text-indigo-400">💬</span>
-                    <span class="truncate max-w-[150px]">${item.prompt}</span>
-                    <span class="text-[10px] text-slate-500">${item.time}</span>
-                </button>
-            `).join('');
-        }
-
-        function carregarHistorico(index) {
-            const item = historyData[index];
-            if (item) {
-                latestCode = item.code;
-                renderizarIframe(latestCode);
-                document.getElementById('code-editor').value = latestCode;
-            }
-        }
-
-        function limparHistorico() {
-            historyData = [];
-            localStorage.removeItem('radamn_history');
-            renderHistory();
-        }
-
-        function copiarCodigo() {
-            if (!latestCode) return;
-            navigator.clipboard.writeText(latestCode);
-            alert("Código copiado para a área de transferência!");
-        }
-
-        function baixarHtml() {
-            if (!latestCode) return;
-            const blob = new Blob([latestCode], { type: 'text/html' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'radamn-component.html';
-            a.click();
-            URL.revokeObjectURL(url);
-        }
-
-        function expandirPreview() {
-            const win = window.open('', '_blank');
-            if (win) {
-                win.document.open();
-                win.document.write(latestCode);
-                win.document.close();
-            }
-        }
-
-        function novoProjeto() {
-            latestCode = '';
-            renderizarIframe('');
-            document.getElementById('code-editor').value = '';
-            document.getElementById('prompt-input').value = '';
-        }
-
-        // Inicializa o histórico na carga inicial
-        renderHistory();
-    </script>
-</body>
-</html>
+                // Se for texto simples (sem tags HTML), formata com um card bonito para exibir no preview
+                if (!resultadoText.trim().startsWith('<')) {
+                    latestCode = `
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <script src="https://cdn.tailwindcss.com"></script>
+    
