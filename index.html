@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR" class="dark">
 <head>
@@ -8,10 +9,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Prism.js para Destaque de Sintaxe -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
     <style>
         ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: #000000; }
@@ -20,7 +17,6 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* Transição suave para o simulador de telas */
         #preview-wrapper { transition: width 0.3s ease-in-out; }
     </style>
 </head>
@@ -146,7 +142,7 @@
                     <button onclick="switchTab('code')" id="tab-code" type="button" class="px-3 py-1 rounded-lg text-slate-400 hover:text-white transition">Código Interativo</button>
                 </div>
 
-                <!-- Simulador de Dispositivos (Device Toggle) -->
+                <!-- Simulador de Dispositivos -->
                 <div id="device-selector" class="flex space-x-1 bg-slate-900/80 p-1 rounded-xl border border-slate-800">
                     <button onclick="setDevice('mobile')" id="dev-mobile" type="button" class="px-2.5 py-1 rounded-lg text-slate-400 hover:text-white transition" title="Telemóvel (375px)">
                         <i class="fa-solid fa-mobile-screen-button"></i>
@@ -174,22 +170,22 @@
             </div>
 
             <!-- Content Area -->
-            <div class="relative flex-1 bg-black flex flex-col justify-center items-center overflow-hidden">
+            <div class="relative flex-1 bg-black flex flex-col justify-center items-center overflow-hidden min-h-[350px]">
                 
-                <!-- Skeleton / Loading Screen Overlay -->
+                <!-- Loading Screen Overlay -->
                 <div id="loading-overlay" class="absolute inset-0 bg-black/90 backdrop-blur-sm z-20 flex flex-col items-center justify-center space-y-3 hidden">
                     <div class="w-10 h-10 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin"></div>
                     <span class="text-xs text-indigo-400 font-mono tracking-wider animate-pulse">A GERAR INTERFACE...</span>
                 </div>
 
-                <!-- Preview Frame Container com simulador de tela -->
+                <!-- Preview Frame Container -->
                 <div id="view-preview" class="w-full h-full flex justify-center items-center p-2">
                     <div id="preview-wrapper" class="w-full h-full bg-white rounded-lg overflow-hidden shadow-2xl">
                         <iframe id="preview-frame" class="w-full h-full border-0"></iframe>
                     </div>
                 </div>
 
-                <!-- Code View (Live Editor com Destaque Syntax) -->
+                <!-- Code View (Live Editor) -->
                 <div id="view-code" class="absolute inset-0 w-full h-full flex flex-col hidden bg-slate-950 p-2">
                     <div class="flex items-center justify-between pb-2 px-2 text-[11px] text-slate-400 border-b border-slate-800">
                         <span>Edição Direta: Altere o código abaixo e veja o preview atualizar em tempo real</span>
@@ -203,7 +199,7 @@
 
     </main>
 
-    <!-- JavaScript Unificado -->
+    <!-- JavaScript Correto e Nativo -->
     <script>
         let currentMode = 'gerar';
         let latestCode = '';
@@ -251,7 +247,6 @@
             }
         }
 
-        /* Simulador de Dispositivos (Mobile / Tablet / Desktop) */
         function setDevice(device) {
             const wrapper = document.getElementById('preview-wrapper');
             ['mobile', 'tablet', 'desktop'].forEach(d => {
@@ -272,7 +267,6 @@
             }
         }
 
-        /* Atualização do Iframe */
         function renderizarIframe(codigo) {
             const frame = document.getElementById('preview-frame');
             const frameDoc = frame.contentDocument || frame.contentWindow.document;
@@ -281,7 +275,6 @@
             frameDoc.close();
         }
 
-        /* Atualiza Preview quando o utilizador edita o código direto na aba "Código" */
         function atualizarPreviewDoEditor() {
             latestCode = document.getElementById('code-editor').value;
             renderizarIframe(latestCode);
@@ -319,4 +312,19 @@
                     throw new Error(data.error);
                 }
                 
-                latestCode = data.code
+                latestCode = data.code || '<div>Sem código gerado.</div>';
+                
+                renderizarIframe(latestCode);
+                document.getElementById('code-editor').value = latestCode;
+
+                const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                historyData.unshift({ prompt, code: latestCode, time: timestamp });
+                if (historyData.length > 15) historyData.pop();
+                localStorage.setItem('radamn_history', JSON.stringify(historyData));
+                renderHistory();
+
+                promptInput.value = '';
+                switchTab('preview');
+
+            } catch (err) {
+      
