@@ -3,331 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Radamn AI — Gateway Interface</title>
-    <!-- Tailwind CSS -->
+    <title>Radamn AI — Assistente</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: #000000; }
         ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 9999px; }
-        ::-webkit-scrollbar-thumb:hover { background: #334155; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        #preview-wrapper { transition: width 0.3s ease-in-out; }
     </style>
 </head>
-<body class="bg-black text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-indigo-500/30">
-
-    <!-- Overlay & Drawer Side Menu -->
-    <div id="drawer-overlay" onclick="toggleDrawer()" class="fixed inset-0 bg-black/80 backdrop-blur-md z-40 hidden transition-opacity"></div>
-    <aside id="drawer" class="fixed top-0 left-0 bottom-0 w-72 bg-slate-950 border-r border-slate-800/80 z-50 transform -translate-x-full transition-transform duration-300 ease-in-out p-4 flex flex-col justify-between shadow-2xl">
-        <div class="space-y-6">
-            <div class="flex items-center justify-between pb-4 border-b border-slate-800/80">
-                <div class="flex items-center space-x-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse"></span>
-                    <span class="font-bold text-sm tracking-widest uppercase text-white">Radamn AI</span>
-                </div>
-                <button onclick="toggleDrawer()" type="button" class="text-slate-400 hover:text-white p-2 rounded-lg transition active:bg-slate-800">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
-            </div>
-            
-            <nav class="space-y-2">
-                <button onclick="novoProjeto(); toggleDrawer();" type="button" class="w-full flex items-center justify-center space-x-2 px-3 py-2.5 rounded-xl bg-white text-black font-semibold text-xs hover:bg-slate-200 transition shadow-sm active:scale-95">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                    <span>Criar Novo Projeto</span>
-                </button>
-                <div class="pt-4">
-                    <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider px-3 mb-2">Painel de Segurança</p>
-                    <div class="px-3 py-2 rounded-xl text-xs text-slate-300 bg-slate-900/80 border border-slate-800 flex items-center space-x-2">
-                        <span class="text-emerald-400">🛡️</span>
-                        <span>Radamn AI Engine: Ativa</span>
-                    </div>
-                </div>
-            </nav>
-        </div>
-
-        <div class="pt-4 border-t border-slate-800/80 text-[11px] text-slate-500 flex items-center justify-between">
-            <span>Vercel Platform</span>
-            <span class="text-indigo-400 font-mono">v0.dev Style</span>
-        </div>
-    </aside>
+<body class="bg-black text-slate-100 min-h-screen flex flex-col font-sans antialiased">
 
     <!-- Header -->
-    <header class="flex items-center justify-between px-4 py-3 border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-md sticky top-0 z-30">
-        <div class="flex items-center space-x-3">
-            <button onclick="toggleDrawer()" type="button" class="text-slate-300 hover:text-white p-2 rounded-xl border border-slate-800 bg-slate-900/60 active:scale-90 transition">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-            </button>
-            <div class="flex items-center space-x-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                <h1 class="font-bold text-sm md:text-base tracking-wide text-white flex items-center gap-2">
-                    Radamn <span class="text-indigo-400 text-[10px] font-mono px-2 py-0.5 rounded-full border border-indigo-500/30 bg-indigo-500/10">Engine v1</span>
-                </h1>
-            </div>
+    <header class="flex items-center justify-between px-4 py-3 border-b border-slate-800/80 bg-slate-950/80 sticky top-0 z-30">
+        <div class="flex items-center space-x-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <h1 class="font-bold text-sm tracking-wide text-white">Radamn <span class="text-indigo-400 text-[10px] font-mono px-2 py-0.5 rounded-full border border-indigo-500/30 bg-indigo-500/10">Assistente</span></h1>
         </div>
-        
-        <button onclick="novoProjeto()" type="button" class="text-xs bg-slate-900 hover:bg-slate-800 text-slate-200 px-3 py-1.5 rounded-xl border border-slate-800 transition flex items-center space-x-1.5 shadow-sm active:scale-95">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-            <span class="hidden sm:inline">Novo Projeto</span>
-        </button>
     </header>
 
-    <!-- Main Container -->
-    <main class="flex-1 max-w-5xl w-full mx-auto p-3 md:p-6 flex flex-col space-y-4">
+    <!-- Main Chat Area -->
+    <main class="flex-1 max-w-3xl w-full mx-auto p-4 flex flex-col justify-between space-y-4">
 
-        <!-- Mode Selector Tabs -->
-        <div class="grid grid-cols-3 gap-1.5 bg-slate-950 p-1.5 rounded-2xl border border-slate-800/80 shadow-inner">
-            <button onclick="setMode('gerar')" id="btn-gerar" type="button" class="py-2 text-xs md:text-sm font-medium rounded-xl bg-indigo-600 text-white transition flex items-center justify-center space-x-1 shadow-lg shadow-indigo-600/25">
-                <span>✨ Gerar UI</span>
-            </button>
-            <button onclick="setMode('refine')" id="btn-refine" type="button" class="py-2 text-xs md:text-sm font-medium rounded-xl text-slate-400 hover:text-white transition flex items-center justify-center space-x-1">
-                <span>🎛️ Refinar</span>
-            </button>
-            <button onclick="setMode('chat')" id="btn-chat" type="button" class="py-2 text-xs md:text-sm font-medium rounded-xl text-slate-400 hover:text-white transition flex items-center justify-center space-x-1">
-                <span>💬 Assistente</span>
-            </button>
+        <!-- Feed de Conversa -->
+        <div id="chat-box" class="flex-1 bg-slate-950 border border-slate-800 rounded-2xl p-4 overflow-y-auto min-h-[350px] space-y-3">
+            <div class="bg-indigo-950/40 border border-indigo-800/40 p-3 rounded-xl text-xs text-indigo-200">
+                💬 <b>Radamn AI:</b> Olá! O chat do assistente está ativo e pronto para responder.
+            </div>
         </div>
 
-        <!-- Sugestões Rápidas (Chips) -->
-        <div class="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar text-xs">
-            <span class="text-slate-500 font-medium whitespace-nowrap flex items-center gap-1">⚡ Atalhos:</span>
-            <button onclick="usarSugestao('Criar uma Landing Page moderna para um SaaS de IA em modo escuro')" type="button" class="bg-slate-950 hover:bg-slate-900 text-slate-300 border border-slate-800 px-3 py-1.5 rounded-full whitespace-nowrap transition">
-                🚀 Landing Page SaaS
-            </button>
-            <button onclick="usarSugestao('Formulário de Login responsivo com botões sociais e modo dark')" type="button" class="bg-slate-950 hover:bg-slate-900 text-slate-300 border border-slate-800 px-3 py-1.5 rounded-full whitespace-nowrap transition">
-                🔑 Tela de Login
-            </button>
-            <button onclick="usarSugestao('Dashboard financeiro responsivo com gráficos e cartões de métricas')" type="button" class="bg-slate-950 hover:bg-slate-900 text-slate-300 border border-slate-800 px-3 py-1.5 rounded-full whitespace-nowrap transition">
-                📊 Dashboard
-            </button>
-        </div>
-
-        <!-- Input Box Centralizada -->
-        <div class="bg-slate-950 border border-slate-800/90 rounded-2xl p-3.5 md:p-4 flex flex-col space-y-3 shadow-xl focus-within:border-indigo-500/50 transition">
-            <textarea id="prompt-input" rows="3" placeholder="Descreva o que deseja para a Radamn AI gerar..." class="w-full bg-black border border-slate-800/80 rounded-xl p-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition resize-none text-xs md:text-sm leading-relaxed"></textarea>
+        <!-- Input Box -->
+        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-3 flex flex-col space-y-2">
+            <textarea id="prompt-input" rows="2" placeholder="Escreva a sua mensagem para a Radamn AI..." class="w-full bg-black border border-slate-800 rounded-xl p-3 text-slate-100 text-xs focus:outline-none focus:border-indigo-500 transition resize-none"></textarea>
             
-            <div class="flex items-center justify-between pt-1">
-                <span id="current-mode-label" class="text-[11px] text-indigo-400 font-medium bg-indigo-500/10 border border-indigo-500/20 px-2.5 py-1 rounded-lg">Modo: Gerar UI</span>
-                <button onclick="enviarPrompt()" id="submit-btn" type="button" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2 rounded-xl text-xs md:text-sm font-medium transition flex items-center space-x-2 shadow-lg shadow-indigo-600/20 active:scale-95">
-                    <span>Enviar para Radamn AI</span> ➔
+            <div class="flex justify-end">
+                <button onclick="enviarMensagem()" id="submit-btn" type="button" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2 rounded-xl text-xs font-medium transition shadow-lg shadow-indigo-600/20 active:scale-95">
+                    Enviar ➔
                 </button>
-            </div>
-        </div>
-
-        <!-- Histórico Local -->
-        <div class="bg-slate-950/60 border border-slate-800/60 rounded-2xl p-3">
-            <div class="flex items-center justify-between mb-2 px-1">
-                <h3 class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                    🕒 Histórico Recente
-                </h3>
-                <button onclick="limparHistorico()" type="button" class="text-[11px] text-rose-400 hover:text-rose-300 transition">Limpar</button>
-            </div>
-            <div id="history-list" class="flex gap-2 overflow-x-auto pb-1 text-xs no-scrollbar">
-                <span class="text-slate-500 italic text-xs">Nenhuma geração salva ainda.</span>
-            </div>
-        </div>
-
-        <!-- Output / Preview Section -->
-        <div class="bg-slate-950 border border-slate-800 rounded-2xl flex flex-col overflow-hidden shadow-2xl flex-1 min-h-[460px]">
-            <!-- Toolbar Superior -->
-            <div class="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5 bg-black/80 border-b border-slate-800 text-xs">
-                <!-- Abas Preview/Código -->
-                <div class="flex space-x-1 bg-slate-900/80 p-1 rounded-xl border border-slate-800">
-                    <button onclick="switchTab('preview')" id="tab-preview" type="button" class="px-3 py-1 rounded-lg bg-slate-800 text-white font-medium transition">Preview</button>
-                    <button onclick="switchTab('code')" id="tab-code" type="button" class="px-3 py-1 rounded-lg text-slate-400 hover:text-white transition">Código Interativo</button>
-                </div>
-
-                <!-- Simulador de Dispositivos -->
-                <div id="device-selector" class="flex space-x-1 bg-slate-900/80 p-1 rounded-xl border border-slate-800">
-                    <button onclick="setDevice('mobile')" id="dev-mobile" type="button" class="px-2.5 py-1 rounded-lg text-slate-400 hover:text-white transition" title="Telemóvel (375px)">📱</button>
-                    <button onclick="setDevice('tablet')" id="dev-tablet" type="button" class="px-2.5 py-1 rounded-lg text-slate-400 hover:text-white transition" title="Tablet (768px)">📟</button>
-                    <button onclick="setDevice('desktop')" id="dev-desktop" type="button" class="px-2.5 py-1 rounded-lg bg-slate-800 text-white transition" title="Desktop (100%)">💻</button>
-                </div>
-
-                <!-- Botões de Ação -->
-                <div class="flex items-center space-x-1.5">
-                    <button onclick="copiarCodigo()" type="button" class="bg-slate-900 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-xl transition border border-slate-800 active:scale-95">📋 Copiar</button>
-                    <button onclick="baixarHtml()" type="button" class="bg-slate-900 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-xl transition border border-slate-800 active:scale-95">💾 Baixar</button>
-                    <button onclick="expandirPreview()" type="button" class="bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 px-3 py-1.5 rounded-xl transition border border-indigo-500/30 active:scale-95">⛶ Expandir</button>
-                </div>
-            </div>
-
-            <!-- Content Area -->
-            <div class="relative flex-1 bg-black flex flex-col justify-center items-center overflow-hidden min-h-[350px]">
-                
-                <!-- Loading Screen Overlay -->
-                <div id="loading-overlay" class="absolute inset-0 bg-black/90 backdrop-blur-sm z-20 flex flex-col items-center justify-center space-y-3 hidden">
-                    <div class="w-10 h-10 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin"></div>
-                    <span class="text-xs text-indigo-400 font-mono tracking-wider animate-pulse">RADAMN AI A PROCESSAR...</span>
-                </div>
-
-                <!-- Preview Frame Container -->
-                <div id="view-preview" class="w-full h-full flex justify-center items-center p-2">
-                    <div id="preview-wrapper" class="w-full h-full bg-slate-950 rounded-lg overflow-hidden shadow-2xl">
-                        <iframe id="preview-frame" class="w-full h-full border-0"></iframe>
-                    </div>
-                </div>
-
-                <!-- Code View (Live Editor) -->
-                <div id="view-code" class="absolute inset-0 w-full h-full flex flex-col hidden bg-slate-950 p-2">
-                    <div class="flex items-center justify-between pb-2 px-2 text-[11px] text-slate-400 border-b border-slate-800">
-                        <span>Edição Direta: Altere o código abaixo e veja o preview atualizar em tempo real</span>
-                        <span class="text-indigo-400 font-mono">HTML + Tailwind</span>
-                    </div>
-                    <textarea id="code-editor" oninput="atualizarPreviewDoEditor()" class="w-full h-full bg-slate-900 text-indigo-200 font-mono text-xs p-3 focus:outline-none resize-none border-0 leading-relaxed rounded-b-xl"></textarea>
-                </div>
-
             </div>
         </div>
 
     </main>
 
-    <!-- JavaScript Integrado com a API da Radamn AI -->
     <script>
-        let currentMode = 'gerar';
-        let latestCode = '';
-        let historyData = [];
+        async function enviarMensagem() {
+            const input = document.getElementById('prompt-input');
+            const chatBox = document.getElementById('chat-box');
+            const btn = document.getElementById('submit-btn');
+            const texto = input.value.trim();
 
-        try {
-            historyData = JSON.parse(localStorage.getItem('radamn_history') || '[]');
-        } catch (e) {
-            historyData = [];
-        }
+            if (!texto) return;
 
-        function toggleDrawer() {
-            const drawer = document.getElementById('drawer');
-            const overlay = document.getElementById('drawer-overlay');
-            if (drawer && overlay) {
-                drawer.classList.toggle('-translate-x-full');
-                overlay.classList.toggle('hidden');
-            }
-        }
+            // Adiciona mensagem do usuário no chat
+            chatBox.innerHTML += `
+                <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl text-xs text-slate-200 ml-6">
+                    <b>Você:</b> ${texto}
+                </div>
+            `;
 
-        function usarSugestao(texto) {
-            const promptInput = document.getElementById('prompt-input');
-            if (promptInput) {
-                promptInput.value = texto;
-                promptInput.focus();
-            }
-        }
-
-        function setMode(mode) {
-            currentMode = mode;
-            
-            // Atualiza o visual dos botões do topo
-            ['gerar', 'refine', 'chat'].forEach(m => {
-                const btn = document.getElementById(`btn-${m}`);
-                if (btn) {
-                    if (m === mode) {
-                        btn.className = "py-2 text-xs md:text-sm font-medium rounded-xl bg-indigo-600 text-white transition flex items-center justify-center space-x-1 shadow-lg shadow-indigo-600/25";
-                    } else {
-                        btn.className = "py-2 text-xs md:text-sm font-medium rounded-xl text-slate-400 hover:text-white transition flex items-center justify-center space-x-1";
-                    }
-                }
-            });
-
-            // Atualiza a etiqueta do modo
-            const label = document.getElementById('current-mode-label');
-            if (label) {
-                const nomeModo = mode === 'chat' ? 'Assistente (Chat)' : mode === 'refine' ? 'Refinar' : 'Gerar UI';
-                label.innerText = `Modo: ${nomeModo}`;
-            }
-
-            // Esconde/mostra seletor de dispositivos se for modo Chat
-            const devSelector = document.getElementById('device-selector');
-            if (devSelector) {
-                if (mode === 'chat') {
-                    devSelector.classList.add('hidden');
-                } else {
-                    devSelector.classList.remove('hidden');
-                }
-            }
-        }
-
-        function switchTab(tab) {
-            if (tab === 'preview') {
-                document.getElementById('tab-preview').className = "px-3 py-1 rounded-lg bg-slate-800 text-white font-medium transition";
-                document.getElementById('tab-code').className = "px-3 py-1 rounded-lg text-slate-400 hover:text-white transition";
-                document.getElementById('view-preview').classList.remove('hidden');
-                document.getElementById('view-code').classList.add('hidden');
-                if (currentMode !== 'chat') {
-                    document.getElementById('device-selector').classList.remove('hidden');
-                }
-            } else {
-                document.getElementById('tab-code').className = "px-3 py-1 rounded-lg bg-slate-800 text-white font-medium transition";
-                document.getElementById('tab-preview').className = "px-3 py-1 rounded-lg text-slate-400 hover:text-white transition";
-                document.getElementById('view-code').classList.remove('hidden');
-                document.getElementById('view-preview').classList.add('hidden');
-                document.getElementById('device-selector').classList.add('hidden');
-            }
-        }
-
-        function setDevice(device) {
-            const wrapper = document.getElementById('preview-wrapper');
-            ['mobile', 'tablet', 'desktop'].forEach(d => {
-                const btn = document.getElementById(`dev-${d}`);
-                if (btn) {
-                    if (d === device) {
-                        btn.className = "px-2.5 py-1 rounded-lg bg-slate-800 text-white transition";
-                    } else {
-                        btn.className = "px-2.5 py-1 rounded-lg text-slate-400 hover:text-white transition";
-                    }
-                }
-            });
-
-            if (wrapper) {
-                if (device === 'mobile') wrapper.style.width = '375px';
-                else if (device === 'tablet') wrapper.style.width = '768px';
-                else wrapper.style.width = '100%';
-            }
-        }
-
-        function renderizarIframe(codigo) {
-            const frame = document.getElementById('preview-frame');
-            if (frame) {
-                const frameDoc = frame.contentDocument || frame.contentWindow.document;
-                frameDoc.open();
-                frameDoc.write(codigo);
-                frameDoc.close();
-            }
-        }
-
-        function atualizarPreviewDoEditor() {
-            latestCode = document.getElementById('code-editor').value;
-            renderizarIframe(latestCode);
-        }
-
-        async function enviarPrompt() {
-            const promptInput = document.getElementById('prompt-input');
-            const prompt = promptInput ? promptInput.value.trim() : '';
-            if (!prompt) return;
-
-            const submitBtn = document.getElementById('submit-btn');
-            const loadingOverlay = document.getElementById('loading-overlay');
-
-            if (submitBtn) {
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = `<span>A processar...</span>`;
-            }
-            if (loadingOverlay) loadingOverlay.classList.remove('hidden');
+            input.value = '';
+            btn.disabled = true;
+            btn.innerText = 'Enviando...';
+            chatBox.scrollTop = chatBox.scrollHeight;
 
             try {
-                // Chamada direta para a SUA API na Vercel
                 const response = await fetch('/api/generate', {
                     method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        prompt: prompt,
-                        mode: currentMode
-                    })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: texto, mode: 'chat' })
                 });
 
                 const data = await response.json();
+                const resposta = data.response || data.error || 'Sem resposta.';
 
-                if (data.error) throw new Error(data.error);
+                // Adiciona resposta do assistente no chat
+                chatBox.innerHTML += `
+                    <div class="bg-indigo-950/40 border border-indigo-800/40 p-3 rounded-xl text-xs text-indigo-200 mr-6 whitespace-pre-wrap">
+                        🤖 <b>Radamn AI:</b>\n${resposta}
+                    </div>
+                `;
+            } catch (err) {
+                chatBox.innerHTML += `
+                    <div class="bg-rose-950/40 border border-rose-800/40 p-3 rounded-xl text-xs text-rose-300 mr-6">
+                        ⚠️ Erro ao enviar mensagem.
+                    </div>
+                `;
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Enviar ➔';
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+        }
+    </script>
+</body>
+</html>
 
-       
