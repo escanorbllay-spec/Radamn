@@ -1,86 +1,55 @@
 export default async function handler(req, res) {
-  res.setHeader('Content-Type', 'application/json');
+  // Configuração de CORS para permitir acesso ao frontend
+  res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-radamn-key');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
 
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Método não permitido' });
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
 
-  // Validação da Chave Mestra (JoJoStarOx)
-  const clientKey = req.headers['x-radamn-key'];
-  const serverKey = process.env.RADAMN_MASTER_KEY;
+  // Captura a mensagem/prompt enviada pelo utilizador
+  const { prompt } = req.body;
 
-  if (serverKey && clientKey !== serverKey) {
-    return res.status(401).json({ 
-      code: '<div style="padding:2rem;color:#ef4444;text-align:center;">Acesso não autorizado. Chave inválida.</div>',
-      text: 'Acesso não autorizado. Chave inválida.' 
-    });
+  if (!prompt) {
+    return res.status(400).json({ error: "O campo 'prompt' é obrigatório." });
   }
 
   try {
-    const { prompt, mode, currentCode } = req.body || {};
-    if (!prompt) {
-      return res.status(400).json({ code: '<div>Prompt não fornecido.</div>', text: 'Prompt não fornecido.' });
-    }
+    // Chamada direta para o cérebro do teu modelo Radamn AI no Hugging Face
+    const hfResponse = await fetch(
+      "https://api-inference.huggingface.co/models/LuffyNox/radamn-ai-v1",
+      {
+        headers: {
+          Authorization: `Bearer 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`,
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+        body: JSON.stringify({
+          inputs: prompt,
+          parameters: {
+            max_new_tokens: 512,
+            temperature: 0.7
+          }
+        }),
+      }
+    );
 
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      return res.status(200).json({ 
-        code: '<div style="padding:2rem;color:#ef4444;text-align:center;">Chave GEMINI_API_KEY não configurada na Vercel.</div>',
-        text: 'Chave GEMINI_API_KEY não configurada na Vercel.' 
-      });
-    }
+    const data = await hfResponse.json();
 
-    let systemInstruction = "Você é um Engenheiro de Software Full-Stack Sênior e UI/UX Designer. Sua função é gerar código limpo, moderno, responsivo com Tailwind CSS e TOTALMENTE INTERATIVO em JavaScript nativo. Retorne EXCLUSIVAMENTE o código HTML/JS completo em um único bloco sem explicações em texto.";
-    
-    let userMessage = prompt;
-    if (mode === 'refine' && currentCode) {
-      userMessage = `Código HTML/JS Atual:\n${currentCode}\n\nSolicitação de Alteração do Usuário: ${prompt}`;
-    } else if (mode === 'chat') {
-      systemInstruction = "Você é um Engenheiro de Software Full-Stack e Consultor de TI. Responda em texto corrido e amigável tirando dúvidas sem gerar páginas inteiras de código.";
-    }
-
-    // Utiliza diretamente o modelo atualizado recomendado pela Google
-    const modelName = "models/gemini-3.8-flash";
-    const generateUrl = `https://generativelanguage.googleapis.com/v1beta/${modelName}:generateContent?key=${apiKey}`;
-
-    const response = await fetch(generateUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: `${systemInstruction}\n\n${userMessage}` }] }]
-      })
-    });
-
-    const data = await response.json();
-
-    if (response.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
-      const outputText = data.candidates[0].content.parts[0].text;
-      const cleanCode = outputText.replace(/```html|```jsx|```javascript|```/g, '').trim();
-
-      return res.status(200).json({ 
-        code: cleanCode || '<div>Sem código gerado.</div>', 
-        text: outputText || 'Sem texto gerado.' 
-      });
-    }
-
-    const apiErrorMessage = data.error?.message || 'Erro ao processar na API do Gemini';
+    // Retorna a resposta gerada pela tua IA
     return res.status(200).json({
-      code: `<div style="padding:2rem; text-align:center; color:#ef4444; font-family:sans-serif;">
-        <h3>Erro na API do Gemini (${modelName})</h3>
-        <p>${apiErrorMessage}</p>
-      </div>`,
-      text: `Erro Gemini: ${apiErrorMessage}`
+      success: true,
+      model: "Radamn AI v1",
+      response: data[0]?.generated_text || data
     });
 
-  } catch (err) {
-    return res.status(200).json({ 
-      code: `<div style="padding:2rem; text-align:center; color:#ef4444; font-family:sans-serif;">
-        <h3>Erro no Servidor</h3>
-        <p>${err.message}</p>
-      </div>`,
-      text: `Erro: ${err.message}` 
+  } catch (error) {
+    return res.status(500).json({ 
+      error: "Erro ao processar na Radamn AI Engine", 
+      details: error.message 
     });
   }
 }
