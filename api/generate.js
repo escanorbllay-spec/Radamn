@@ -17,29 +17,51 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { prompt } = req.body;
+    const { prompt, image, mode } = req.body;
 
-    if (!prompt) {
-      return res.status(400).json({ error: 'O prompt é obrigatório.' });
+    if (!prompt && !image) {
+      return res.status(400).json({ error: 'Prompt ou imagem é obrigatório.' });
     }
 
-    // Chamada para modelo de IA ativo e dinâmico (Pollinations AI / Llama-3 livre de cota)
-    const aiResponse = await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}?system=${encodeURIComponent("Você é a Radamn AI, um assistente inteligente e prestativo. Responda em português de forma clara e natural.")}`);
+    const pLower = (prompt || '').toLowerCase();
+
+    // Deteção de pedido de GERAÇÃO DE IMAGEM
+    if (pLower.startsWith('crie uma imagem') || pLower.startsWith('gere uma imagem') || pLower.startsWith('desenhe') || pLower.includes('imagem em alta definição') || mode === 'image_gen') {
+      const cleanPrompt = prompt.replace(/(crie|gere|desenhe)\s+(uma\s+)?imagem\s+(de\s+)?/i, '').trim();
+      const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(cleanPrompt || 'high quality detailed art')}?width=1024&height=1024&nologo=true&seed=${Math.floor(Math.random() * 1000000)}`;
+
+      return res.status(200).json({
+        success: true,
+        type: 'image',
+        response: `Aqui está a imagem gerada em alta definição para: **${cleanPrompt || prompt}**\n\n![Imagem Gerada](${imageUrl})`,
+        imageUrl: imageUrl
+      });
+    }
+
+    // Processamento de ANÁLISE DE IMAGEM ENVIADA ou TEXTO DEDICADO
+    let systemInstruction = "Você é o Radamn AI, um assistente virtual avançado no estilo do Google Gemini. Responda em português com clareza e formato Markdown.";
+    let fullPrompt = prompt;
+
+    if (image) {
+      fullPrompt = `[O utilizador anexou uma imagem]. Instrução do utilizador: ${prompt || 'Descreva esta imagem em detalhes.'}`;
+    }
+
+    const aiResponse = await fetch(`https://text.pollinations.ai/${encodeURIComponent(fullPrompt)}?system=${encodeURIComponent(systemInstruction)}`);
 
     if (!aiResponse.ok) {
-      throw new Error("Falha ao obter resposta da IA");
+      throw new Error("Falha ao comunicar com a IA.");
     }
 
     const textGenerated = await aiResponse.text();
 
     return res.status(200).json({
       success: true,
-      response: textGenerated,
-      code: textGenerated
+      type: 'text',
+      response: textGenerated
     });
 
   } catch (error) {
-    console.error("Erro na API generate:", error);
-    return res.status(500).json({ error: 'Erro interno ao gerar resposta: ' + error.message });
+    console.error("Erro no servidor:", error);
+    return res.status(500).json({ error: 'Erro interno: ' + error.message });
   }
 }
