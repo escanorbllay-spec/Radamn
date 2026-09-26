@@ -1,5 +1,5 @@
 export default async function handler(req, res) {
-  // Configura os cabeçalhos de CORS
+  // Configuração dos cabeçalhos CORS
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
@@ -27,8 +27,8 @@ export default async function handler(req, res) {
     const HF_TOKEN = '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';
     const MODEL_REPO = 'LuffyNox/radamn-ai-v1';
 
-    // Chamada para a Inference API oficial do Hugging Face
-    const hfResponse = await fetch(`https://api-inference.huggingface.co/models/${MODEL_REPO}`, {
+    // Rota ATUALIZADA do Hugging Face Router
+    const hfResponse = await fetch(`https://router.huggingface.co/hf-inference/models/${MODEL_REPO}`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${HF_TOKEN}`,
@@ -46,16 +46,16 @@ export default async function handler(req, res) {
 
     const result = await hfResponse.json();
 
-    // Trata quando o modelo está carregando na GPU do Hugging Face
     if (hfResponse.status === 503) {
       return res.status(200).json({ 
-        response: '⚠️ O modelo Radamn AI está a ser inicializado na GPU do Hugging Face. Por favor, aguarde 20 segundos e tente novamente!' 
+        response: '⚠️ O modelo Radamn AI está a ser inicializado na GPU. Aguarde 20 segundos e tente novamente.' 
       });
     }
 
     if (!hfResponse.ok) {
+      const errorMsg = typeof result === 'object' ? (result.error || JSON.stringify(result)) : result;
       return res.status(hfResponse.status).json({ 
-        error: result.error || 'Erro ao comunicar com o Hugging Face.' 
+        error: `Erro no Hugging Face: ${errorMsg}` 
       });
     }
 
@@ -65,6 +65,8 @@ export default async function handler(req, res) {
       textGenerated = result[0].generated_text;
     } else if (typeof result === 'string') {
       textGenerated = result;
+    } else if (result.generated_text) {
+      textGenerated = result.generated_text;
     } else {
       textGenerated = JSON.stringify(result);
     }
