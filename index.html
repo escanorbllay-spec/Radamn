@@ -117,12 +117,10 @@
 
       if (!messageText) return;
 
-      // Adiciona mensagem do usuário na tela
       appendMessage(messageText, "user-message");
       inputField.value = "";
       sendBtn.disabled = true;
 
-      // Elemento de carregamento
       const loadingDiv = appendMessage("Processando no motor Radamn...", "bot-message");
 
       try {
@@ -135,10 +133,13 @@
         const data = await response.json();
         loadingDiv.remove();
 
+        // Tratamento seguro para garantir a exibição do texto
+        let textToShow = data.response || data.reply || data.generated_text || data.message || (typeof data === "string" ? data : JSON.stringify(data));
+
         if (data.type === "image") {
-          appendMessage(`${data.response}<br><img class="media-img" src="${data.media_url}" alt="Imagem Gerada">`, "bot-message");
+          appendMessage(`${textToShow}<br><img class="media-img" src="${data.media_url}" alt="Imagem Gerada">`, "bot-message");
         } else {
-          appendMessage(data.response, "bot-message");
+          appendMessage(textToShow, "bot-message");
         }
 
       } catch (error) {
