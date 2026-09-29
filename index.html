@@ -107,11 +107,8 @@
   </div>
 
   <script>
-    const BASE_URL = (typeof process !== "undefined" && process.env && process.env.NEXT_PUBLIC_API_BASE_URL)
-      ? process.env.NEXT_PUBLIC_API_BASE_URL.replace(/\/$/, "")
-      : "https://radamanthys-core.onrender.com";
-
-    const API_URL = `${BASE_URL}/api/chat`;
+    // Chama a rota de API local da Vercel para intermediação segura
+    const API_URL = "/api/generate";
 
     async function sendMessage() {
       const inputField = document.getElementById("user-input");
@@ -137,8 +134,12 @@
         const data = await response.json();
         loadingDiv.remove();
 
-        // Tratamento seguro para garantir a exibição do texto
-        let textToShow = data.response || data.reply || data.generated_text || data.message || (typeof data === "string" ? data : JSON.stringify(data));
+        if (!response.ok) {
+          appendMessage(`⚠️ ${data.error || 'Erro no servidor.'}`, "bot-message");
+          return;
+        }
+
+        let textToShow = data.reply || data.response || data.message || (typeof data === "string" ? data : JSON.stringify(data));
 
         if (data.type === "image") {
           appendMessage(`${textToShow}<br><img class="media-img" src="${data.media_url}" alt="Imagem Gerada">`, "bot-message");
@@ -147,7 +148,8 @@
         }
 
       } catch (error) {
-        loadingDiv.textContent = "⚠️ Erro ao conectar ao servidor backend no Render.";
+        if (loadingDiv) loadingDiv.remove();
+        appendMessage("⚠️ Erro ao conectar ao servidor backend no Render.", "bot-message");
         console.error(error);
       } finally {
         sendBtn.disabled = false;
