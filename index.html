@@ -107,7 +107,11 @@
   </div>
 
   <script>
-    const API_URL = "https://radamn-engine.onrender.com/api/chat";
+    const BASE_URL = (typeof process !== "undefined" && process.env && process.env.NEXT_PUBLIC_API_BASE_URL)
+      ? process.env.NEXT_PUBLIC_API_BASE_URL.replace(/\/$/, "")
+      : "https://radamanthys-core.onrender.com";
+
+    const API_URL = `${BASE_URL}/api/chat`;
 
     async function sendMessage() {
       const inputField = document.getElementById("user-input");
