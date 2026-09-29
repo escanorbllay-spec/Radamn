@@ -102,12 +102,12 @@
   </div>
 
   <div id="input-container">
-    <input type="text" id="user-input" placeholder="Digite uma mensagem ou 'crie uma imagem de...'" onkeydown="if(event.key === 'Enter') sendMessage()">
+    <input type="text" id="user-input" placeholder="Digite uma mensagem..." onkeydown="if(event.key === 'Enter') sendMessage()">
     <button id="send-btn" onclick="sendMessage()">Enviar</button>
   </div>
 
   <script>
-    // Chama a rota de API local da Vercel para intermediação segura
+    // Aponta para a rota intermédia na Vercel (api/generate.js)
     const API_URL = "/api/generate";
 
     async function sendMessage() {
@@ -122,7 +122,7 @@
       inputField.value = "";
       sendBtn.disabled = true;
 
-      const loadingDiv = appendMessage("Processando no motor Radamn...", "bot-message");
+      const loadingDiv = appendMessage("A processar no motor Radamn...", "bot-message");
 
       try {
         const response = await fetch(API_URL, {
