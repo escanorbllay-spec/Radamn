@@ -1,24 +1,24 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import generateHandler from './api/generate.js';
-
-dotenv.config();
-
+const express = require('express');
+const cors = require('cors');
 const app = express();
 
+// Ativa o CORS sem restrições de origem
 app.use(cors());
-app.use(express.json({ limit: '10mb' }));
 
-// Rota principal da API
-app.post('/api/generate', generateHandler);
+// Garante que o servidor entenda requisições JSON
+app.use(express.json());
 
-// Rota para verificar se o servidor está online
 app.get('/', (req, res) => {
   res.send('Servidor RadamNox AI rodando com sucesso!');
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Servidor ativo na porta ${PORT}`);
+// Certifique-se de que a rota POST corresponde ao que o frontend chama
+app.post('/api/chat', async (req, res) => {
+  try {
+    // Sua lógica de chamada da OpenRouter aqui
+    const { message } = req.body;
+    // ...
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
