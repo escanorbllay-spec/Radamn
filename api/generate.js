@@ -5,8 +5,8 @@ export default async function handler(req, res) {
 
   const { message, messages } = req.body;
 
-  // URL do seu servidor backend no Render e a Master Key
-  const RENDER_BACKEND_URL = process.env.MY_CUSTOM_API_URL || 'https://radamnox-backend.onrender.com/api/chat';
+  // URL EXATA do seu backend no Render
+  const RENDER_BACKEND_URL = process.env.MY_CUSTOM_API_URL || 'https://radamanthys-core.onrender.com/api/chat';
   const MASTER_KEY = process.env.RADAMN_MASTER_KEY || process.env.MY_CUSTOM_API_KEY;
 
   try {
@@ -30,19 +30,10 @@ export default async function handler(req, res) {
       });
     }
 
-    // Retorna no formato que o seu index.html espera
-    const replyContent = data.reply || data.message || 'Sem resposta da IA.';
+    const replyContent = data.reply || data.response || data.message || 'Sem resposta da IA.';
 
     return res.status(200).json({
-      reply: replyContent,
-      choices: [
-        {
-          message: {
-            role: 'assistant',
-            content: replyContent
-          }
-        }
-      ]
+      reply: replyContent
     });
 
   } catch (error) {
