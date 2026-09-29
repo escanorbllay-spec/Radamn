@@ -1,74 +1,54 @@
-export default async function generateHandler(req, res) {
-  // Configuração de CORS para permitir acesso do frontend Vercel
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-  res.setHeader(
-    'Access-Control-Allow-Headers',
-    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
-  );
-
-  // Tratamento da requisição preflight (OPTIONS)
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-
+export default async function handler(req, res) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Apenas o método POST é permitido.' });
+    return res.status(405).json({ error: 'Método não permitido' });
   }
+
+  const { message, messages } = req.body;
+
+  // URL do seu servidor backend no Render e a Master Key
+  const RENDER_BACKEND_URL = process.env.MY_CUSTOM_API_URL || 'https://radamnox-backend.onrender.com/api/chat';
+  const MASTER_KEY = process.env.RADAMN_MASTER_KEY || process.env.MY_CUSTOM_API_KEY;
 
   try {
-    const { prompt, image, mode } = req.body || {};
+    const response = await fetch(RENDER_BACKEND_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(MASTER_KEY ? { 'Authorization': `Bearer ${MASTER_KEY}` } : {})
+      },
+      body: JSON.stringify({
+        message: message || (messages && messages[messages.length - 1]?.content),
+        messages: messages || [{ role: 'user', content: message }]
+      })
+    });
 
-    if (!prompt && !image) {
-      return res.status(400).json({ error: 'Prompt ou imagem é obrigatório.' });
-    }
+    const data = await response.json();
 
-    const pLower = (prompt || '').toLowerCase();
-
-    // Detecção de pedido para GERAÇÃO DE IMAGEM
-    if (
-      pLower.startsWith('crie uma imagem') || 
-      pLower.startsWith('gere uma imagem') || 
-      pLower.startsWith('desenhe') || 
-      pLower.includes('imagem em alta definição') || 
-      mode === 'image_gen'
-    ) {
-      const cleanPrompt = prompt.replace(/(crie|gere|desenhe)\s+(uma\s+)?imagem\s+(de\s+)?/i, '').trim();
-      const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(cleanPrompt || 'high quality detailed art')}?width=1024&height=1024&nologo=true&seed=${Math.floor(Math.random() * 1000000)}`;
-
-      return res.status(200).json({
-        success: true,
-        type: 'image',
-        response: `Aqui está a imagem gerada para: **${cleanPrompt || prompt}**\n\n![Imagem Gerada](${imageUrl})`,
-        imageUrl: imageUrl
+    if (!response.ok) {
+      return res.status(response.status).json({ 
+        error: data.error || 'Erro no servidor backend no Render' 
       });
     }
 
-    // Processamento de TEXTO ou ANÁLISE DE IMAGEM ENVIADA
-    const systemInstruction = "Você é o RadamNox AI, um assistente virtual avançado. Responda em português com clareza e com formatação Markdown útil.";
-    let fullPrompt = prompt;
-
-    if (image) {
-      fullPrompt = `[O usuário enviou uma imagem]. Instrução do usuário: ${prompt || 'Descreva esta imagem em detalhes.'}`;
-    }
-
-    const aiResponse = await fetch(`https://text.pollinations.ai/${encodeURIComponent(fullPrompt)}?system=${encodeURIComponent(systemInstruction)}`);
-
-    if (!aiResponse.ok) {
-      throw new Error("Falha ao comunicar com a IA.");
-    }
-
-    const textGenerated = await aiResponse.text();
+    // Retorna no formato que o seu index.html espera
+    const replyContent = data.reply || data.message || 'Sem resposta da IA.';
 
     return res.status(200).json({
-      success: true,
-      type: 'text',
-      response: textGenerated
+      reply: replyContent,
+      choices: [
+        {
+          message: {
+            role: 'assistant',
+            content: replyContent
+          }
+        }
+      ]
     });
 
   } catch (error) {
-    console.error("Erro no processamento da API:", error);
-    return res.status(500).json({ error: 'Erro interno no backend: ' + error.message });
+    return res.status(500).json({ 
+      error: 'Erro ao conectar ao servidor no Render',
+      details: error.message 
+    });
   }
 }
