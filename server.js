@@ -6,6 +6,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Log de diagnóstico
 app.use((req, res, next) => {
   console.log(`[REQUEST RECEBIDO] ${req.method} ${req.url}`);
   next();
@@ -22,10 +23,10 @@ async function handleChat(req, res) {
 
     let formattedMessages = [];
 
-    // System Prompt que define o TEU modelo Radam Nox
+    // System Prompt que define a identidade do TEU modelo Radam Nox
     const systemInstruction = {
       role: 'system',
-      content: 'Você é o Radam Nox, um modelo de inteligência artificial exclusivo, avançado e prestável. Responda de forma precisa, direta e inteligente.'
+      content: 'Você é o Radam Nox, um modelo de inteligência artificial exclusivo, avançado e altamente capacitado. Responda de forma precisa, direta e inteligente.'
     };
 
     if (messages && Array.isArray(messages) && messages.length > 0) {
@@ -42,7 +43,7 @@ async function handleChat(req, res) {
       return res.status(500).json({ error: 'Chave do OpenRouter ausente no backend.' });
     }
 
-    // Usando um modelo 100% gratuito do OpenRouter para processar o teu Radam Nox
+    // Modelo gratuito atualizado para processar as respostas do Radam Nox
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
