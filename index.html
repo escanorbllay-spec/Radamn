@@ -8,15 +8,15 @@
   <style>
     :root {
       --bg-color: #000000;
-      --sidebar-bg: #0b0d14;
-      --card-bg: #121520;
-      --card-hover: #1a1e2d;
+      --sidebar-bg: #0a0c10;
+      --card-bg: #12151e;
+      --card-hover: #1a1e2b;
       --text-color: #f3f4f6;
-      --text-muted: #9ca3af;
+      --text-muted: #8b949e;
       --accent-gradient: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 50%, #06b6d4 100%);
       --accent-purple: #8b5cf6;
       --user-msg: #1d4ed8;
-      --bot-msg: #0f131f;
+      --bot-msg: #0d1117;
       --border-color: rgba(255, 255, 255, 0.1);
       --sidebar-width: 280px;
     }
@@ -37,22 +37,20 @@
       overflow: hidden;
     }
 
-    body { display: flex; width: 100vw; }
+    body { display: flex; width: 100vw; position: relative; }
 
-    /* Overlay escuro para mobile ao abrir a sidebar */
+    /* Máscara de fundo ao abrir a sidebar */
     .sidebar-overlay {
       position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.7);
+      top: 0; left: 0; width: 100vw; height: 100dvh;
+      background: rgba(0, 0, 0, 0.7);
       backdrop-filter: blur(4px);
       z-index: 999;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.25s ease;
+      display: none;
     }
-    .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
+    .sidebar-overlay.active { display: block; }
 
-    /* Sidebar Flutuante */
+    /* Sidebar Flutuante Corrigida */
     .sidebar {
       position: fixed;
       top: 0; left: 0;
@@ -63,7 +61,7 @@
       display: flex;
       flex-direction: column;
       transform: translateX(-100%);
-      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: transform 0.25s ease-in-out;
       z-index: 1000;
     }
 
@@ -98,10 +96,7 @@
       justify-content: center;
       gap: 0.6rem;
       cursor: pointer;
-      transition: background 0.2s;
     }
-
-    .new-chat-btn:active { background: rgba(139, 92, 246, 0.3); }
 
     .chat-history-list {
       flex: 1;
@@ -147,8 +142,8 @@
       align-items: center;
       justify-content: space-between;
       border-bottom: 1px solid var(--border-color);
-      background: rgba(0, 0, 0, 0.8);
-      backdrop-filter: blur(16px);
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(12px);
       flex-shrink: 0;
       z-index: 10;
     }
@@ -172,7 +167,7 @@
       outline: none;
     }
 
-    /* Área do Chat */
+    /* Área de Chat */
     #chat-container {
       flex: 1;
       overflow-y: auto;
@@ -203,11 +198,11 @@
       font-size: 1.8rem;
       color: white;
       margin-bottom: 1rem;
-      box-shadow: 0 0 35px rgba(139, 92, 246, 0.35);
+      box-shadow: 0 0 30px rgba(139, 92, 246, 0.3);
     }
 
     .welcome-title {
-      font-size: 1.9rem;
+      font-size: 1.8rem;
       font-weight: 800;
       margin-bottom: 0.4rem;
       background: var(--accent-gradient);
@@ -243,10 +238,7 @@
       display: flex;
       align-items: center;
       gap: 0.8rem;
-      transition: background 0.2s;
     }
-
-    .suggestion-card:active { background: var(--card-hover); }
 
     .card-icon { font-size: 1.2rem; color: #a78bfa; }
     .card-text { font-size: 0.85rem; color: var(--text-color); font-weight: 500; }
@@ -296,36 +288,30 @@
       background-color: var(--user-msg);
       color: white;
       border-bottom-right-radius: 4px;
-      box-shadow: 0 4px 15px rgba(29, 78, 216, 0.3);
     }
 
     .bot-message {
       background-color: var(--bot-msg);
       border: 1px solid var(--border-color);
       border-bottom-left-radius: 4px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
     }
 
-    /* Barra de Ações Rápidas nas Mensagens */
     .msg-actions {
       display: flex;
       gap: 0.5rem;
       margin-top: 0.2rem;
     }
 
-    .action-icon-btn {
+    .action-btn {
       background: none;
       border: none;
       color: var(--text-muted);
       font-size: 0.8rem;
       cursor: pointer;
       padding: 0.2rem 0.4rem;
-      border-radius: 4px;
     }
 
-    .action-icon-btn:active { color: white; }
-
-    /* Barra de Digitação em Cápsula */
+    /* Barra de Digitação */
     #input-container {
       padding: 0.8rem 1rem 1.2rem 1rem;
       background: var(--bg-color);
@@ -354,11 +340,10 @@
       display: flex;
       align-items: center;
       gap: 0.4rem;
-      background-color: #0d0f17;
+      background-color: #0b0d14;
       border: 1px solid var(--border-color);
       border-radius: 28px;
       padding: 0.4rem 0.8rem;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
     }
 
     .chat-form:focus-within {
@@ -399,7 +384,7 @@
 
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
-  <!-- Menu Lateral -->
+  <!-- Sidebar -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <span class="brand-title">Radam Nox</span>
@@ -411,6 +396,7 @@
     <div class="chat-history-list" id="chat-history-list"></div>
   </aside>
 
+  <!-- Container Principal -->
   <div class="main-container">
     <header>
       <div style="display: flex; align-items: center; gap: 0.8rem;">
@@ -423,7 +409,7 @@
       </select>
     </header>
 
-    <!-- Chat Container -->
+    <!-- Chat -->
     <div id="chat-container">
       <div class="welcome-hero" id="welcome-hero">
         <div class="welcome-icon"><i class="fa-solid fa-bolt"></i></div>
@@ -483,10 +469,9 @@
     document.addEventListener("DOMContentLoaded", () => {
       const API_URL = "https://radamanthys-core.onrender.com/api/chat";
       let selectedFiles = [];
-      let chatHistory = [];
 
       const sidebar = document.getElementById("sidebar");
-      const sidebarOverlay = document.getElementById("sidebar-overlay");
+      const overlay = document.getElementById("sidebar-overlay");
       const btnOpenSidebar = document.getElementById("btn-open-sidebar");
       const btnCloseSidebar = document.getElementById("btn-close-sidebar");
       const btnNewChat = document.getElementById("btn-new-chat");
@@ -503,21 +488,21 @@
       const btnCamera = document.getElementById("btn-camera");
       const btnMic = document.getElementById("btn-mic");
 
-      // Abrir e fechar Sidebar
+      // Abrir/Fechar Sidebar
       function openSidebar() {
         sidebar.classList.add("active");
-        sidebarOverlay.classList.add("active");
+        overlay.classList.add("active");
       }
       function closeSidebar() {
         sidebar.classList.remove("active");
-        sidebarOverlay.classList.remove("active");
+        overlay.classList.remove("active");
       }
 
       btnOpenSidebar.addEventListener("click", openSidebar);
       btnCloseSidebar.addEventListener("click", closeSidebar);
-      sidebarOverlay.addEventListener("click", closeSidebar);
+      overlay.addEventListener("click", closeSidebar);
 
-      // Novo Chat
+      // Resetar Chat
       btnNewChat.addEventListener("click", () => {
         chatContainer.innerHTML = `
           <div class="welcome-hero" id="welcome-hero">
@@ -550,15 +535,14 @@
       function bindCardClicks() {
         document.querySelectorAll(".suggestion-card").forEach(card => {
           card.addEventListener("click", () => {
-            const prompt = card.getAttribute("data-prompt");
-            userInput.value = prompt;
+            userInput.value = card.getAttribute("data-prompt");
             handleSendMessage();
           });
         });
       }
       bindCardClicks();
 
-      // Ajustar caixa de texto automaticamente
+      // Ajuste de Altura do Textarea
       userInput.addEventListener("input", () => {
         userInput.style.height = "auto";
         userInput.style.height = userInput.scrollHeight + "px";
@@ -576,7 +560,7 @@
         handleSendMessage();
       });
 
-      // Anexo e Câmera
+      // Anexos
       btnAttach.addEventListener("click", () => fileInput.click());
       btnCamera.addEventListener("click", () => cameraInput.click());
 
@@ -598,11 +582,11 @@
         });
       }
 
-      // Reconhecimento de Voz
+      // Microfone
       btnMic.addEventListener("click", () => {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SpeechRecognition) {
-          alert("Reconhecimento de voz não suportado neste navegador.");
+          alert("Navegador sem suporte para voz.");
           return;
         }
         const recognition = new SpeechRecognition();
@@ -618,7 +602,7 @@
         recognition.onend = () => btnMic.style.color = "var(--text-muted)";
       });
 
-      // Envio de Mensagem com Efeito de Digitação
+      // Envio de Mensagem
       async function handleSendMessage() {
         const text = userInput.value.trim();
         if (!text && selectedFiles.length === 0) return;
@@ -626,11 +610,13 @@
         const welcomeHero = document.getElementById("welcome-hero");
         if (welcomeHero) welcomeHero.remove();
 
-        // Salvar no Histórico Lateral
-        if (chatHistory.length === 0) {
-          addHistoryItem(text);
-        }
+        // Adiciona item na Sidebar
+        const historyItem = document.createElement("div");
+        historyItem.className = "history-item active";
+        historyItem.innerHTML = `<i class="fa-regular fa-message"></i> <span>${text}</span>`;
+        chatHistoryList.prepend(historyItem);
 
+        // Renderiza mensagem do usuário
         appendUserMessage(text, selectedFiles);
 
         userInput.value = "";
@@ -639,7 +625,13 @@
         selectedFiles = [];
 
         // Loading
-        const loadingRow = createLoadingRow();
+        const loadingRow = document.createElement("div");
+        loadingRow.className = "message-row bot-row";
+        loadingRow.innerHTML = `
+          <div class="avatar bot-avatar"><i class="fa-solid fa-bolt"></i></div>
+          <div class="message-body">
+            <div class="message bot-message" style="color: var(--text-muted);">Radam Nox a digitar...</div>
+          </div>`;
         chatContainer.appendChild(loadingRow);
         scrollToBottom();
 
@@ -653,9 +645,17 @@
           const data = await res.json();
           loadingRow.remove();
 
-          const botReply = data.reply || data.response || data.message || "Entendido! Como posso ajudar a seguir?";
+          const botReply = data.reply || data.response || data.message || "Processado com sucesso!";
           typeBotResponse(botReply);
 
         } catch (err) {
           loadingRow.remove();
-          typeBotResponse("⚠️ Ocorreu um erro ao conectar ao servidor backend. Tente novamente em alguns momen
+          typeBotResponse("⚠️ Servidor indisponível no momento. Tente novamente.");
+        }
+      }
+
+      function appendUserMessage(content, files) {
+        const row = document.createElement("div");
+        row.className = "message-row user-row";
+
+        let imgsHtml =
