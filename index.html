@@ -7,17 +7,17 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
-      --bg-color: #090d16;
-      --sidebar-bg: #111623;
-      --card-bg: rgba(20, 27, 41, 0.75);
-      --card-hover: rgba(30, 41, 62, 0.9);
-      --text-color: #f0f6fc;
-      --text-muted: #8b949e;
-      --accent-gradient: linear-gradient(135deg, #7c3aed 0%, #3b82f6 50%, #06b6d4 100%);
+      --bg-color: #000000;
+      --sidebar-bg: #0b0d14;
+      --card-bg: #121520;
+      --card-hover: #1a1e2d;
+      --text-color: #f3f4f6;
+      --text-muted: #9ca3af;
+      --accent-gradient: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 50%, #06b6d4 100%);
       --accent-purple: #8b5cf6;
-      --user-msg: #2563eb;
-      --bot-msg: #131927;
-      --border-color: rgba(255, 255, 255, 0.08);
+      --user-msg: #1d4ed8;
+      --bot-msg: #0f131f;
+      --border-color: rgba(255, 255, 255, 0.1);
       --sidebar-width: 280px;
     }
 
@@ -37,16 +37,25 @@
       overflow: hidden;
     }
 
-    body {
-      display: flex;
-      width: 100vw;
+    body { display: flex; width: 100vw; }
+
+    /* Overlay escuro para mobile ao abrir a sidebar */
+    .sidebar-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      z-index: 999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
     }
+    .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
 
     /* Sidebar Flutuante */
     .sidebar {
       position: fixed;
-      top: 0;
-      left: 0;
+      top: 0; left: 0;
       height: 100dvh;
       width: var(--sidebar-width);
       background-color: var(--sidebar-bg);
@@ -54,7 +63,7 @@
       display: flex;
       flex-direction: column;
       transform: translateX(-100%);
-      transition: transform 0.25s ease;
+      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
       z-index: 1000;
     }
 
@@ -79,16 +88,47 @@
     .new-chat-btn {
       width: 100%;
       padding: 0.8rem;
-      background: rgba(139, 92, 246, 0.12);
-      border: 1px solid rgba(139, 92, 246, 0.3);
+      background: rgba(139, 92, 246, 0.15);
+      border: 1px solid rgba(139, 92, 246, 0.4);
       border-radius: 12px;
-      color: #a78bfa;
+      color: #c4b5fd;
       font-weight: 600;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 0.6rem;
       cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .new-chat-btn:active { background: rgba(139, 92, 246, 0.3); }
+
+    .chat-history-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.8rem 0.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .history-item {
+      padding: 0.7rem 0.9rem;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .history-item:hover, .history-item.active {
+      background: var(--card-bg);
+      color: var(--text-color);
     }
 
     /* Layout Principal */
@@ -107,8 +147,8 @@
       align-items: center;
       justify-content: space-between;
       border-bottom: 1px solid var(--border-color);
-      background: rgba(9, 13, 22, 0.85);
-      backdrop-filter: blur(12px);
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(16px);
       flex-shrink: 0;
       z-index: 10;
     }
@@ -132,7 +172,7 @@
       outline: none;
     }
 
-    /* Chat Container */
+    /* Área do Chat */
     #chat-container {
       flex: 1;
       overflow-y: auto;
@@ -153,20 +193,21 @@
     }
 
     .welcome-icon {
-      width: 60px;
-      height: 60px;
+      width: 64px;
+      height: 64px;
       border-radius: 50%;
       background: var(--accent-gradient);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.6rem;
+      font-size: 1.8rem;
       color: white;
       margin-bottom: 1rem;
+      box-shadow: 0 0 35px rgba(139, 92, 246, 0.35);
     }
 
     .welcome-title {
-      font-size: 1.8rem;
+      font-size: 1.9rem;
       font-weight: 800;
       margin-bottom: 0.4rem;
       background: var(--accent-gradient);
@@ -202,25 +243,50 @@
       display: flex;
       align-items: center;
       gap: 0.8rem;
+      transition: background 0.2s;
     }
+
+    .suggestion-card:active { background: var(--card-hover); }
 
     .card-icon { font-size: 1.2rem; color: #a78bfa; }
     .card-text { font-size: 0.85rem; color: var(--text-color); font-weight: 500; }
 
     /* Mensagens */
-    .message-wrapper {
+    .message-row {
+      display: flex;
+      gap: 0.8rem;
+      width: 100%;
+      max-width: 90%;
+    }
+
+    .user-row { align-self: flex-end; flex-direction: row-reverse; }
+    .bot-row { align-self: flex-start; }
+
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+
+    .bot-avatar {
+      background: var(--accent-gradient);
+      color: white;
+    }
+
+    .message-body {
       display: flex;
       flex-direction: column;
       gap: 0.4rem;
-      max-width: 88%;
     }
-
-    .user-wrapper { align-self: flex-end; }
-    .bot-wrapper { align-self: flex-start; }
 
     .message {
       padding: 0.9rem 1.1rem;
-      border-radius: 16px;
+      border-radius: 18px;
       line-height: 1.5;
       word-break: break-word;
       font-size: 0.95rem;
@@ -230,15 +296,36 @@
       background-color: var(--user-msg);
       color: white;
       border-bottom-right-radius: 4px;
+      box-shadow: 0 4px 15px rgba(29, 78, 216, 0.3);
     }
 
     .bot-message {
       background-color: var(--bot-msg);
       border: 1px solid var(--border-color);
       border-bottom-left-radius: 4px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
     }
 
-    /* Barra de Digitação e Formulário */
+    /* Barra de Ações Rápidas nas Mensagens */
+    .msg-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.2rem;
+    }
+
+    .action-icon-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      cursor: pointer;
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+    }
+
+    .action-icon-btn:active { color: white; }
+
+    /* Barra de Digitação em Cápsula */
     #input-container {
       padding: 0.8rem 1rem 1.2rem 1rem;
       background: var(--bg-color);
@@ -267,10 +354,11 @@
       display: flex;
       align-items: center;
       gap: 0.4rem;
-      background-color: var(--sidebar-bg);
+      background-color: #0d0f17;
       border: 1px solid var(--border-color);
       border-radius: 28px;
       padding: 0.4rem 0.8rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
     }
 
     .chat-form:focus-within {
@@ -309,6 +397,8 @@
 </head>
 <body>
 
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
   <!-- Menu Lateral -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
@@ -318,6 +408,7 @@
     <div style="padding: 0.8rem;">
       <button type="button" class="new-chat-btn" id="btn-new-chat"><i class="fa-solid fa-plus"></i> Novo Chat</button>
     </div>
+    <div class="chat-history-list" id="chat-history-list"></div>
   </aside>
 
   <div class="main-container">
@@ -360,7 +451,7 @@
       </div>
     </div>
 
-    <!-- Barra de Entrada e Formulário de Envio -->
+    <!-- Barra de Digitação -->
     <div id="input-container">
       <div class="attachment-preview" id="attachment-preview"></div>
       
@@ -392,11 +483,14 @@
     document.addEventListener("DOMContentLoaded", () => {
       const API_URL = "https://radamanthys-core.onrender.com/api/chat";
       let selectedFiles = [];
+      let chatHistory = [];
 
       const sidebar = document.getElementById("sidebar");
+      const sidebarOverlay = document.getElementById("sidebar-overlay");
       const btnOpenSidebar = document.getElementById("btn-open-sidebar");
       const btnCloseSidebar = document.getElementById("btn-close-sidebar");
       const btnNewChat = document.getElementById("btn-new-chat");
+      const chatHistoryList = document.getElementById("chat-history-list");
       
       const chatContainer = document.getElementById("chat-container");
       const chatForm = document.getElementById("chat-form");
@@ -409,9 +503,19 @@
       const btnCamera = document.getElementById("btn-camera");
       const btnMic = document.getElementById("btn-mic");
 
-      // Abrir/Fechar Sidebar
-      btnOpenSidebar.addEventListener("click", () => sidebar.classList.add("active"));
-      btnCloseSidebar.addEventListener("click", () => sidebar.classList.remove("active"));
+      // Abrir e fechar Sidebar
+      function openSidebar() {
+        sidebar.classList.add("active");
+        sidebarOverlay.classList.add("active");
+      }
+      function closeSidebar() {
+        sidebar.classList.remove("active");
+        sidebarOverlay.classList.remove("active");
+      }
+
+      btnOpenSidebar.addEventListener("click", openSidebar);
+      btnCloseSidebar.addEventListener("click", closeSidebar);
+      sidebarOverlay.addEventListener("click", closeSidebar);
 
       // Novo Chat
       btnNewChat.addEventListener("click", () => {
@@ -440,10 +544,9 @@
             </div>
           </div>`;
         bindCardClicks();
-        sidebar.classList.remove("active");
+        closeSidebar();
       });
 
-      // Clique nos Cards de Sugestão
       function bindCardClicks() {
         document.querySelectorAll(".suggestion-card").forEach(card => {
           card.addEventListener("click", () => {
@@ -455,13 +558,12 @@
       }
       bindCardClicks();
 
-      // Ajuste automático do tamanho do campo de texto
+      // Ajustar caixa de texto automaticamente
       userInput.addEventListener("input", () => {
         userInput.style.height = "auto";
         userInput.style.height = userInput.scrollHeight + "px";
       });
 
-      // Envio de formulário (Botão ou Enter)
       userInput.addEventListener("keydown", (e) => {
         if (e.key === "Enter" && !e.shiftKey) {
           e.preventDefault();
@@ -496,11 +598,11 @@
         });
       }
 
-      // Microfone
+      // Reconhecimento de Voz
       btnMic.addEventListener("click", () => {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SpeechRecognition) {
-          alert("O navegador não suporta a entrada por voz.");
+          alert("Reconhecimento de voz não suportado neste navegador.");
           return;
         }
         const recognition = new SpeechRecognition();
@@ -516,7 +618,7 @@
         recognition.onend = () => btnMic.style.color = "var(--text-muted)";
       });
 
-      // Função Principal de Envio de Mensagem
+      // Envio de Mensagem com Efeito de Digitação
       async function handleSendMessage() {
         const text = userInput.value.trim();
         if (!text && selectedFiles.length === 0) return;
@@ -524,20 +626,21 @@
         const welcomeHero = document.getElementById("welcome-hero");
         if (welcomeHero) welcomeHero.remove();
 
-        // Adiciona Mensagem do Usuário
-        appendMessage(text, "user", selectedFiles);
+        // Salvar no Histórico Lateral
+        if (chatHistory.length === 0) {
+          addHistoryItem(text);
+        }
 
-        // Limpa Inputs
+        appendUserMessage(text, selectedFiles);
+
         userInput.value = "";
         userInput.style.height = "auto";
         attachmentPreview.innerHTML = "";
         selectedFiles = [];
 
-        // Adiciona indicador de carregamento
-        const loadingDiv = document.createElement("div");
-        loadingDiv.className = "message-wrapper bot-wrapper";
-        loadingDiv.innerHTML = `<div class="message bot-message">Radam Nox está pensando...</div>`;
-        chatContainer.appendChild(loadingDiv);
+        // Loading
+        const loadingRow = createLoadingRow();
+        chatContainer.appendChild(loadingRow);
         scrollToBottom();
 
         try {
@@ -548,37 +651,11 @@
           });
 
           const data = await res.json();
-          loadingDiv.remove();
+          loadingRow.remove();
 
-          const botReply = data.reply || data.response || data.message || "Resposta recebida com sucesso!";
-          appendMessage(botReply, "bot");
+          const botReply = data.reply || data.response || data.message || "Entendido! Como posso ajudar a seguir?";
+          typeBotResponse(botReply);
 
         } catch (err) {
-          loadingDiv.remove();
-          appendMessage("⚠️ Não foi possível conectar ao servidor. Verifique se a API backend está ativa.", "bot");
-        }
-      }
-
-      function appendMessage(content, sender, files = []) {
-        const wrapper = document.createElement("div");
-        wrapper.className = `message-wrapper ${sender}-wrapper`;
-
-        let imgsHtml = "";
-        if (files.length > 0) {
-          files.forEach(f => {
-            imgsHtml += `<br><img src="${URL.createObjectURL(f)}" style="max-width:180px; border-radius:10px; margin-top:5px;">`;
-          });
-        }
-
-        wrapper.innerHTML = `<div class="message ${sender}-message">${content} ${imgsHtml}</div>`;
-        chatContainer.appendChild(wrapper);
-        scrollToBottom();
-      }
-
-      function scrollToBottom() {
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-      }
-    });
-  </script>
-</body>
-</html>
+          loadingRow.remove();
+          typeBotResponse("⚠️ Ocorreu um erro ao conectar ao servidor backend. Tente novamente em alguns momen
