@@ -19,13 +19,6 @@ app.get('/', (req, res) => {
 // Função centralizada para processar as mensagens via OpenRouter
 async function handleChat(req, res) {
   try {
-    const authHeader = req.headers.authorization;
-    const masterKey = process.env.RADAMN_MASTER_KEY;
-
-    if (masterKey && authHeader !== `Bearer ${masterKey}`) {
-      return res.status(401).json({ error: 'Acesso não autorizado.' });
-    }
-
     const { message, prompt, messages, content } = req.body || {};
     const userText = message || prompt || content;
 
