@@ -6,7 +6,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Log de diagnóstico para ver no painel do Render cada chamada que chega
 app.use((req, res, next) => {
   console.log(`[REQUEST RECEBIDO] ${req.method} ${req.url}`);
   next();
@@ -16,17 +15,23 @@ app.get('/', (req, res) => {
   res.json({ status: "Online", engine: "Radam Engine Core v11.3" });
 });
 
-// Função centralizada para processar as mensagens via OpenRouter
 async function handleChat(req, res) {
   try {
     const { message, prompt, messages, content } = req.body || {};
     const userText = message || prompt || content;
 
     let formattedMessages = [];
+
+    // System Prompt que define o TEU modelo Radam Nox
+    const systemInstruction = {
+      role: 'system',
+      content: 'Você é o Radam Nox, um modelo de inteligência artificial exclusivo, avançado e prestável. Responda de forma precisa, direta e inteligente.'
+    };
+
     if (messages && Array.isArray(messages) && messages.length > 0) {
-      formattedMessages = messages;
+      formattedMessages = [systemInstruction, ...messages];
     } else if (userText) {
-      formattedMessages = [{ role: 'user', content: userText }];
+      formattedMessages = [systemInstruction, { role: 'user', content: userText }];
     } else {
       return res.status(400).json({ error: 'Nenhuma mensagem enviada no corpo da requisição.' });
     }
@@ -37,6 +42,7 @@ async function handleChat(req, res) {
       return res.status(500).json({ error: 'Chave do OpenRouter ausente no backend.' });
     }
 
+    // Usando um modelo 100% gratuito do OpenRouter para processar o teu Radam Nox
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -46,7 +52,7 @@ async function handleChat(req, res) {
         'X-Title': 'Radam Nox'
       },
       body: JSON.stringify({
-        model: 'meta-llama/llama-3.3-70b-instruct:free',
+        model: 'deepseek/deepseek-r1:free',
         messages: formattedMessages
       })
     });
@@ -60,7 +66,6 @@ async function handleChat(req, res) {
 
     const aiReply = data.choices?.[0]?.message?.content || 'Sem resposta gerada.';
 
-    // Retorna nos formatos padrão consumidos por bibliotecas de chat
     return res.json({ 
       reply: aiReply, 
       message: aiReply,
@@ -74,7 +79,6 @@ async function handleChat(req, res) {
   }
 }
 
-// Aceita requisições nas rotas mais comuns
 app.post('/api/chat', handleChat);
 app.post('/api/generate', handleChat);
 app.post('/api/completion', handleChat);
