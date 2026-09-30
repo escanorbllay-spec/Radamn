@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Radam Nox - Next-Gen AI Interface</title>
+  <title>Radam Nox - AI Interface</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
@@ -26,6 +26,7 @@
       margin: 0; 
       padding: 0; 
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+      -webkit-tap-highlight-color: transparent;
     }
 
     html, body {
@@ -53,7 +54,7 @@
       display: flex;
       flex-direction: column;
       transform: translateX(-100%);
-      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: transform 0.25s ease;
       z-index: 1000;
     }
 
@@ -73,7 +74,6 @@
       background: var(--accent-gradient);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      letter-spacing: 0.5px;
     }
 
     .new-chat-btn {
@@ -89,15 +89,6 @@
       justify-content: center;
       gap: 0.6rem;
       cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .new-chat-btn:active { transform: scale(0.98); }
-
-    .chat-history {
-      flex: 1;
-      overflow-y: auto;
-      padding: 0.8rem 0.5rem;
     }
 
     /* Layout Principal */
@@ -128,7 +119,7 @@
       color: var(--text-color);
       font-size: 1.2rem;
       cursor: pointer;
-      padding: 0.4rem;
+      padding: 0.5rem;
     }
 
     .model-select {
@@ -139,10 +130,9 @@
       border-radius: 20px;
       font-size: 0.85rem;
       outline: none;
-      font-weight: 500;
     }
 
-    /* Área de Chat & Welcome Hero */
+    /* Chat Container */
     #chat-container {
       flex: 1;
       overflow-y: auto;
@@ -150,10 +140,8 @@
       display: flex;
       flex-direction: column;
       gap: 1.2rem;
-      -webkit-overflow-scrolling: touch;
     }
 
-    /* Tela Inicial */
     .welcome-hero {
       display: flex;
       flex-direction: column;
@@ -161,26 +149,24 @@
       justify-content: center;
       margin: auto 0;
       text-align: center;
-      padding: 1.5rem 0.5rem;
-      animation: fadeIn 0.4s ease-in-out;
+      padding: 1rem 0.5rem;
     }
 
     .welcome-icon {
-      width: 64px;
-      height: 64px;
+      width: 60px;
+      height: 60px;
       border-radius: 50%;
       background: var(--accent-gradient);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.8rem;
+      font-size: 1.6rem;
       color: white;
-      margin-bottom: 1.2rem;
-      box-shadow: 0 0 30px rgba(139, 92, 246, 0.4);
+      margin-bottom: 1rem;
     }
 
     .welcome-title {
-      font-size: 1.9rem;
+      font-size: 1.8rem;
       font-weight: 800;
       margin-bottom: 0.4rem;
       background: var(--accent-gradient);
@@ -190,12 +176,10 @@
 
     .welcome-subtitle {
       color: var(--text-muted);
-      font-size: 0.95rem;
-      margin-bottom: 2rem;
-      max-width: 320px;
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
     }
 
-    /* Grid de Sugestões Rápidas */
     .suggestions-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -215,36 +199,20 @@
       padding: 0.9rem;
       text-align: left;
       cursor: pointer;
-      transition: all 0.2s;
       display: flex;
       align-items: center;
       gap: 0.8rem;
     }
 
-    .suggestion-card:active {
-      transform: scale(0.97);
-      background: var(--card-hover);
-    }
+    .card-icon { font-size: 1.2rem; color: #a78bfa; }
+    .card-text { font-size: 0.85rem; color: var(--text-color); font-weight: 500; }
 
-    .card-icon {
-      font-size: 1.2rem;
-      color: #a78bfa;
-    }
-
-    .card-text {
-      font-size: 0.85rem;
-      color: var(--text-color);
-      font-weight: 500;
-      line-height: 1.3;
-    }
-
-    /* Mensagens no Chat */
+    /* Mensagens */
     .message-wrapper {
       display: flex;
       flex-direction: column;
       gap: 0.4rem;
       max-width: 88%;
-      animation: fadeIn 0.3s ease;
     }
 
     .user-wrapper { align-self: flex-end; }
@@ -262,7 +230,6 @@
       background-color: var(--user-msg);
       color: white;
       border-bottom-right-radius: 4px;
-      box-shadow: 0 2px 10px rgba(37, 99, 235, 0.25);
     }
 
     .bot-message {
@@ -271,83 +238,7 @@
       border-bottom-left-radius: 4px;
     }
 
-    /* Accordion Processo de Raciocínio */
-    .thinking-accordion {
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid var(--border-color);
-      border-radius: 10px;
-      overflow: hidden;
-      font-size: 0.82rem;
-      margin-bottom: 0.3rem;
-    }
-
-    .thinking-header {
-      padding: 0.5rem 0.8rem;
-      background: rgba(255, 255, 255, 0.04);
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      color: var(--text-muted);
-    }
-
-    .thinking-content {
-      padding: 0.6rem 0.8rem;
-      display: none;
-      color: var(--text-muted);
-      border-top: 1px solid var(--border-color);
-      white-space: pre-wrap;
-    }
-
-    .thinking-accordion.open .thinking-content { display: block; }
-
-    /* Bolinhas de Carregamento */
-    .bouncing-dots {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-      padding: 0.4rem 0;
-    }
-
-    .dot {
-      width: 7px;
-      height: 7px;
-      background-color: var(--accent-purple);
-      border-radius: 50%;
-      animation: bounce 1.4s infinite ease-in-out both;
-    }
-
-    .dot:nth-child(1) { animation-delay: -0.32s; }
-    .dot:nth-child(2) { animation-delay: -0.16s; }
-
-    @keyframes bounce {
-      0%, 80%, 100% { transform: scale(0); }
-      40% { transform: scale(1.0); }
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Toolbar de Ações */
-    .actions-toolbar {
-      display: flex;
-      gap: 0.4rem;
-      margin-top: 0.2rem;
-    }
-
-    .action-btn {
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      cursor: pointer;
-      font-size: 0.8rem;
-      padding: 0.3rem 0.5rem;
-      border-radius: 6px;
-    }
-
-    /* Barra de Digitação em Cápsula Flutuante */
+    /* Barra de Digitação e Formulário */
     #input-container {
       padding: 0.8rem 1rem 1.2rem 1rem;
       background: var(--bg-color);
@@ -372,19 +263,17 @@
 
     .preview-item img { width: 100%; height: 100%; object-fit: cover; }
 
-    .input-box {
+    .chat-form {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.4rem;
       background-color: var(--sidebar-bg);
       border: 1px solid var(--border-color);
       border-radius: 28px;
-      padding: 0.5rem 0.9rem;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
-      transition: border-color 0.2s;
+      padding: 0.4rem 0.8rem;
     }
 
-    .input-box:focus-within {
+    .chat-form:focus-within {
       border-color: var(--accent-purple);
     }
 
@@ -397,6 +286,7 @@
       resize: none;
       max-height: 100px;
       font-size: 0.95rem;
+      padding: 0.4rem 0;
     }
 
     .icon-btn {
@@ -405,37 +295,35 @@
       color: var(--text-muted);
       font-size: 1.1rem;
       cursor: pointer;
-      padding: 0.4rem;
+      padding: 0.5rem;
       border-radius: 50%;
-      transition: color 0.2s;
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
-    .icon-btn:hover, .icon-btn:active { color: #a78bfa; }
+    .icon-btn:active { color: #a78bfa; }
 
     input[type="file"] { display: none; }
   </style>
 </head>
 <body>
 
-  <!-- Menu Lateral / Sidebar -->
+  <!-- Menu Lateral -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <span class="brand-title">Radam Nox</span>
-      <button type="button" class="menu-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-xmark"></i></button>
+      <button type="button" class="menu-toggle" id="btn-close-sidebar"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div style="padding: 0.8rem;">
-      <button type="button" class="new-chat-btn" onclick="startNewChat()"><i class="fa-solid fa-plus"></i> Novo Chat</button>
+      <button type="button" class="new-chat-btn" id="btn-new-chat"><i class="fa-solid fa-plus"></i> Novo Chat</button>
     </div>
-    <div class="chat-history" id="chat-history"></div>
   </aside>
 
   <div class="main-container">
     <header>
       <div style="display: flex; align-items: center; gap: 0.8rem;">
-        <button type="button" class="menu-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+        <button type="button" class="menu-toggle" id="btn-open-sidebar"><i class="fa-solid fa-bars"></i></button>
         <span class="brand-title">Radam Nox</span>
       </div>
       <select class="model-select" id="model-select">
@@ -444,7 +332,7 @@
       </select>
     </header>
 
-    <!-- Área Principal do Chat -->
+    <!-- Chat Container -->
     <div id="chat-container">
       <div class="welcome-hero" id="welcome-hero">
         <div class="welcome-icon"><i class="fa-solid fa-bolt"></i></div>
@@ -452,19 +340,19 @@
         <p class="welcome-subtitle">Como posso te ajudar no Radam Nox hoje?</p>
         
         <div class="suggestions-grid">
-          <div class="suggestion-card" onclick="sendQuickPrompt('Escreva um script de automação em Python')">
+          <div class="suggestion-card" data-prompt="Escreva um script de automação em Python">
             <i class="fa-solid fa-code card-icon"></i>
             <span class="card-text">Criar script em Python</span>
           </div>
-          <div class="suggestion-card" onclick="sendQuickPrompt('Analise uma arquitetura de microsserviços para o meu backend')">
+          <div class="suggestion-card" data-prompt="Analise uma arquitetura de microsserviços para o meu backend">
             <i class="fa-solid fa-network-wired card-icon"></i>
             <span class="card-text">Arquitetura de Software</span>
           </div>
-          <div class="suggestion-card" onclick="sendQuickPrompt('Pesquise e resuma as principais novidades de IA')">
+          <div class="suggestion-card" data-prompt="Pesquise e resuma as principais novidades de IA">
             <i class="fa-solid fa-globe card-icon"></i>
             <span class="card-text">Pesquisa Web em Tempo Real</span>
           </div>
-          <div class="suggestion-card" onclick="sendQuickPrompt('Ajude a revisar e otimizar meu código no GitHub')">
+          <div class="suggestion-card" data-prompt="Ajude a revisar e otimizar meu código no GitHub">
             <i class="fa-solid fa-bug card-icon"></i>
             <span class="card-text">Revisar e Refatorar Código</span>
           </div>
@@ -472,204 +360,225 @@
       </div>
     </div>
 
-    <!-- Barra de Digitação em Cápsula -->
+    <!-- Barra de Entrada e Formulário de Envio -->
     <div id="input-container">
       <div class="attachment-preview" id="attachment-preview"></div>
-      <div class="input-box">
-        <button type="button" class="icon-btn" onclick="triggerFileInput()" title="Anexar arquivo">
+      
+      <form class="chat-form" id="chat-form">
+        <button type="button" class="icon-btn" id="btn-attach" title="Anexar arquivo">
           <i class="fa-solid fa-paperclip"></i>
         </button>
-        <button type="button" class="icon-btn" onclick="triggerCameraInput()" title="Tirar foto">
+        <button type="button" class="icon-btn" id="btn-camera" title="Tirar foto">
           <i class="fa-solid fa-camera"></i>
         </button>
         
-        <textarea id="user-input" rows="1" placeholder="Pergunte qualquer coisa ao Radam Nox..." oninput="autoResize(this)" onkeydown="handleKeyDown(event)"></textarea>
+        <textarea id="user-input" rows="1" placeholder="Pergunte qualquer coisa ao Radam Nox..."></textarea>
 
-        <button type="button" class="icon-btn" id="mic-btn" onclick="toggleVoiceInput()" title="Voz">
+        <button type="button" class="icon-btn" id="btn-mic" title="Voz">
           <i class="fa-solid fa-microphone"></i>
         </button>
 
-        <button type="button" class="icon-btn" style="color: #a78bfa;" onclick="sendMessage()" id="send-btn">
+        <button type="submit" class="icon-btn" id="btn-send" style="color: #a78bfa;">
           <i class="fa-solid fa-arrow-up"></i>
         </button>
-      </div>
+      </form>
     </div>
   </div>
 
-  <input type="file" id="file-input" multiple onchange="handleFileSelect(event)">
-  <input type="file" id="camera-input" accept="image/*" capture="environment" onchange="handleFileSelect(event)">
+  <input type="file" id="file-input" multiple>
+  <input type="file" id="camera-input" accept="image/*" capture="environment">
 
   <script>
-    const API_URL = "https://radamanthys-core.onrender.com/api/chat";
-    let selectedFiles = [];
-    let isRecording = false;
+    document.addEventListener("DOMContentLoaded", () => {
+      const API_URL = "https://radamanthys-core.onrender.com/api/chat";
+      let selectedFiles = [];
 
-    function toggleSidebar() {
-      document.getElementById("sidebar").classList.toggle("active");
-    }
+      const sidebar = document.getElementById("sidebar");
+      const btnOpenSidebar = document.getElementById("btn-open-sidebar");
+      const btnCloseSidebar = document.getElementById("btn-close-sidebar");
+      const btnNewChat = document.getElementById("btn-new-chat");
+      
+      const chatContainer = document.getElementById("chat-container");
+      const chatForm = document.getElementById("chat-form");
+      const userInput = document.getElementById("user-input");
+      const attachmentPreview = document.getElementById("attachment-preview");
 
-    function startNewChat() {
-      const container = document.getElementById("chat-container");
-      container.innerHTML = `
-        <div class="welcome-hero" id="welcome-hero">
-          <div class="welcome-icon"><i class="fa-solid fa-bolt"></i></div>
-          <h1 class="welcome-title">Olá, Blay</h1>
-          <p class="welcome-subtitle">Como posso te ajudar no Radam Nox hoje?</p>
-          <div class="suggestions-grid">
-            <div class="suggestion-card" onclick="sendQuickPrompt('Escreva um script de automação em Python')">
-              <i class="fa-solid fa-code card-icon"></i>
-              <span class="card-text">Criar script em Python</span>
+      const fileInput = document.getElementById("file-input");
+      const cameraInput = document.getElementById("camera-input");
+      const btnAttach = document.getElementById("btn-attach");
+      const btnCamera = document.getElementById("btn-camera");
+      const btnMic = document.getElementById("btn-mic");
+
+      // Abrir/Fechar Sidebar
+      btnOpenSidebar.addEventListener("click", () => sidebar.classList.add("active"));
+      btnCloseSidebar.addEventListener("click", () => sidebar.classList.remove("active"));
+
+      // Novo Chat
+      btnNewChat.addEventListener("click", () => {
+        chatContainer.innerHTML = `
+          <div class="welcome-hero" id="welcome-hero">
+            <div class="welcome-icon"><i class="fa-solid fa-bolt"></i></div>
+            <h1 class="welcome-title">Olá, Blay</h1>
+            <p class="welcome-subtitle">Como posso te ajudar no Radam Nox hoje?</p>
+            <div class="suggestions-grid">
+              <div class="suggestion-card" data-prompt="Escreva um script de automação em Python">
+                <i class="fa-solid fa-code card-icon"></i>
+                <span class="card-text">Criar script em Python</span>
+              </div>
+              <div class="suggestion-card" data-prompt="Analise uma arquitetura de microsserviços para o meu backend">
+                <i class="fa-solid fa-network-wired card-icon"></i>
+                <span class="card-text">Arquitetura de Software</span>
+              </div>
+              <div class="suggestion-card" data-prompt="Pesquise e resuma as principais novidades de IA">
+                <i class="fa-solid fa-globe card-icon"></i>
+                <span class="card-text">Pesquisa Web em Tempo Real</span>
+              </div>
+              <div class="suggestion-card" data-prompt="Ajude a revisar e otimizar meu código no GitHub">
+                <i class="fa-solid fa-bug card-icon"></i>
+                <span class="card-text">Revisar e Refatorar Código</span>
+              </div>
             </div>
-            <div class="suggestion-card" onclick="sendQuickPrompt('Analise uma arquitetura de microsserviços para o meu backend')">
-              <i class="fa-solid fa-network-wired card-icon"></i>
-              <span class="card-text">Arquitetura de Software</span>
-            </div>
-            <div class="suggestion-card" onclick="sendQuickPrompt('Pesquise e resuma as principais novidades de IA')">
-              <i class="fa-solid fa-globe card-icon"></i>
-              <span class="card-text">Pesquisa Web em Tempo Real</span>
-            </div>
-            <div class="suggestion-card" onclick="sendQuickPrompt('Ajude a revisar e otimizar meu código no GitHub')">
-              <i class="fa-solid fa-bug card-icon"></i>
-              <span class="card-text">Revisar e Refatorar Código</span>
-            </div>
-          </div>
-        </div>`;
-      if (document.getElementById("sidebar").classList.contains("active")) {
-        toggleSidebar();
-      }
-    }
-
-    function removeWelcomeHero() {
-      const hero = document.getElementById("welcome-hero");
-      if (hero) hero.remove();
-    }
-
-    function sendQuickPrompt(promptText) {
-      document.getElementById("user-input").value = promptText;
-      sendMessage();
-    }
-
-    function autoResize(textarea) {
-      textarea.style.height = 'auto';
-      textarea.style.height = (textarea.scrollHeight) + 'px';
-      scrollToBottom();
-    }
-
-    function handleKeyDown(event) {
-      if (event.key === "Enter" && !event.shiftKey) {
-        event.preventDefault();
-        sendMessage();
-      }
-    }
-
-    function scrollToBottom() {
-      setTimeout(() => {
-        const container = document.getElementById("chat-container");
-        container.scrollTop = container.scrollHeight;
-      }, 100);
-    }
-
-    function triggerFileInput() { document.getElementById('file-input').click(); }
-    function triggerCameraInput() { document.getElementById('camera-input').click(); }
-
-    function handleFileSelect(event) {
-      const files = Array.from(event.target.files);
-      files.forEach(file => {
-        selectedFiles.push(file);
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const previewContainer = document.getElementById("attachment-preview");
-          const div = document.createElement("div");
-          div.className = "preview-item";
-          div.innerHTML = `<img src="${e.target.result}" alt="preview">`;
-          previewContainer.appendChild(div);
-        };
-        reader.readAsDataURL(file);
+          </div>`;
+        bindCardClicks();
+        sidebar.classList.remove("active");
       });
-    }
 
-    function toggleVoiceInput() {
-      const micBtn = document.getElementById("mic-btn");
-      try {
+      // Clique nos Cards de Sugestão
+      function bindCardClicks() {
+        document.querySelectorAll(".suggestion-card").forEach(card => {
+          card.addEventListener("click", () => {
+            const prompt = card.getAttribute("data-prompt");
+            userInput.value = prompt;
+            handleSendMessage();
+          });
+        });
+      }
+      bindCardClicks();
+
+      // Ajuste automático do tamanho do campo de texto
+      userInput.addEventListener("input", () => {
+        userInput.style.height = "auto";
+        userInput.style.height = userInput.scrollHeight + "px";
+      });
+
+      // Envio de formulário (Botão ou Enter)
+      userInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          handleSendMessage();
+        }
+      });
+
+      chatForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        handleSendMessage();
+      });
+
+      // Anexo e Câmera
+      btnAttach.addEventListener("click", () => fileInput.click());
+      btnCamera.addEventListener("click", () => cameraInput.click());
+
+      fileInput.addEventListener("change", handleFileSelect);
+      cameraInput.addEventListener("change", handleFileSelect);
+
+      function handleFileSelect(e) {
+        const files = Array.from(e.target.files);
+        files.forEach(file => {
+          selectedFiles.push(file);
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            const div = document.createElement("div");
+            div.className = "preview-item";
+            div.innerHTML = `<img src="${event.target.result}" alt="preview">`;
+            attachmentPreview.appendChild(div);
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      // Microfone
+      btnMic.addEventListener("click", () => {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SpeechRecognition) {
-          alert("O seu navegador não suporta reconhecimento de voz.");
+          alert("O navegador não suporta a entrada por voz.");
           return;
         }
-
         const recognition = new SpeechRecognition();
         recognition.lang = 'pt-BR';
+        recognition.start();
 
-        if (!isRecording) {
-          recognition.start();
-          isRecording = true;
-          micBtn.style.color = "#ef4444";
-
-          recognition.onresult = (event) => {
-            document.getElementById("user-input").value += event.results[0][0].transcript;
-            micBtn.style.color = "var(--text-muted)";
-            isRecording = false;
-          };
-
-          recognition.onerror = () => {
-            micBtn.style.color = "var(--text-muted)";
-            isRecording = false;
-          };
-
-          recognition.onend = () => {
-            micBtn.style.color = "var(--text-muted)";
-            isRecording = false;
-          };
-        }
-      } catch (e) {
-        alert("Erro ao iniciar o microfone.");
-      }
-    }
-
-    async function sendMessage() {
-      const inputField = document.getElementById("user-input");
-      const messageText = inputField.value.trim();
-
-      if (!messageText && selectedFiles.length === 0) return;
-
-      removeWelcomeHero();
-      appendUserMessage(messageText, selectedFiles);
-
-      inputField.value = "";
-      inputField.style.height = "auto";
-      document.getElementById("attachment-preview").innerHTML = "";
-      const currentFiles = [...selectedFiles];
-      selectedFiles = [];
-
-      const botWrapper = createBotLoadingMessage();
-
-      try {
-        const response = await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: messageText })
-        });
-
-        const data = await response.json();
-        botWrapper.remove();
-
-        let replyText = data.reply || data.response || data.message || (typeof data === "string" ? data : JSON.stringify(data));
-        appendBotResponse(replyText, "Processado com sucesso pelo motor Radam Nox.");
-
-      } catch (error) {
-        if (botWrapper) botWrapper.remove();
-        appendBotResponse("⚠️ Ocorreu um erro ao conectar ao servidor do Radam Nox. Verifique se o servidor backend está online.");
-      }
-    }
-
-    function appendUserMessage(text, files) {
-      const container = document.getElementById("chat-container");
-      const wrapper = document.createElement("div");
-      wrapper.className = "message-wrapper user-wrapper";
-
-      let imgsHtml = "";
-      files.forEach(file => {
-        imgsHtml += `<br><img src="${URL.createObjectURL(file)}" style="max-width:180px; border-radius:10px; margin-top:5px;">`;
+        btnMic.style.color = "#ef4444";
+        recognition.onresult = (e) => {
+          userInput.value += e.results[0][0].transcript;
+          btnMic.style.color = "var(--text-muted)";
+        };
+        recognition.onerror = () => btnMic.style.color = "var(--text-muted)";
+        recognition.onend = () => btnMic.style.color = "var(--text-muted)";
       });
 
-      wrapper.innerHTML = `<div class="message user-message">${text || ''} ${imgsHt
+      // Função Principal de Envio de Mensagem
+      async function handleSendMessage() {
+        const text = userInput.value.trim();
+        if (!text && selectedFiles.length === 0) return;
+
+        const welcomeHero = document.getElementById("welcome-hero");
+        if (welcomeHero) welcomeHero.remove();
+
+        // Adiciona Mensagem do Usuário
+        appendMessage(text, "user", selectedFiles);
+
+        // Limpa Inputs
+        userInput.value = "";
+        userInput.style.height = "auto";
+        attachmentPreview.innerHTML = "";
+        selectedFiles = [];
+
+        // Adiciona indicador de carregamento
+        const loadingDiv = document.createElement("div");
+        loadingDiv.className = "message-wrapper bot-wrapper";
+        loadingDiv.innerHTML = `<div class="message bot-message">Radam Nox está pensando...</div>`;
+        chatContainer.appendChild(loadingDiv);
+        scrollToBottom();
+
+        try {
+          const res = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: text })
+          });
+
+          const data = await res.json();
+          loadingDiv.remove();
+
+          const botReply = data.reply || data.response || data.message || "Resposta recebida com sucesso!";
+          appendMessage(botReply, "bot");
+
+        } catch (err) {
+          loadingDiv.remove();
+          appendMessage("⚠️ Não foi possível conectar ao servidor. Verifique se a API backend está ativa.", "bot");
+        }
+      }
+
+      function appendMessage(content, sender, files = []) {
+        const wrapper = document.createElement("div");
+        wrapper.className = `message-wrapper ${sender}-wrapper`;
+
+        let imgsHtml = "";
+        if (files.length > 0) {
+          files.forEach(f => {
+            imgsHtml += `<br><img src="${URL.createObjectURL(f)}" style="max-width:180px; border-radius:10px; margin-top:5px;">`;
+          });
+        }
+
+        wrapper.innerHTML = `<div class="message ${sender}-message">${content} ${imgsHtml}</div>`;
+        chatContainer.appendChild(wrapper);
+        scrollToBottom();
+      }
+
+      function scrollToBottom() {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }
+    });
+  </script>
+</body>
+</html>
