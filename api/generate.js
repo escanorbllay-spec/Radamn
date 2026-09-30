@@ -5,7 +5,7 @@ export default async function handler(req, res) {
 
   const { message, messages } = req.body;
 
-  // Endereço exato do seu serviço Python no Render
+  // URL exata do seu backend Python no Render
   const RENDER_BACKEND_URL = process.env.MY_CUSTOM_API_URL || 'https://radamanthys-core.onrender.com/api/chat';
   const MASTER_KEY = process.env.RADAMN_MASTER_KEY || process.env.MY_CUSTOM_API_KEY;
 
