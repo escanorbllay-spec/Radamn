@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Radamn AI - Engine v2.0</title>
+  <title>Radamn AI - Engine v2.0.1</title>
   <style>
     :root {
       --bg-color: #0d1117;
@@ -93,11 +93,11 @@
 </head>
 <body>
 
-  <header>Radamn AI - v2.0 Core Engine</header>
+  <header>Radamn AI - v2.0.1 Live Render Bridge</header>
 
   <div id="chat-container">
     <div class="message bot-message">
-      Olá! Eu sou a <b>Radamn AI</b>. O meu novo motor no Render já está online! Como posso te ajudar hoje?
+      Olá! Eu sou a <b>Radamn AI</b>. O meu motor no Render está ativo! Como posso ajudar você hoje?
     </div>
   </div>
 
@@ -121,7 +121,7 @@
       inputField.value = "";
       sendBtn.disabled = true;
 
-      const loadingDiv = appendMessage("A processar no motor Radamn...", "bot-message");
+      const loadingDiv = appendMessage("Processando no motor Radamn...", "bot-message");
 
       try {
         const response = await fetch(API_URL, {
