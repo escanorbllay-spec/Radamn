@@ -496,7 +496,7 @@
       };
     });
 
-    // Função de Envio Principal
+    // Função de Envio Principal (Envia mensagem e prompt simultaneamente)
     async function sendMessage() {
       const messageText = userInput.value.trim();
       const chatContainer = document.getElementById("chat-container");
@@ -519,7 +519,7 @@
         const response = await fetch(API_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: messageText })
+          body: JSON.stringify({ message: messageText, prompt: messageText })
         });
 
         const data = await response.json();
@@ -530,7 +530,7 @@
 
       } catch (error) {
         if (loadingDiv) loadingDiv.remove();
-        appendMessage("⚠️️ Erro de conexão com o motor Render. Tente novamente.", "bot-message");
+        appendMessage("⚠️ Erro de conexão com o motor Render. Tente novamente.", "bot-message");
       }
     }
 
