@@ -41,7 +41,7 @@
       width: 100vw;
     }
 
-    /* Sidebar Flutuante e Glassmorphism */
+    /* Sidebar Flutuante */
     .sidebar {
       position: fixed;
       top: 0;
@@ -301,7 +301,7 @@
 
     .thinking-accordion.open .thinking-content { display: block; }
 
-    /* Bolinhas de Carregamento (Bouncing Dots) */
+    /* Bolinhas de Carregamento */
     .bouncing-dots {
       display: flex;
       gap: 6px;
@@ -408,9 +408,12 @@
       padding: 0.4rem;
       border-radius: 50%;
       transition: color 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    .icon-btn:hover { color: #a78bfa; }
+    .icon-btn:hover, .icon-btn:active { color: #a78bfa; }
 
     input[type="file"] { display: none; }
   </style>
@@ -421,10 +424,10 @@
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <span class="brand-title">Radam Nox</span>
-      <button class="menu-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-xmark"></i></button>
+      <button type="button" class="menu-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div style="padding: 0.8rem;">
-      <button class="new-chat-btn" onclick="startNewChat()"><i class="fa-solid fa-plus"></i> Novo Chat</button>
+      <button type="button" class="new-chat-btn" onclick="startNewChat()"><i class="fa-solid fa-plus"></i> Novo Chat</button>
     </div>
     <div class="chat-history" id="chat-history"></div>
   </aside>
@@ -432,7 +435,7 @@
   <div class="main-container">
     <header>
       <div style="display: flex; align-items: center; gap: 0.8rem;">
-        <button class="menu-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+        <button type="button" class="menu-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
         <span class="brand-title">Radam Nox</span>
       </div>
       <select class="model-select" id="model-select">
@@ -443,7 +446,6 @@
 
     <!-- Área Principal do Chat -->
     <div id="chat-container">
-      <!-- Tela Inicial de Boas-Vindas -->
       <div class="welcome-hero" id="welcome-hero">
         <div class="welcome-icon"><i class="fa-solid fa-bolt"></i></div>
         <h1 class="welcome-title">Olá, Blay</h1>
@@ -474,31 +476,26 @@
     <div id="input-container">
       <div class="attachment-preview" id="attachment-preview"></div>
       <div class="input-box">
-        <!-- Anexo de arquivo -->
-        <button class="icon-btn" onclick="triggerFileInput()" title="Anexar arquivo">
+        <button type="button" class="icon-btn" onclick="triggerFileInput()" title="Anexar arquivo">
           <i class="fa-solid fa-paperclip"></i>
         </button>
-        <!-- Abrir câmara diretamente -->
-        <button class="icon-btn" onclick="triggerCameraInput()" title="Tirar foto">
+        <button type="button" class="icon-btn" onclick="triggerCameraInput()" title="Tirar foto">
           <i class="fa-solid fa-camera"></i>
         </button>
         
-        <textarea id="user-input" rows="1" placeholder="Pergunte qualquer coisa ao Radam Nox..." oninput="autoResize(this)" onfocus="scrollToBottom()"></textarea>
+        <textarea id="user-input" rows="1" placeholder="Pergunte qualquer coisa ao Radam Nox..." oninput="autoResize(this)" onkeydown="handleKeyDown(event)"></textarea>
 
-        <!-- Reconhecimento de Voz -->
-        <button class="icon-btn" id="mic-btn" onclick="toggleVoiceInput()" title="Voz">
+        <button type="button" class="icon-btn" id="mic-btn" onclick="toggleVoiceInput()" title="Voz">
           <i class="fa-solid fa-microphone"></i>
         </button>
 
-        <!-- Botão de Enviar -->
-        <button class="icon-btn" style="color: #a78bfa;" onclick="sendMessage()" id="send-btn">
+        <button type="button" class="icon-btn" style="color: #a78bfa;" onclick="sendMessage()" id="send-btn">
           <i class="fa-solid fa-arrow-up"></i>
         </button>
       </div>
     </div>
   </div>
 
-  <!-- Inputs Ocultos de Ficheiro e Câmara -->
   <input type="file" id="file-input" multiple onchange="handleFileSelect(event)">
   <input type="file" id="camera-input" accept="image/*" capture="environment" onchange="handleFileSelect(event)">
 
@@ -558,6 +555,13 @@
       scrollToBottom();
     }
 
+    function handleKeyDown(event) {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage();
+      }
+    }
+
     function scrollToBottom() {
       setTimeout(() => {
         const container = document.getElementById("chat-container");
@@ -586,31 +590,40 @@
 
     function toggleVoiceInput() {
       const micBtn = document.getElementById("mic-btn");
-      if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-        alert("Reconhecimento de voz não suportado neste navegador.");
-        return;
+      try {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+          alert("O seu navegador não suporta reconhecimento de voz.");
+          return;
+        }
+
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'pt-BR';
+
+        if (!isRecording) {
+          recognition.start();
+          isRecording = true;
+          micBtn.style.color = "#ef4444";
+
+          recognition.onresult = (event) => {
+            document.getElementById("user-input").value += event.results[0][0].transcript;
+            micBtn.style.color = "var(--text-muted)";
+            isRecording = false;
+          };
+
+          recognition.onerror = () => {
+            micBtn.style.color = "var(--text-muted)";
+            isRecording = false;
+          };
+
+          recognition.onend = () => {
+            micBtn.style.color = "var(--text-muted)";
+            isRecording = false;
+          };
+        }
+      } catch (e) {
+        alert("Erro ao iniciar o microfone.");
       }
-
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      const recognition = new SpeechRecognition();
-      recognition.lang = 'pt-BR';
-
-      if (!isRecording) {
-        recognition.start();
-        isRecording = true;
-        micBtn.style.color = "#ef4444";
-      }
-
-      recognition.onresult = (event) => {
-        document.getElementById("user-input").value += event.results[0][0].transcript;
-        micBtn.style.color = "var(--text-muted)";
-        isRecording = false;
-      };
-
-      recognition.onerror = () => {
-        micBtn.style.color = "var(--text-muted)";
-        isRecording = false;
-      };
     }
 
     async function sendMessage() {
@@ -625,6 +638,7 @@
       inputField.value = "";
       inputField.style.height = "auto";
       document.getElementById("attachment-preview").innerHTML = "";
+      const currentFiles = [...selectedFiles];
       selectedFiles = [];
 
       const botWrapper = createBotLoadingMessage();
@@ -640,11 +654,11 @@
         botWrapper.remove();
 
         let replyText = data.reply || data.response || data.message || (typeof data === "string" ? data : JSON.stringify(data));
-        appendBotResponse(replyText, "Analisando com o motor Radam Nox...\nProcessando resposta...");
+        appendBotResponse(replyText, "Processado com sucesso pelo motor Radam Nox.");
 
       } catch (error) {
         if (botWrapper) botWrapper.remove();
-        appendBotResponse("⚠️ Erro ao conectar ao servidor Radam Nox. Tente novamente em instantes.");
+        appendBotResponse("⚠️ Ocorreu um erro ao conectar ao servidor do Radam Nox. Verifique se o servidor backend está online.");
       }
     }
 
@@ -658,16 +672,4 @@
         imgsHtml += `<br><img src="${URL.createObjectURL(file)}" style="max-width:180px; border-radius:10px; margin-top:5px;">`;
       });
 
-      wrapper.innerHTML = `<div class="message user-message">${text} ${imgsHtml}</div>`;
-      container.appendChild(wrapper);
-      scrollToBottom();
-    }
-
-    function createBotLoadingMessage() {
-      const container = document.getElementById("chat-container");
-      const wrapper = document.createElement("div");
-      wrapper.className = "message-wrapper bot-wrapper";
-      
-      wrapper.innerHTML = `
-        <div class="message bot-message">
-         
+      wrapper.innerHTML = `<div class="message user-message">${text || ''} ${imgsHt
