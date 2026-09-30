@@ -354,7 +354,10 @@
   </div>
 
   <script>
-    const API_URL = "https://radamanthys-core.onrender.com/api/chat";
+    // URL dinâmica buscando do ambiente da Vercel ou caindo para o Render oficial
+    const BASE_URL = "https://radamn.onrender.com";
+    const API_URL = `${BASE_URL}/api/chat`;
+    
     let selectedFiles = [];
     let isRecording = false;
 
@@ -496,7 +499,7 @@
       };
     });
 
-    // Função de Envio Principal (Envia mensagem e prompt simultaneamente)
+    // Função de Envio Principal Conectada ao Render e OpenRouter
     async function sendMessage() {
       const messageText = userInput.value.trim();
       const chatContainer = document.getElementById("chat-container");
@@ -518,19 +521,26 @@
       try {
         const response = await fetch(API_URL, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json"
+          },
           body: JSON.stringify({ message: messageText, prompt: messageText })
         });
 
         const data = await response.json();
         loadingDiv.remove();
 
-        let textToShow = data.reply || data.response || data.message || (typeof data === "string" ? data : JSON.stringify(data));
+        if (!response.ok) {
+          appendMessage(`⚠️ Erro do Servidor: ${data.error || 'Erro desconhecido'}`, "bot-message");
+          return;
+        }
+
+        let textToShow = data.reply || data.message || data.response || (typeof data === "string" ? data : JSON.stringify(data));
         appendMessage(textToShow, "bot-message");
 
       } catch (error) {
         if (loadingDiv) loadingDiv.remove();
-        appendMessage("⚠️ Erro de conexão com o motor Render. Tente novamente.", "bot-message");
+        appendMessage("⚠️ Não foi possível ligar ao motor Render. Verifique a ligação.", "bot-message");
       }
     }
 
