@@ -141,6 +141,9 @@
   </footer>
 
   <script>
+    // URL DO SEU BACKEND NO RENDER (Substitua pela sua URL real do Render)
+    const BACKEND_URL = "https://SEU-APP-NO-RENDER.onrender.com";
+
     let selectedBase64Image = null;
 
     // Converte a imagem escolhida para Base64
@@ -209,8 +212,8 @@
       clearSelectedImage();
 
       try {
-        // Substitua pela URL exata do seu serviço no Render se necessário
-        const response = await fetch('https://SEU-SERVICO-NO-RENDER.onrender.com/api/chat', {
+        const endpoint = `${BACKEND_URL.replace(/\/$/, '')}/api/chat`;
+        const response = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -220,11 +223,16 @@
         });
 
         const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.error || 'Erro na resposta do servidor.');
+        }
+
         const reply = data.reply || data.message || data.text || 'Sem resposta recebida.';
         renderMessage(reply, null, false);
       } catch (err) {
         console.error('Erro de conexão:', err);
-        renderMessage('Erro ao comunicar com o servidor do Radam Nox.', null, false);
+        renderMessage(`Erro do Servidor: ${err.message || 'Não foi possível conectar ao Radam Nox.'}`, null, false);
       }
     }
   </script>
