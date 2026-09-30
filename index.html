@@ -8,14 +8,15 @@
   <style>
     :root {
       --bg-color: #000000;
-      --sidebar-bg: #0b0d14;
-      --card-bg: #121520;
+      --sidebar-bg: #090b10;
+      --card-bg: #12151e;
+      --card-hover: #1c2130;
       --text-color: #f3f4f6;
       --text-muted: #8b949e;
       --accent-gradient: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 50%, #06b6d4 100%);
       --accent-purple: #8b5cf6;
-      --user-msg: #1d4ed8;
-      --bot-msg: #121520;
+      --user-msg: #2563eb;
+      --bot-msg: #12151e;
       --border-color: rgba(255, 255, 255, 0.1);
       --sidebar-width: 280px;
     }
@@ -25,6 +26,7 @@
       margin: 0; 
       padding: 0; 
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+      -webkit-tap-highlight-color: transparent;
     }
 
     html, body {
@@ -35,7 +37,7 @@
       overflow: hidden;
     }
 
-    body { display: flex; width: 100vw; }
+    body { display: flex; width: 100vw; position: relative; }
 
     /* Sidebar Flutuante */
     .sidebar {
@@ -49,13 +51,13 @@
       flex-direction: column;
       transform: translateX(-100%);
       transition: transform 0.25s ease-in-out;
-      z-index: 1000;
+      z-index: 2000;
     }
 
     .sidebar.active { transform: translateX(0); }
 
     .sidebar-header {
-      padding: 1rem;
+      padding: 1.2rem 1rem;
       border-bottom: 1px solid var(--border-color);
       display: flex;
       justify-content: space-between;
@@ -71,19 +73,22 @@
     }
 
     .new-chat-btn {
-      width: 100%;
-      padding: 0.75rem;
+      width: calc(100% - 1.6rem);
+      margin: 0.8rem;
+      padding: 0.8rem;
       background-color: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      color: var(--accent-purple);
+      border: 1px solid rgba(139, 92, 246, 0.4);
+      border-radius: 12px;
+      color: #c4b5fd;
       font-weight: bold;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 0.5rem;
+      gap: 0.6rem;
       cursor: pointer;
     }
+
+    .new-chat-btn:active { background-color: var(--card-hover); }
 
     /* Layout Principal */
     .main-container {
@@ -93,11 +98,12 @@
       height: 100%; height: 100dvh;
       width: 100%;
       position: relative;
+      z-index: 1;
     }
 
     header {
-      background-color: var(--sidebar-bg);
-      padding: 0.6rem 1rem;
+      background-color: var(--bg-color);
+      padding: 0.8rem 1rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -111,14 +117,14 @@
       color: var(--text-color);
       font-size: 1.2rem;
       cursor: pointer;
-      padding: 0.3rem;
+      padding: 0.4rem;
     }
 
     .model-select {
       background: var(--card-bg);
       color: var(--text-color);
       border: 1px solid var(--border-color);
-      padding: 0.4rem 0.6rem;
+      padding: 0.4rem 0.8rem;
       border-radius: 20px;
       font-size: 0.85rem;
       outline: none;
@@ -146,24 +152,24 @@
     }
 
     .welcome-icon {
-      width: 60px; height: 60px;
+      width: 64px; height: 64px;
       border-radius: 50%;
       background: var(--accent-gradient);
       display: flex; align-items: center; justify-content: center;
       font-size: 1.8rem; color: white;
       margin-bottom: 1rem;
-      box-shadow: 0 0 25px rgba(139, 92, 246, 0.4);
+      box-shadow: 0 0 30px rgba(139, 92, 246, 0.4);
     }
 
     .welcome-title {
-      font-size: 1.8rem; font-weight: 800; margin-bottom: 0.5rem;
+      font-size: 1.9rem; font-weight: 800; margin-bottom: 0.4rem;
       background: var(--accent-gradient);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
     .welcome-subtitle {
-      color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem;
+      color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.8rem;
     }
 
     .suggestions-grid {
@@ -184,9 +190,12 @@
       text-align: left;
       cursor: pointer;
       display: flex; align-items: center; gap: 0.8rem;
+      transition: background 0.2s;
     }
 
-    .card-icon { font-size: 1.2rem; color: var(--accent-purple); }
+    .suggestion-card:active { background: var(--card-hover); }
+
+    .card-icon { font-size: 1.2rem; color: #a78bfa; }
     .card-text { font-size: 0.85rem; color: var(--text-color); font-weight: 500; }
 
     /* Mensagens */
@@ -201,9 +210,9 @@
     .bot-wrapper { align-self: flex-start; }
 
     .message {
-      padding: 0.8rem 1rem;
-      border-radius: 12px;
-      line-height: 1.4;
+      padding: 0.9rem 1.1rem;
+      border-radius: 16px;
+      line-height: 1.5;
       word-break: break-word;
       font-size: 0.95rem;
     }
@@ -211,26 +220,26 @@
     .user-message {
       background-color: var(--user-msg);
       color: white;
-      border-bottom-right-radius: 2px;
+      border-bottom-right-radius: 4px;
     }
 
     .bot-message {
       background-color: var(--bot-msg);
       border: 1px solid var(--border-color);
-      border-bottom-left-radius: 2px;
+      border-bottom-left-radius: 4px;
     }
 
     /* Processo de Raciocínio */
     .thinking-accordion {
       background-color: rgba(255, 255, 255, 0.03);
       border: 1px solid var(--border-color);
-      border-radius: 8px;
+      border-radius: 10px;
       overflow: hidden;
       font-size: 0.82rem;
     }
 
     .thinking-header {
-      padding: 0.5rem 0.8rem;
+      padding: 0.6rem 0.9rem;
       background-color: rgba(255, 255, 255, 0.05);
       cursor: pointer;
       display: flex;
@@ -240,7 +249,7 @@
     }
 
     .thinking-content {
-      padding: 0.6rem 0.8rem;
+      padding: 0.7rem 0.9rem;
       display: none;
       color: var(--text-muted);
       border-top: 1px solid var(--border-color);
@@ -271,19 +280,20 @@
 
     /* Barra de Ações */
     .actions-toolbar {
-      display: flex; gap: 0.4rem; margin-top: 0.2rem;
+      display: flex; gap: 0.6rem; margin-top: 0.3rem;
     }
 
     .action-btn {
       background: none; border: none;
       color: var(--text-muted);
-      cursor: pointer; font-size: 0.8rem;
-      padding: 0.3rem 0.5rem; border-radius: 4px;
+      cursor: pointer; font-size: 0.82rem;
+      padding: 0.3rem 0.6rem; border-radius: 6px;
     }
+    .action-btn:active { color: white; }
 
     /* Barra de Digitação */
     #input-container {
-      padding: 0.6rem;
+      padding: 0.8rem 1rem 1.2rem 1rem;
       background-color: var(--bg-color);
       border-top: 1px solid var(--border-color);
       display: flex;
@@ -293,6 +303,7 @@
       position: sticky;
       bottom: 0;
       width: 100%;
+      z-index: 10;
     }
 
     .attachment-preview {
@@ -300,19 +311,19 @@
     }
 
     .preview-item {
-      width: 50px; height: 50px;
-      border-radius: 6px; border: 1px solid var(--border-color);
+      width: 55px; height: 55px;
+      border-radius: 8px; border: 1px solid var(--border-color);
       overflow: hidden;
     }
 
     .preview-item img { width: 100%; height: 100%; object-fit: cover; }
 
     .input-box {
-      display: flex; align-items: center; gap: 0.4rem;
-      background-color: var(--sidebar-bg);
+      display: flex; align-items: center; gap: 0.5rem;
+      background-color: var(--card-bg);
       border: 1px solid var(--border-color);
       border-radius: 28px;
-      padding: 0.4rem 0.8rem;
+      padding: 0.5rem 0.9rem;
     }
 
     textarea {
@@ -324,9 +335,12 @@
 
     .icon-btn {
       background: none; border: none;
-      color: var(--text-muted); font-size: 1.1rem;
+      color: var(--text-muted); font-size: 1.15rem;
       cursor: pointer; padding: 0.4rem;
+      display: flex; align-items: center; justify-content: center;
     }
+
+    .icon-btn:active { color: #c4b5fd; }
 
     input[type="file"] { display: none; }
   </style>
@@ -339,9 +353,7 @@
       <span class="brand-title">Radam Nox</span>
       <button class="menu-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-xmark"></i></button>
     </div>
-    <div style="padding: 0.5rem;">
-      <button class="new-chat-btn" onclick="startNewChat()"><i class="fa-solid fa-plus"></i> Novo Chat</button>
-    </div>
+    <button class="new-chat-btn" onclick="startNewChat()"><i class="fa-solid fa-plus"></i> Novo Chat</button>
   </aside>
 
   <div class="main-container">
@@ -394,13 +406,13 @@
           <i class="fa-solid fa-camera"></i>
         </button>
         
-        <textarea id="user-input" rows="1" placeholder="Pergunte qualquer coisa..." oninput="autoResize(this)" onfocus="scrollToBottom()" onkeydown="handleKeyDown(event)"></textarea>
+        <textarea id="user-input" rows="1" placeholder="Pergunte qualquer coisa ao Radam Nox..." oninput="autoResize(this)" onfocus="scrollToBottom()" onkeydown="handleKeyDown(event)"></textarea>
 
         <button class="icon-btn" id="mic-btn" onclick="toggleVoiceInput()" title="Voz">
           <i class="fa-solid fa-microphone"></i>
         </button>
 
-        <button class="icon-btn" style="color: var(--accent-purple);" onclick="sendMessage()" id="send-btn">
+        <button class="icon-btn" style="color: #a78bfa;" onclick="sendMessage()" id="send-btn">
           <i class="fa-solid fa-arrow-up"></i>
         </button>
       </div>
@@ -563,7 +575,7 @@
 
         let replyText = data.reply || data.response || data.message || (typeof data === "string" ? data : JSON.stringify(data));
         
-        appendBotResponse(replyText, "Processando resposta no motor Radam Nox...");
+        appendBotResponse(replyText, "Processamento concluído com sucesso pelo motor Radam Nox.");
 
       } catch (error) {
         if (botWrapper) botWrapper.remove();
@@ -617,15 +629,4 @@
           <div class="thinking-accordion">
             <div class="thinking-header" onclick="this.parentElement.classList.toggle('open')">
               <span><i class="fa-solid fa-brain"></i> Raciocínio</span>
-              <i class="fa-solid fa-chevron-down"></i>
-            </div>
-            <div class="thinking-content">${thinkingSteps}</div>
-          </div>`;
-      }
-
-      wrapper.innerHTML = `
-        ${thinkingHtml}
-        <div class="message bot-message">${text}</div>
-        <div class="actions-toolbar">
-          <button class="action-btn" onclick="copyText('${encodeURIComponent(text)}')" title="Copiar"><i class="fa-regular fa-copy"></i> Copiar</button>
-          <button class="actio
+              <i class="fa-solid fa-che
