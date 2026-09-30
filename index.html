@@ -3,19 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Radamn AI - Mobile Optimized v2.5.1</title>
+  <title>Radam Nox - Next-Gen AI Interface</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
-      --bg-color: #0d1117;
-      --sidebar-bg: #161b22;
-      --card-bg: #1c2128;
-      --text-color: #c9d1d9;
+      --bg-color: #090d16;
+      --sidebar-bg: #111623;
+      --card-bg: rgba(20, 27, 41, 0.75);
+      --card-hover: rgba(30, 41, 62, 0.9);
+      --text-color: #f0f6fc;
       --text-muted: #8b949e;
-      --accent-color: #58a6ff;
-      --user-msg: #1f6feb;
-      --bot-msg: #161b22;
-      --border-color: #30363d;
+      --accent-gradient: linear-gradient(135deg, #7c3aed 0%, #3b82f6 50%, #06b6d4 100%);
+      --accent-purple: #8b5cf6;
+      --user-msg: #2563eb;
+      --bot-msg: #131927;
+      --border-color: rgba(255, 255, 255, 0.08);
       --sidebar-width: 280px;
     }
 
@@ -26,7 +28,6 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
     }
 
-    /* Correção fundamental para telemóveis: uso de dvh (Dynamic Viewport Height) */
     html, body {
       height: 100%;
       height: 100dvh;
@@ -40,12 +41,11 @@
       width: 100vw;
     }
 
-    /* Sidebar / Navigation */
+    /* Sidebar Flutuante e Glassmorphism */
     .sidebar {
       position: fixed;
       top: 0;
       left: 0;
-      height: 100%;
       height: 100dvh;
       width: var(--sidebar-width);
       background-color: var(--sidebar-bg);
@@ -53,41 +53,51 @@
       display: flex;
       flex-direction: column;
       transform: translateX(-100%);
-      transition: transform 0.25s ease-in-out;
+      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
       z-index: 1000;
     }
 
-    .sidebar.active { 
-      transform: translateX(0); 
-    }
+    .sidebar.active { transform: translateX(0); }
 
     .sidebar-header {
-      padding: 1rem;
+      padding: 1.2rem 1rem;
       border-bottom: 1px solid var(--border-color);
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
 
+    .brand-title {
+      font-weight: 800;
+      font-size: 1.2rem;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 0.5px;
+    }
+
     .new-chat-btn {
       width: 100%;
-      padding: 0.75rem;
-      background-color: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      color: var(--accent-color);
-      font-weight: bold;
+      padding: 0.8rem;
+      background: rgba(139, 92, 246, 0.12);
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      border-radius: 12px;
+      color: #a78bfa;
+      font-weight: 600;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 0.5rem;
+      gap: 0.6rem;
       cursor: pointer;
+      transition: all 0.2s;
     }
+
+    .new-chat-btn:active { transform: scale(0.98); }
 
     .chat-history {
       flex: 1;
       overflow-y: auto;
-      padding: 0.5rem;
+      padding: 0.8rem 0.5rem;
     }
 
     /* Layout Principal */
@@ -95,20 +105,21 @@
       flex: 1;
       display: flex;
       flex-direction: column;
-      height: 100%;
       height: 100dvh;
       width: 100%;
       position: relative;
     }
 
     header {
-      background-color: var(--sidebar-bg);
-      padding: 0.6rem 1rem;
+      padding: 0.8rem 1rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
       border-bottom: 1px solid var(--border-color);
+      background: rgba(9, 13, 22, 0.85);
+      backdrop-filter: blur(12px);
       flex-shrink: 0;
+      z-index: 10;
     }
 
     .menu-toggle {
@@ -117,20 +128,21 @@
       color: var(--text-color);
       font-size: 1.2rem;
       cursor: pointer;
-      padding: 0.3rem;
+      padding: 0.4rem;
     }
 
     .model-select {
       background: var(--card-bg);
-      color: var(--accent-color);
+      color: var(--text-color);
       border: 1px solid var(--border-color);
-      padding: 0.4rem 0.6rem;
-      border-radius: 6px;
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
       font-size: 0.85rem;
       outline: none;
+      font-weight: 500;
     }
 
-    /* Área do Chat com scroll responsivo */
+    /* Área de Chat & Welcome Hero */
     #chat-container {
       flex: 1;
       overflow-y: auto;
@@ -141,20 +153,107 @@
       -webkit-overflow-scrolling: touch;
     }
 
+    /* Tela Inicial */
+    .welcome-hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: auto 0;
+      text-align: center;
+      padding: 1.5rem 0.5rem;
+      animation: fadeIn 0.4s ease-in-out;
+    }
+
+    .welcome-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: var(--accent-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      color: white;
+      margin-bottom: 1.2rem;
+      box-shadow: 0 0 30px rgba(139, 92, 246, 0.4);
+    }
+
+    .welcome-title {
+      font-size: 1.9rem;
+      font-weight: 800;
+      margin-bottom: 0.4rem;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .welcome-subtitle {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 2rem;
+      max-width: 320px;
+    }
+
+    /* Grid de Sugestões Rápidas */
+    .suggestions-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.8rem;
+      width: 100%;
+      max-width: 500px;
+    }
+
+    @media (max-width: 480px) {
+      .suggestions-grid { grid-template-columns: 1fr; }
+    }
+
+    .suggestion-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 0.9rem;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .suggestion-card:active {
+      transform: scale(0.97);
+      background: var(--card-hover);
+    }
+
+    .card-icon {
+      font-size: 1.2rem;
+      color: #a78bfa;
+    }
+
+    .card-text {
+      font-size: 0.85rem;
+      color: var(--text-color);
+      font-weight: 500;
+      line-height: 1.3;
+    }
+
+    /* Mensagens no Chat */
     .message-wrapper {
       display: flex;
       flex-direction: column;
       gap: 0.4rem;
-      max-width: 90%;
+      max-width: 88%;
+      animation: fadeIn 0.3s ease;
     }
 
     .user-wrapper { align-self: flex-end; }
     .bot-wrapper { align-self: flex-start; }
 
     .message {
-      padding: 0.8rem 1rem;
-      border-radius: 12px;
-      line-height: 1.4;
+      padding: 0.9rem 1.1rem;
+      border-radius: 16px;
+      line-height: 1.5;
       word-break: break-word;
       font-size: 0.95rem;
     }
@@ -162,27 +261,29 @@
     .user-message {
       background-color: var(--user-msg);
       color: white;
-      border-bottom-right-radius: 2px;
+      border-bottom-right-radius: 4px;
+      box-shadow: 0 2px 10px rgba(37, 99, 235, 0.25);
     }
 
     .bot-message {
       background-color: var(--bot-msg);
       border: 1px solid var(--border-color);
-      border-bottom-left-radius: 2px;
+      border-bottom-left-radius: 4px;
     }
 
-    /* Processo de Pensamento (Accordion) */
+    /* Accordion Processo de Raciocínio */
     .thinking-accordion {
-      background-color: rgba(255, 255, 255, 0.03);
+      background: rgba(255, 255, 255, 0.02);
       border: 1px solid var(--border-color);
-      border-radius: 8px;
+      border-radius: 10px;
       overflow: hidden;
       font-size: 0.82rem;
+      margin-bottom: 0.3rem;
     }
 
     .thinking-header {
       padding: 0.5rem 0.8rem;
-      background-color: rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.04);
       cursor: pointer;
       display: flex;
       justify-content: space-between;
@@ -211,7 +312,7 @@
     .dot {
       width: 7px;
       height: 7px;
-      background-color: var(--accent-color);
+      background-color: var(--accent-purple);
       border-radius: 50%;
       animation: bounce 1.4s infinite ease-in-out both;
     }
@@ -224,7 +325,12 @@
       40% { transform: scale(1.0); }
     }
 
-    /* Barra de Ações */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Toolbar de Ações */
     .actions-toolbar {
       display: flex;
       gap: 0.4rem;
@@ -238,20 +344,14 @@
       cursor: pointer;
       font-size: 0.8rem;
       padding: 0.3rem 0.5rem;
-      border-radius: 4px;
+      border-radius: 6px;
     }
 
-    /* Contentor de Entrada Fixo na Parte Inferior */
+    /* Barra de Digitação em Cápsula Flutuante */
     #input-container {
-      padding: 0.6rem;
-      background-color: var(--sidebar-bg);
-      border-top: 1px solid var(--border-color);
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
+      padding: 0.8rem 1rem 1.2rem 1rem;
+      background: var(--bg-color);
       flex-shrink: 0;
-      position: sticky;
-      bottom: 0;
       width: 100%;
     }
 
@@ -259,12 +359,13 @@
       display: flex;
       gap: 0.5rem;
       overflow-x: auto;
+      padding-bottom: 0.4rem;
     }
 
     .preview-item {
       width: 50px;
       height: 50px;
-      border-radius: 6px;
+      border-radius: 8px;
       border: 1px solid var(--border-color);
       overflow: hidden;
     }
@@ -274,11 +375,17 @@
     .input-box {
       display: flex;
       align-items: center;
-      gap: 0.4rem;
-      background-color: var(--bg-color);
+      gap: 0.5rem;
+      background-color: var(--sidebar-bg);
       border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 0.4rem 0.6rem;
+      border-radius: 28px;
+      padding: 0.5rem 0.9rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
+      transition: border-color 0.2s;
+    }
+
+    .input-box:focus-within {
+      border-color: var(--accent-purple);
     }
 
     textarea {
@@ -299,22 +406,24 @@
       font-size: 1.1rem;
       cursor: pointer;
       padding: 0.4rem;
+      border-radius: 50%;
+      transition: color 0.2s;
     }
 
-    .icon-btn:hover { color: var(--accent-color); }
+    .icon-btn:hover { color: #a78bfa; }
 
     input[type="file"] { display: none; }
   </style>
 </head>
 <body>
 
-  <!-- Menu Lateral -->
+  <!-- Menu Lateral / Sidebar -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
-      <span style="font-weight: bold; color: var(--accent-color);">Radamn AI</span>
+      <span class="brand-title">Radam Nox</span>
       <button class="menu-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-xmark"></i></button>
     </div>
-    <div style="padding: 0.5rem;">
+    <div style="padding: 0.8rem;">
       <button class="new-chat-btn" onclick="startNewChat()"><i class="fa-solid fa-plus"></i> Novo Chat</button>
     </div>
     <div class="chat-history" id="chat-history"></div>
@@ -324,51 +433,72 @@
     <header>
       <div style="display: flex; align-items: center; gap: 0.8rem;">
         <button class="menu-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
-        <span style="font-weight: bold; font-size: 1rem;">Radamn Core v2.5</span>
+        <span class="brand-title">Radam Nox</span>
       </div>
       <select class="model-select" id="model-select">
-        <option value="radamn-fast">Radamn Fast</option>
-        <option value="radamn-thinker">Radamn Thinker</option>
+        <option value="radam-nox-fast">Nox Fast</option>
+        <option value="radam-nox-thinker">Nox Thinker</option>
       </select>
     </header>
 
+    <!-- Área Principal do Chat -->
     <div id="chat-container">
-      <div class="message-wrapper bot-wrapper">
-        <div class="message bot-message">
-          Olá! Eu sou a <b>Radamn AI</b>. Conexão direta ao motor ativa! Como posso ajudar você hoje?
+      <!-- Tela Inicial de Boas-Vindas -->
+      <div class="welcome-hero" id="welcome-hero">
+        <div class="welcome-icon"><i class="fa-solid fa-bolt"></i></div>
+        <h1 class="welcome-title">Olá, Blay</h1>
+        <p class="welcome-subtitle">Como posso te ajudar no Radam Nox hoje?</p>
+        
+        <div class="suggestions-grid">
+          <div class="suggestion-card" onclick="sendQuickPrompt('Escreva um script de automação em Python')">
+            <i class="fa-solid fa-code card-icon"></i>
+            <span class="card-text">Criar script em Python</span>
+          </div>
+          <div class="suggestion-card" onclick="sendQuickPrompt('Analise uma arquitetura de microsserviços para o meu backend')">
+            <i class="fa-solid fa-network-wired card-icon"></i>
+            <span class="card-text">Arquitetura de Software</span>
+          </div>
+          <div class="suggestion-card" onclick="sendQuickPrompt('Pesquise e resuma as principais novidades de IA')">
+            <i class="fa-solid fa-globe card-icon"></i>
+            <span class="card-text">Pesquisa Web em Tempo Real</span>
+          </div>
+          <div class="suggestion-card" onclick="sendQuickPrompt('Ajude a revisar e otimizar meu código no GitHub')">
+            <i class="fa-solid fa-bug card-icon"></i>
+            <span class="card-text">Revisar e Refatorar Código</span>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Barra de Entrada Adaptada ao Teclado -->
+    <!-- Barra de Digitação em Cápsula -->
     <div id="input-container">
       <div class="attachment-preview" id="attachment-preview"></div>
       <div class="input-box">
-        <!-- Anexo de ficheiro -->
+        <!-- Anexo de arquivo -->
         <button class="icon-btn" onclick="triggerFileInput()" title="Anexar arquivo">
           <i class="fa-solid fa-paperclip"></i>
         </button>
-        <!-- Câmara Direta do Telemóvel -->
+        <!-- Abrir câmara diretamente -->
         <button class="icon-btn" onclick="triggerCameraInput()" title="Tirar foto">
           <i class="fa-solid fa-camera"></i>
         </button>
         
-        <textarea id="user-input" rows="1" placeholder="Digite uma mensagem..." oninput="autoResize(this)" onfocus="scrollToBottom()"></textarea>
+        <textarea id="user-input" rows="1" placeholder="Pergunte qualquer coisa ao Radam Nox..." oninput="autoResize(this)" onfocus="scrollToBottom()"></textarea>
 
         <!-- Reconhecimento de Voz -->
         <button class="icon-btn" id="mic-btn" onclick="toggleVoiceInput()" title="Voz">
           <i class="fa-solid fa-microphone"></i>
         </button>
 
-        <!-- Botão de Envio -->
-        <button class="icon-btn" style="color: var(--accent-color);" onclick="sendMessage()" id="send-btn">
-          <i class="fa-solid fa-paper-plane"></i>
+        <!-- Botão de Enviar -->
+        <button class="icon-btn" style="color: #a78bfa;" onclick="sendMessage()" id="send-btn">
+          <i class="fa-solid fa-arrow-up"></i>
         </button>
       </div>
     </div>
   </div>
 
-  <!-- Inputs Ocultos de Hardware -->
+  <!-- Inputs Ocultos de Ficheiro e Câmara -->
   <input type="file" id="file-input" multiple onchange="handleFileSelect(event)">
   <input type="file" id="camera-input" accept="image/*" capture="environment" onchange="handleFileSelect(event)">
 
@@ -382,11 +512,44 @@
     }
 
     function startNewChat() {
-      document.getElementById("chat-container").innerHTML = `
-        <div class="message-wrapper bot-wrapper">
-          <div class="message bot-message">Novo chat iniciado. Como posso ajudar?</div>
+      const container = document.getElementById("chat-container");
+      container.innerHTML = `
+        <div class="welcome-hero" id="welcome-hero">
+          <div class="welcome-icon"><i class="fa-solid fa-bolt"></i></div>
+          <h1 class="welcome-title">Olá, Blay</h1>
+          <p class="welcome-subtitle">Como posso te ajudar no Radam Nox hoje?</p>
+          <div class="suggestions-grid">
+            <div class="suggestion-card" onclick="sendQuickPrompt('Escreva um script de automação em Python')">
+              <i class="fa-solid fa-code card-icon"></i>
+              <span class="card-text">Criar script em Python</span>
+            </div>
+            <div class="suggestion-card" onclick="sendQuickPrompt('Analise uma arquitetura de microsserviços para o meu backend')">
+              <i class="fa-solid fa-network-wired card-icon"></i>
+              <span class="card-text">Arquitetura de Software</span>
+            </div>
+            <div class="suggestion-card" onclick="sendQuickPrompt('Pesquise e resuma as principais novidades de IA')">
+              <i class="fa-solid fa-globe card-icon"></i>
+              <span class="card-text">Pesquisa Web em Tempo Real</span>
+            </div>
+            <div class="suggestion-card" onclick="sendQuickPrompt('Ajude a revisar e otimizar meu código no GitHub')">
+              <i class="fa-solid fa-bug card-icon"></i>
+              <span class="card-text">Revisar e Refatorar Código</span>
+            </div>
+          </div>
         </div>`;
-      toggleSidebar();
+      if (document.getElementById("sidebar").classList.contains("active")) {
+        toggleSidebar();
+      }
+    }
+
+    function removeWelcomeHero() {
+      const hero = document.getElementById("welcome-hero");
+      if (hero) hero.remove();
+    }
+
+    function sendQuickPrompt(promptText) {
+      document.getElementById("user-input").value = promptText;
+      sendMessage();
     }
 
     function autoResize(textarea) {
@@ -402,13 +565,8 @@
       }, 100);
     }
 
-    function triggerFileInput() {
-      document.getElementById('file-input').click();
-    }
-
-    function triggerCameraInput() {
-      document.getElementById('camera-input').click();
-    }
+    function triggerFileInput() { document.getElementById('file-input').click(); }
+    function triggerCameraInput() { document.getElementById('camera-input').click(); }
 
     function handleFileSelect(event) {
       const files = Array.from(event.target.files);
@@ -440,12 +598,11 @@
       if (!isRecording) {
         recognition.start();
         isRecording = true;
-        micBtn.style.color = "red";
+        micBtn.style.color = "#ef4444";
       }
 
       recognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
-        document.getElementById("user-input").value += transcript;
+        document.getElementById("user-input").value += event.results[0][0].transcript;
         micBtn.style.color = "var(--text-muted)";
         isRecording = false;
       };
@@ -462,6 +619,7 @@
 
       if (!messageText && selectedFiles.length === 0) return;
 
+      removeWelcomeHero();
       appendUserMessage(messageText, selectedFiles);
 
       inputField.value = "";
@@ -482,12 +640,11 @@
         botWrapper.remove();
 
         let replyText = data.reply || data.response || data.message || (typeof data === "string" ? data : JSON.stringify(data));
-        
-        appendBotResponse(replyText, "Procurando informações...\nProcessando inferência no motor...");
+        appendBotResponse(replyText, "Analisando com o motor Radam Nox...\nProcessando resposta...");
 
       } catch (error) {
         if (botWrapper) botWrapper.remove();
-        appendBotResponse("⚠️ Erro ao conectar ao motor no Render. O servidor pode estar a acordar, tente novamente.");
+        appendBotResponse("⚠️ Erro ao conectar ao servidor Radam Nox. Tente novamente em instantes.");
       }
     }
 
@@ -498,7 +655,7 @@
 
       let imgsHtml = "";
       files.forEach(file => {
-        imgsHtml += `<br><img src="${URL.createObjectURL(file)}" style="max-width:180px; border-radius:8px; margin-top:5px;">`;
+        imgsHtml += `<br><img src="${URL.createObjectURL(file)}" style="max-width:180px; border-radius:10px; margin-top:5px;">`;
       });
 
       wrapper.innerHTML = `<div class="message user-message">${text} ${imgsHtml}</div>`;
@@ -513,53 +670,4 @@
       
       wrapper.innerHTML = `
         <div class="message bot-message">
-          <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:4px;">Pensando...</div>
-          <div class="bouncing-dots">
-            <div class="dot"></div>
-            <div class="dot"></div>
-            <div class="dot"></div>
-          </div>
-        </div>`;
-      
-      container.appendChild(wrapper);
-      scrollToBottom();
-      return wrapper;
-    }
-
-    function appendBotResponse(text, thinkingSteps = "") {
-      const container = document.getElementById("chat-container");
-      const wrapper = document.createElement("div");
-      wrapper.className = "message-wrapper bot-wrapper";
-
-      let thinkingHtml = "";
-      if (thinkingSteps) {
-        thinkingHtml = `
-          <div class="thinking-accordion">
-            <div class="thinking-header" onclick="this.parentElement.classList.toggle('open')">
-              <span><i class="fa-solid fa-brain"></i> Raciocínio</span>
-              <i class="fa-solid fa-chevron-down"></i>
-            </div>
-            <div class="thinking-content">${thinkingSteps}</div>
-          </div>`;
-      }
-
-      wrapper.innerHTML = `
-        ${thinkingHtml}
-        <div class="message bot-message">${text}</div>
-        <div class="actions-toolbar">
-          <button class="action-btn" onclick="copyText('${encodeURIComponent(text)}')" title="Copiar"><i class="fa-regular fa-copy"></i></button>
-          <button class="action-btn" onclick="alert('Obrigado pelo feedback!')"><i class="fa-regular fa-thumbs-up"></i></button>
-          <button class="action-btn" onclick="alert('Feedback registrado!')"><i class="fa-regular fa-thumbs-down"></i></button>
-        </div>`;
-
-      container.appendChild(wrapper);
-      scrollToBottom();
-    }
-
-    function copyText(encodedText) {
-      navigator.clipboard.writeText(decodeURIComponent(encodedText));
-      alert("Texto copiado!");
-    }
-  </script>
-</body>
-</html>
+         
