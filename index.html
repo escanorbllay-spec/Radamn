@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -8,16 +9,15 @@
   <style>
     :root {
       --bg-color: #000000;
-      --sidebar-bg: #0a0c10;
-      --card-bg: #12151e;
-      --card-hover: #1a1e2b;
+      --sidebar-bg: #0a0a0c;
+      --card-bg: #111115;
       --text-color: #f3f4f6;
       --text-muted: #8b949e;
       --accent-gradient: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 50%, #06b6d4 100%);
       --accent-purple: #8b5cf6;
       --user-msg: #1d4ed8;
-      --bot-msg: #0d1117;
-      --border-color: rgba(255, 255, 255, 0.1);
+      --bot-msg: #121217;
+      --border-color: rgba(255, 255, 255, 0.12);
       --sidebar-width: 280px;
     }
 
@@ -39,18 +39,23 @@
 
     body { display: flex; width: 100vw; position: relative; }
 
-    /* Máscara de fundo ao abrir a sidebar */
+    /* Overlay com controle de toque estrito */
     .sidebar-overlay {
       position: fixed;
       top: 0; left: 0; width: 100vw; height: 100dvh;
-      background: rgba(0, 0, 0, 0.7);
+      background: rgba(0, 0, 0, 0.75);
       backdrop-filter: blur(4px);
-      z-index: 999;
-      display: none;
+      z-index: 900;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
     }
-    .sidebar-overlay.active { display: block; }
+    .sidebar-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
 
-    /* Sidebar Flutuante Corrigida */
+    /* Sidebar Flutuante */
     .sidebar {
       position: fixed;
       top: 0; left: 0;
@@ -61,7 +66,7 @@
       display: flex;
       flex-direction: column;
       transform: translateX(-100%);
-      transition: transform 0.25s ease-in-out;
+      transition: transform 0.25s ease;
       z-index: 1000;
     }
 
@@ -121,12 +126,12 @@
       gap: 0.6rem;
     }
 
-    .history-item:hover, .history-item.active {
+    .history-item.active {
       background: var(--card-bg);
       color: var(--text-color);
     }
 
-    /* Layout Principal */
+    /* Container Principal */
     .main-container {
       flex: 1;
       display: flex;
@@ -134,6 +139,7 @@
       height: 100dvh;
       width: 100%;
       position: relative;
+      z-index: 1;
     }
 
     header {
@@ -142,7 +148,7 @@
       align-items: center;
       justify-content: space-between;
       border-bottom: 1px solid var(--border-color);
-      background: rgba(0, 0, 0, 0.85);
+      background: rgba(0, 0, 0, 0.9);
       backdrop-filter: blur(12px);
       flex-shrink: 0;
       z-index: 10;
@@ -152,7 +158,7 @@
       background: none;
       border: none;
       color: var(--text-color);
-      font-size: 1.2rem;
+      font-size: 1.3rem;
       cursor: pointer;
       padding: 0.5rem;
     }
@@ -198,7 +204,7 @@
       font-size: 1.8rem;
       color: white;
       margin-bottom: 1rem;
-      box-shadow: 0 0 30px rgba(139, 92, 246, 0.3);
+      box-shadow: 0 0 30px rgba(139, 92, 246, 0.35);
     }
 
     .welcome-title {
@@ -243,7 +249,7 @@
     .card-icon { font-size: 1.2rem; color: #a78bfa; }
     .card-text { font-size: 0.85rem; color: var(--text-color); font-weight: 500; }
 
-    /* Mensagens */
+    /* Estilo de Mensagens */
     .message-row {
       display: flex;
       gap: 0.8rem;
@@ -311,12 +317,13 @@
       padding: 0.2rem 0.4rem;
     }
 
-    /* Barra de Digitação */
+    /* Barra de Digitação Móvel */
     #input-container {
       padding: 0.8rem 1rem 1.2rem 1rem;
       background: var(--bg-color);
       flex-shrink: 0;
       width: 100%;
+      z-index: 10;
     }
 
     .attachment-preview {
@@ -340,7 +347,7 @@
       display: flex;
       align-items: center;
       gap: 0.4rem;
-      background-color: #0b0d14;
+      background-color: #0c0c10;
       border: 1px solid var(--border-color);
       border-radius: 28px;
       padding: 0.4rem 0.8rem;
@@ -437,7 +444,7 @@
       </div>
     </div>
 
-    <!-- Barra de Digitação -->
+    <!-- Formulário -->
     <div id="input-container">
       <div class="attachment-preview" id="attachment-preview"></div>
       
@@ -466,7 +473,7 @@
   <input type="file" id="camera-input" accept="image/*" capture="environment">
 
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
+    window.addEventListener("DOMContentLoaded", () => {
       const API_URL = "https://radamanthys-core.onrender.com/api/chat";
       let selectedFiles = [];
 
@@ -488,21 +495,22 @@
       const btnCamera = document.getElementById("btn-camera");
       const btnMic = document.getElementById("btn-mic");
 
-      // Abrir/Fechar Sidebar
-      function openSidebar() {
-        sidebar.classList.add("active");
-        overlay.classList.add("active");
-      }
-      function closeSidebar() {
-        sidebar.classList.remove("active");
-        overlay.classList.remove("active");
+      // Controle da Sidebar
+      function toggleSidebar(show) {
+        if (show) {
+          sidebar.classList.add("active");
+          overlay.classList.add("active");
+        } else {
+          sidebar.classList.remove("active");
+          overlay.classList.remove("active");
+        }
       }
 
-      btnOpenSidebar.addEventListener("click", openSidebar);
-      btnCloseSidebar.addEventListener("click", closeSidebar);
-      overlay.addEventListener("click", closeSidebar);
+      btnOpenSidebar.addEventListener("click", (e) => { e.stopPropagation(); toggleSidebar(true); });
+      btnCloseSidebar.addEventListener("click", (e) => { e.stopPropagation(); toggleSidebar(false); });
+      overlay.addEventListener("click", () => toggleSidebar(false));
 
-      // Resetar Chat
+      // Botão Novo Chat
       btnNewChat.addEventListener("click", () => {
         chatContainer.innerHTML = `
           <div class="welcome-hero" id="welcome-hero">
@@ -529,7 +537,7 @@
             </div>
           </div>`;
         bindCardClicks();
-        closeSidebar();
+        toggleSidebar(false);
       });
 
       function bindCardClicks() {
@@ -545,7 +553,7 @@
       // Ajuste de Altura do Textarea
       userInput.addEventListener("input", () => {
         userInput.style.height = "auto";
-        userInput.style.height = userInput.scrollHeight + "px";
+        userInput.style.height = Math.min(userInput.scrollHeight, 100) + "px";
       });
 
       userInput.addEventListener("keydown", (e) => {
@@ -560,7 +568,7 @@
         handleSendMessage();
       });
 
-      // Anexos
+      // Gestão de Anexos
       btnAttach.addEventListener("click", () => fileInput.click());
       btnCamera.addEventListener("click", () => cameraInput.click());
 
@@ -582,11 +590,11 @@
         });
       }
 
-      // Microfone
+      // Microfone por Web Speech API
       btnMic.addEventListener("click", () => {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SpeechRecognition) {
-          alert("Navegador sem suporte para voz.");
+          alert("O seu navegador móvel não suporta gravação de voz direta.");
           return;
         }
         const recognition = new SpeechRecognition();
@@ -602,7 +610,7 @@
         recognition.onend = () => btnMic.style.color = "var(--text-muted)";
       });
 
-      // Envio de Mensagem
+      // Lógica Principal de Comunicação
       async function handleSendMessage() {
         const text = userInput.value.trim();
         if (!text && selectedFiles.length === 0) return;
@@ -610,13 +618,13 @@
         const welcomeHero = document.getElementById("welcome-hero");
         if (welcomeHero) welcomeHero.remove();
 
-        // Adiciona item na Sidebar
+        // Adiciona à lista da barra lateral
         const historyItem = document.createElement("div");
         historyItem.className = "history-item active";
         historyItem.innerHTML = `<i class="fa-regular fa-message"></i> <span>${text}</span>`;
         chatHistoryList.prepend(historyItem);
 
-        // Renderiza mensagem do usuário
+        // Exibe a mensagem do utilizador
         appendUserMessage(text, selectedFiles);
 
         userInput.value = "";
@@ -624,13 +632,13 @@
         attachmentPreview.innerHTML = "";
         selectedFiles = [];
 
-        // Loading
+        // Estado de Carregamento
         const loadingRow = document.createElement("div");
         loadingRow.className = "message-row bot-row";
         loadingRow.innerHTML = `
           <div class="avatar bot-avatar"><i class="fa-solid fa-bolt"></i></div>
           <div class="message-body">
-            <div class="message bot-message" style="color: var(--text-muted);">Radam Nox a digitar...</div>
+            <div class="message bot-message" style="color: var(--text-muted);">Radam Nox a pensar...</div>
           </div>`;
         chatContainer.appendChild(loadingRow);
         scrollToBottom();
@@ -645,17 +653,7 @@
           const data = await res.json();
           loadingRow.remove();
 
-          const botReply = data.reply || data.response || data.message || "Processado com sucesso!";
+          const botReply = data.reply || data.response || data.message || "Pedido processado com sucesso!";
           typeBotResponse(botReply);
 
-        } catch (err) {
-          loadingRow.remove();
-          typeBotResponse("⚠️ Servidor indisponível no momento. Tente novamente.");
-        }
-      }
-
-      function appendUserMessage(content, files) {
-        const row = document.createElement("div");
-        row.className = "message-row user-row";
-
-        let imgsHtml =
+        } ca
