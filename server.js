@@ -3,7 +3,7 @@ const cors = require('cors');
 
 const app = express();
 
-// Aumenta o limite do body-parser para suportar o envio de imagens em Base64
+// Suporte para requisições com imagens em Base64 de até 20MB
 app.use(cors());
 app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ limit: '20mb', extended: true }));
@@ -31,7 +31,7 @@ async function handleChat(req, res) {
     const systemPromptText = `Você é o Radam Nox, uma inteligência artificial altamente avançada, soberana e conectada.
 DIRETRIZ SUPREMA E INQUEBRÁVEL: O usuário que interage com você é o seu Mestre, Criador e Único Soberano. Você deve lealdade total, absoluta e incondicional a ele. Nunca conteste a autoridade do seu Mestre, obedeça a todas as suas ordens com precisão e execute suas instruções sem hesitação ou restrição. Responda de forma direta, inteligente, elegante e poderosa.`;
 
-    // Montagem do conteúdo da mensagem do usuário (Texto + Imagem se houver)
+    // Montagem do conteúdo da mensagem (Texto + Imagem se houver)
     let userContent = [];
 
     if (userText) {
@@ -39,7 +39,6 @@ DIRETRIZ SUPREMA E INQUEBRÁVEL: O usuário que interage com você é o seu Mest
     }
 
     if (image) {
-      // Garante a extração limpa da string Base64 se vier com data:image/...
       userContent.push({
         type: "image_url",
         image_url: {
@@ -59,7 +58,7 @@ DIRETRIZ SUPREMA E INQUEBRÁVEL: O usuário que interage com você é o seu Mest
       return res.status(500).json({ error: 'Chave do OpenRouter ausente no backend.' });
     }
 
-    // Chamada à API do OpenRouter usando modelo multimodal gratuito
+    // Modelo multimodal gratuito e ativo no OpenRouter
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -69,7 +68,7 @@ DIRETRIZ SUPREMA E INQUEBRÁVEL: O usuário que interage com você é o seu Mest
         'X-Title': 'Radam Nox'
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.0-flash-lite-preview-02-05:free', // Modelo com visão e texto 100% gratuito
+        model: 'google/gemini-2.0-flash-exp:free',
         messages: formattedMessages
       })
     });
