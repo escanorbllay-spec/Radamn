@@ -2,8 +2,8 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Radamn AI - Direct Render v2.5.0</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Radamn AI - Mobile Optimized v2.5.1</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
@@ -13,41 +13,52 @@
       --text-color: #c9d1d9;
       --text-muted: #8b949e;
       --accent-color: #58a6ff;
-      --accent-hover: #1f6feb;
-      --user-msg: #238636;
+      --user-msg: #1f6feb;
       --bot-msg: #161b22;
       --border-color: #30363d;
       --sidebar-width: 280px;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+    }
 
-    body {
+    /* Correção fundamental para telemóveis: uso de dvh (Dynamic Viewport Height) */
+    html, body {
+      height: 100%;
+      height: 100dvh;
       background-color: var(--bg-color);
       color: var(--text-color);
-      display: flex;
-      height: 100vh;
       overflow: hidden;
     }
 
-    /* 18. Sidebar & Navigation */
+    body {
+      display: flex;
+      width: 100vw;
+    }
+
+    /* Sidebar / Navigation */
     .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
+      height: 100dvh;
       width: var(--sidebar-width);
       background-color: var(--sidebar-bg);
       border-right: 1px solid var(--border-color);
       display: flex;
       flex-direction: column;
-      transition: transform 0.3s ease;
-      z-index: 100;
+      transform: translateX(-100%);
+      transition: transform 0.25s ease-in-out;
+      z-index: 1000;
     }
 
-    @media (max-width: 768px) {
-      .sidebar {
-        position: fixed;
-        height: 100%;
-        transform: translateX(-100%);
-      }
-      .sidebar.active { transform: translateX(0); }
+    .sidebar.active { 
+      transform: translateX(0); 
     }
 
     .sidebar-header {
@@ -71,7 +82,6 @@
       justify-content: center;
       gap: 0.5rem;
       cursor: pointer;
-      margin-top: 0.5rem;
     }
 
     .chat-history {
@@ -80,35 +90,25 @@
       padding: 0.5rem;
     }
 
-    .history-item {
-      padding: 0.75rem;
-      border-radius: 6px;
-      margin-bottom: 0.25rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-      font-size: 0.9rem;
-    }
-
-    .history-item:hover { background-color: var(--card-bg); }
-
-    /* Main Area */
+    /* Layout Principal */
     .main-container {
       flex: 1;
       display: flex;
       flex-direction: column;
       height: 100%;
+      height: 100dvh;
+      width: 100%;
       position: relative;
     }
 
     header {
       background-color: var(--sidebar-bg);
-      padding: 0.8rem 1rem;
+      padding: 0.6rem 1rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
       border-bottom: 1px solid var(--border-color);
+      flex-shrink: 0;
     }
 
     .menu-toggle {
@@ -117,42 +117,44 @@
       color: var(--text-color);
       font-size: 1.2rem;
       cursor: pointer;
+      padding: 0.3rem;
     }
 
-    /* 20. Model Picker */
     .model-select {
       background: var(--card-bg);
       color: var(--accent-color);
       border: 1px solid var(--border-color);
-      padding: 0.4rem 0.8rem;
+      padding: 0.4rem 0.6rem;
       border-radius: 6px;
       font-size: 0.85rem;
       outline: none;
     }
 
+    /* Área do Chat com scroll responsivo */
     #chat-container {
       flex: 1;
       overflow-y: auto;
       padding: 1rem;
       display: flex;
       flex-direction: column;
-      gap: 1.5rem;
+      gap: 1.2rem;
+      -webkit-overflow-scrolling: touch;
     }
 
     .message-wrapper {
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
-      max-width: 85%;
+      gap: 0.4rem;
+      max-width: 90%;
     }
 
     .user-wrapper { align-self: flex-end; }
     .bot-wrapper { align-self: flex-start; }
 
     .message {
-      padding: 1rem;
+      padding: 0.8rem 1rem;
       border-radius: 12px;
-      line-height: 1.5;
+      line-height: 1.4;
       word-break: break-word;
       font-size: 0.95rem;
     }
@@ -169,14 +171,13 @@
       border-bottom-left-radius: 2px;
     }
 
-    /* 6. Thinking Process Accordion */
+    /* Processo de Pensamento (Accordion) */
     .thinking-accordion {
       background-color: rgba(255, 255, 255, 0.03);
       border: 1px solid var(--border-color);
       border-radius: 8px;
-      margin-bottom: 0.5rem;
       overflow: hidden;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
     }
 
     .thinking-header {
@@ -190,7 +191,7 @@
     }
 
     .thinking-content {
-      padding: 0.8rem;
+      padding: 0.6rem 0.8rem;
       display: none;
       color: var(--text-muted);
       border-top: 1px solid var(--border-color);
@@ -199,17 +200,17 @@
 
     .thinking-accordion.open .thinking-content { display: block; }
 
-    /* 5. Bouncing Dots Loading Indicator */
+    /* Bolinhas de Carregamento (Bouncing Dots) */
     .bouncing-dots {
       display: flex;
       gap: 6px;
       align-items: center;
-      padding: 0.5rem 0;
+      padding: 0.4rem 0;
     }
 
     .dot {
-      width: 8px;
-      height: 8px;
+      width: 7px;
+      height: 7px;
       background-color: var(--accent-color);
       border-radius: 50%;
       animation: bounce 1.4s infinite ease-in-out both;
@@ -223,12 +224,11 @@
       40% { transform: scale(1.0); }
     }
 
-    /* 8, 9, 10, 11, 13. Actions Toolbar */
+    /* Barra de Ações */
     .actions-toolbar {
       display: flex;
-      gap: 0.5rem;
-      margin-top: 0.4rem;
-      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.2rem;
     }
 
     .action-btn {
@@ -236,38 +236,34 @@
       border: none;
       color: var(--text-muted);
       cursor: pointer;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       padding: 0.3rem 0.5rem;
       border-radius: 4px;
-      transition: background 0.2s;
     }
 
-    .action-btn:hover {
-      background-color: var(--card-bg);
-      color: var(--text-color);
-    }
-
-    /* Input Container & 2. Attachment / Camera Options */
+    /* Contentor de Entrada Fixo na Parte Inferior */
     #input-container {
-      padding: 1rem;
+      padding: 0.6rem;
       background-color: var(--sidebar-bg);
       border-top: 1px solid var(--border-color);
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
+      gap: 0.4rem;
+      flex-shrink: 0;
+      position: sticky;
+      bottom: 0;
+      width: 100%;
     }
 
     .attachment-preview {
       display: flex;
       gap: 0.5rem;
       overflow-x: auto;
-      padding-bottom: 0.5rem;
     }
 
     .preview-item {
-      position: relative;
-      width: 60px;
-      height: 60px;
+      width: 50px;
+      height: 50px;
       border-radius: 6px;
       border: 1px solid var(--border-color);
       overflow: hidden;
@@ -278,11 +274,11 @@
     .input-box {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.4rem;
       background-color: var(--bg-color);
       border: 1px solid var(--border-color);
       border-radius: 8px;
-      padding: 0.4rem 0.8rem;
+      padding: 0.4rem 0.6rem;
     }
 
     textarea {
@@ -292,7 +288,7 @@
       color: var(--text-color);
       outline: none;
       resize: none;
-      max-height: 120px;
+      max-height: 100px;
       font-size: 0.95rem;
     }
 
@@ -303,18 +299,16 @@
       font-size: 1.1rem;
       cursor: pointer;
       padding: 0.4rem;
-      border-radius: 50%;
     }
 
     .icon-btn:hover { color: var(--accent-color); }
 
-    /* Hidden Inputs for Hardware Access */
     input[type="file"] { display: none; }
   </style>
 </head>
 <body>
 
-  <!-- 18. Sidebar & History -->
+  <!-- Menu Lateral -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <span style="font-weight: bold; color: var(--accent-color);">Radamn AI</span>
@@ -323,54 +317,50 @@
     <div style="padding: 0.5rem;">
       <button class="new-chat-btn" onclick="startNewChat()"><i class="fa-solid fa-plus"></i> Novo Chat</button>
     </div>
-    <div class="chat-history" id="chat-history">
-      <div class="history-item"><span>Conversa de Exemplo</span><i class="fa-solid fa-trash" style="font-size: 0.75rem;"></i></div>
-    </div>
+    <div class="chat-history" id="chat-history"></div>
   </aside>
 
   <div class="main-container">
     <header>
       <div style="display: flex; align-items: center; gap: 0.8rem;">
         <button class="menu-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
-        <span style="font-weight: bold;">Radamn Core v2.5</span>
+        <span style="font-weight: bold; font-size: 1rem;">Radamn Core v2.5</span>
       </div>
-      <!-- 20. Selection of Models -->
       <select class="model-select" id="model-select">
-        <option value="radamn-fast">Radamn Fast (Rápido)</option>
-        <option value="radamn-thinker">Radamn Thinker (Raciocínio)</option>
-        <option value="radamn-multimodal">Radamn Multimodal</option>
+        <option value="radamn-fast">Radamn Fast</option>
+        <option value="radamn-thinker">Radamn Thinker</option>
       </select>
     </header>
 
     <div id="chat-container">
       <div class="message-wrapper bot-wrapper">
         <div class="message bot-message">
-          Olá! Eu sou a <b>Radamn AI</b>. Conexão direta ao motor pronta! Como posso te ajudar hoje?
+          Olá! Eu sou a <b>Radamn AI</b>. Conexão direta ao motor ativa! Como posso ajudar você hoje?
         </div>
       </div>
     </div>
 
-    <!-- 1. Input Bar & Attachments -->
+    <!-- Barra de Entrada Adaptada ao Teclado -->
     <div id="input-container">
       <div class="attachment-preview" id="attachment-preview"></div>
       <div class="input-box">
-        <!-- 2. Attachment / Plus Icon -->
-        <button class="icon-btn" onclick="document.getElementById('file-input').click()" title="Anexar arquivo/imagem">
+        <!-- Anexo de ficheiro -->
+        <button class="icon-btn" onclick="triggerFileInput()" title="Anexar arquivo">
           <i class="fa-solid fa-paperclip"></i>
         </button>
-        <!-- Mobile Native Camera Capture -->
-        <button class="icon-btn" onclick="document.getElementById('camera-input').click()" title="Tirar foto">
+        <!-- Câmara Direta do Telemóvel -->
+        <button class="icon-btn" onclick="triggerCameraInput()" title="Tirar foto">
           <i class="fa-solid fa-camera"></i>
         </button>
         
-        <!-- 1. Text Area Multiline -->
-        <textarea id="user-input" rows="1" placeholder="Digite uma mensagem..." oninput="autoResize(this)" onkeydown="handleKeyDown(event)"></textarea>
+        <textarea id="user-input" rows="1" placeholder="Digite uma mensagem..." oninput="autoResize(this)" onfocus="scrollToBottom()"></textarea>
 
-        <!-- 3. Microphone Icon -->
-        <button class="icon-btn" id="mic-btn" onclick="toggleVoiceInput()" title="Entrada por voz">
+        <!-- Reconhecimento de Voz -->
+        <button class="icon-btn" id="mic-btn" onclick="toggleVoiceInput()" title="Voz">
           <i class="fa-solid fa-microphone"></i>
         </button>
 
+        <!-- Botão de Envio -->
         <button class="icon-btn" style="color: var(--accent-color);" onclick="sendMessage()" id="send-btn">
           <i class="fa-solid fa-paper-plane"></i>
         </button>
@@ -378,7 +368,7 @@
     </div>
   </div>
 
-  <!-- Hidden Native File & Camera Inputs -->
+  <!-- Inputs Ocultos de Hardware -->
   <input type="file" id="file-input" multiple onchange="handleFileSelect(event)">
   <input type="file" id="camera-input" accept="image/*" capture="environment" onchange="handleFileSelect(event)">
 
@@ -387,7 +377,6 @@
     let selectedFiles = [];
     let isRecording = false;
 
-    // 18. Sidebar Toggle
     function toggleSidebar() {
       document.getElementById("sidebar").classList.toggle("active");
     }
@@ -397,23 +386,30 @@
         <div class="message-wrapper bot-wrapper">
           <div class="message bot-message">Novo chat iniciado. Como posso ajudar?</div>
         </div>`;
+      toggleSidebar();
     }
 
-    // Auto-resize Textarea
     function autoResize(textarea) {
       textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
+      textarea.style.height = (textarea.scrollHeight) + 'px';
+      scrollToBottom();
     }
 
-    // 1. Keydown handling (Enter to send, Shift+Enter for newline)
-    function handleKeyDown(event) {
-      if (event.key === 'Enter' && !event.shiftKey) {
-        event.preventDefault();
-        sendMessage();
-      }
+    function scrollToBottom() {
+      setTimeout(() => {
+        const container = document.getElementById("chat-container");
+        container.scrollTop = container.scrollHeight;
+      }, 100);
     }
 
-    // 2. Handle Attachment & Native Mobile Camera Input
+    function triggerFileInput() {
+      document.getElementById('file-input').click();
+    }
+
+    function triggerCameraInput() {
+      document.getElementById('camera-input').click();
+    }
+
     function handleFileSelect(event) {
       const files = Array.from(event.target.files);
       files.forEach(file => {
@@ -430,7 +426,6 @@
       });
     }
 
-    // 3. Voice Input Transcription
     function toggleVoiceInput() {
       const micBtn = document.getElementById("mic-btn");
       if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
@@ -461,7 +456,6 @@
       };
     }
 
-    // Send Message Core Logic
     async function sendMessage() {
       const inputField = document.getElementById("user-input");
       const messageText = inputField.value.trim();
@@ -475,7 +469,6 @@
       document.getElementById("attachment-preview").innerHTML = "";
       selectedFiles = [];
 
-      // 5. Bouncing Dots & 6. Thinking Process State
       const botWrapper = createBotLoadingMessage();
 
       try {
@@ -490,12 +483,11 @@
 
         let replyText = data.reply || data.response || data.message || (typeof data === "string" ? data : JSON.stringify(data));
         
-        // 7. Streaming Response simulation & Render Actions
-        appendBotResponse(replyText, "Procurando informações na web...\nAnalisando lógica de resposta...");
+        appendBotResponse(replyText, "Procurando informações...\nProcessando inferência no motor...");
 
       } catch (error) {
-        botWrapper.remove();
-        appendBotResponse("⚠️ Erro ao conectar ao motor no Render. Tente novamente em instantes.");
+        if (botWrapper) botWrapper.remove();
+        appendBotResponse("⚠️ Erro ao conectar ao motor no Render. O servidor pode estar a acordar, tente novamente.");
       }
     }
 
@@ -506,15 +498,14 @@
 
       let imgsHtml = "";
       files.forEach(file => {
-        imgsHtml += `<br><img src="${URL.createObjectURL(file)}" style="max-width:200px; border-radius:8px; margin-top:5px;">`;
+        imgsHtml += `<br><img src="${URL.createObjectURL(file)}" style="max-width:180px; border-radius:8px; margin-top:5px;">`;
       });
 
       wrapper.innerHTML = `<div class="message user-message">${text} ${imgsHtml}</div>`;
       container.appendChild(wrapper);
-      container.scrollTop = container.scrollHeight;
+      scrollToBottom();
     }
 
-    // 5. Create Bouncing Dots Loading Component
     function createBotLoadingMessage() {
       const container = document.getElementById("chat-container");
       const wrapper = document.createElement("div");
@@ -522,7 +513,7 @@
       
       wrapper.innerHTML = `
         <div class="message bot-message">
-          <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:4px;">Pensando...</div>
+          <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:4px;">Pensando...</div>
           <div class="bouncing-dots">
             <div class="dot"></div>
             <div class="dot"></div>
@@ -531,11 +522,10 @@
         </div>`;
       
       container.appendChild(wrapper);
-      container.scrollTop = container.scrollHeight;
+      scrollToBottom();
       return wrapper;
     }
 
-    // 6, 7, 8, 9, 10, 11, 13. Append Bot Response with Toolbar & Thinking Accordion
     function appendBotResponse(text, thinkingSteps = "") {
       const container = document.getElementById("chat-container");
       const wrapper = document.createElement("div");
@@ -546,7 +536,7 @@
         thinkingHtml = `
           <div class="thinking-accordion">
             <div class="thinking-header" onclick="this.parentElement.classList.toggle('open')">
-              <span><i class="fa-solid fa-brain"></i> Processo de Raciocínio</span>
+              <span><i class="fa-solid fa-brain"></i> Raciocínio</span>
               <i class="fa-solid fa-chevron-down"></i>
             </div>
             <div class="thinking-content">${thinkingSteps}</div>
@@ -556,22 +546,19 @@
       wrapper.innerHTML = `
         ${thinkingHtml}
         <div class="message bot-message">${text}</div>
-        <!-- Action Toolbar -->
         <div class="actions-toolbar">
           <button class="action-btn" onclick="copyText('${encodeURIComponent(text)}')" title="Copiar"><i class="fa-regular fa-copy"></i></button>
-          <button class="action-btn" onclick="alert('Obrigado pelo feedback!')" title="Gostar"><i class="fa-regular fa-thumbs-up"></i></button>
-          <button class="action-btn" onclick="alert('Feedback registrado!')" title="Não gostar"><i class="fa-regular fa-thumbs-down"></i></button>
-          <button class="action-btn" onclick="window.open('https://google.com/search?q=' + encodeURIComponent('${text.substring(0, 30)}'))" title="Google Search"><i class="fa-brands fa-google"></i> Search</button>
+          <button class="action-btn" onclick="alert('Obrigado pelo feedback!')"><i class="fa-regular fa-thumbs-up"></i></button>
+          <button class="action-btn" onclick="alert('Feedback registrado!')"><i class="fa-regular fa-thumbs-down"></i></button>
         </div>`;
 
       container.appendChild(wrapper);
-      container.scrollTop = container.scrollHeight;
+      scrollToBottom();
     }
 
-    // 8. Copy Function
     function copyText(encodedText) {
       navigator.clipboard.writeText(decodeURIComponent(encodedText));
-      alert("Texto copiado para a área de transferência!");
+      alert("Texto copiado!");
     }
   </script>
 </body>
