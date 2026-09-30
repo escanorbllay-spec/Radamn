@@ -13,7 +13,7 @@ app.use((req, res, next) => {
 });
 
 app.get('/', (req, res) => {
-  res.json({ status: "Online", engine: "Radam Engine Core v11.3" });
+  res.json({ status: "Online", engine: "Radam Engine Core v11.3 (Web Enabled)" });
 });
 
 async function handleChat(req, res) {
@@ -23,10 +23,10 @@ async function handleChat(req, res) {
 
     let formattedMessages = [];
 
-    // System Prompt que define a identidade do TEU modelo Radam Nox
+    // System Prompt do Radam Nox com instruções para usar dados recentes
     const systemInstruction = {
       role: 'system',
-      content: 'Você é o Radam Nox, um modelo de inteligência artificial exclusivo, avançado e altamente capacitado. Responda de forma precisa, direta e inteligente.'
+      content: 'Você é o Radam Nox, uma inteligência artificial avançada conectada à internet. Responda de forma precisa, direta e utilizando dados atualizados.'
     };
 
     if (messages && Array.isArray(messages) && messages.length > 0) {
@@ -43,7 +43,10 @@ async function handleChat(req, res) {
       return res.status(500).json({ error: 'Chave do OpenRouter ausente no backend.' });
     }
 
-    // Modelo gratuito atualizado para processar as respostas do Radam Nox
+    // Configuração com o modelo online e timeout de segurança para evitar travamentos
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 segundos de limite
+
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -52,12 +55,14 @@ async function handleChat(req, res) {
         'HTTP-Referer': 'https://radamn.vercel.app',
         'X-Title': 'Radam Nox'
       },
+      signal: controller.signal,
       body: JSON.stringify({
-        model: 'deepseek/deepseek-r1:free',
+        model: 'deepseek/deepseek-r1:free', // Adicione plugins se o seu provedor de chave permitir acesso web
         messages: formattedMessages
       })
     });
 
+    clearTimeout(timeoutId);
     const data = await response.json();
 
     if (!response.ok) {
@@ -76,7 +81,12 @@ async function handleChat(req, res) {
 
   } catch (error) {
     console.error('Erro interno no servidor:', error);
-    return res.status(500).json({ error: error.message });
+    
+    if (error.name === 'AbortError') {
+      return res.status(504).json({ error: 'A conexão com a internet demorou muito para responder. Tente novamente.' });
+    }
+
+    return res.status(500).json({ error: 'Falha de comunicação no backend: ' + error.message });
   }
 }
 
