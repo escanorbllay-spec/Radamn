@@ -39,6 +39,17 @@
 
     body { display: flex; width: 100vw; position: relative; }
 
+    /* Overlay Escuro para o Menu */
+    .sidebar-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100dvh;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(3px);
+      z-index: 1500;
+      display: none;
+    }
+    .sidebar-overlay.active { display: block; }
+
     /* Sidebar Flutuante */
     .sidebar {
       position: fixed;
@@ -88,8 +99,6 @@
       cursor: pointer;
     }
 
-    .new-chat-btn:active { background-color: var(--card-hover); }
-
     /* Layout Principal */
     .main-container {
       flex: 1;
@@ -115,7 +124,7 @@
       background: none;
       border: none;
       color: var(--text-color);
-      font-size: 1.2rem;
+      font-size: 1.3rem;
       cursor: pointer;
       padding: 0.4rem;
     }
@@ -190,10 +199,7 @@
       text-align: left;
       cursor: pointer;
       display: flex; align-items: center; gap: 0.8rem;
-      transition: background 0.2s;
     }
-
-    .suggestion-card:active { background: var(--card-hover); }
 
     .card-icon { font-size: 1.2rem; color: #a78bfa; }
     .card-text { font-size: 0.85rem; color: var(--text-color); font-weight: 500; }
@@ -289,7 +295,6 @@
       cursor: pointer; font-size: 0.82rem;
       padding: 0.3rem 0.6rem; border-radius: 6px;
     }
-    .action-btn:active { color: white; }
 
     /* Barra de Digitação */
     #input-container {
@@ -340,26 +345,26 @@
       display: flex; align-items: center; justify-content: center;
     }
 
-    .icon-btn:active { color: #c4b5fd; }
-
     input[type="file"] { display: none; }
   </style>
 </head>
 <body>
 
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
   <!-- Menu Lateral -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <span class="brand-title">Radam Nox</span>
-      <button class="menu-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-xmark"></i></button>
+      <button class="menu-toggle" id="btn-close-sidebar"><i class="fa-solid fa-xmark"></i></button>
     </div>
-    <button class="new-chat-btn" onclick="startNewChat()"><i class="fa-solid fa-plus"></i> Novo Chat</button>
+    <button class="new-chat-btn" id="btn-new-chat"><i class="fa-solid fa-plus"></i> Novo Chat</button>
   </aside>
 
   <div class="main-container">
     <header>
       <div style="display: flex; align-items: center; gap: 0.8rem;">
-        <button class="menu-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+        <button class="menu-toggle" id="btn-open-sidebar"><i class="fa-solid fa-bars"></i></button>
         <span class="brand-title">Radam Nox</span>
       </div>
       <select class="model-select" id="model-select">
@@ -375,19 +380,19 @@
         <p class="welcome-subtitle">Como posso te ajudar no Radam Nox hoje?</p>
         
         <div class="suggestions-grid">
-          <div class="suggestion-card" onclick="sendQuickPrompt('Escreva um script de automação em Python')">
+          <div class="suggestion-card" data-prompt="Escreva um script de automação em Python">
             <i class="fa-solid fa-code card-icon"></i>
             <span class="card-text">Criar script em Python</span>
           </div>
-          <div class="suggestion-card" onclick="sendQuickPrompt('Analise uma arquitetura de microsserviços para o meu backend')">
+          <div class="suggestion-card" data-prompt="Analise uma arquitetura de microsserviços para o meu backend">
             <i class="fa-solid fa-network-wired card-icon"></i>
             <span class="card-text">Arquitetura de Software</span>
           </div>
-          <div class="suggestion-card" onclick="sendQuickPrompt('Pesquise e resuma as principais novidades de IA')">
+          <div class="suggestion-card" data-prompt="Pesquise e resuma as principais novidades de IA">
             <i class="fa-solid fa-globe card-icon"></i>
             <span class="card-text">Pesquisa Web em Tempo Real</span>
           </div>
-          <div class="suggestion-card" onclick="sendQuickPrompt('Ajude a revisar e otimizar meu código no GitHub')">
+          <div class="suggestion-card" data-prompt="Ajude a revisar e optimizar meu código no GitHub">
             <i class="fa-solid fa-bug card-icon"></i>
             <span class="card-text">Revisar e Refatorar Código</span>
           </div>
@@ -399,20 +404,20 @@
     <div id="input-container">
       <div class="attachment-preview" id="attachment-preview"></div>
       <div class="input-box">
-        <button class="icon-btn" onclick="triggerFileInput()" title="Anexar arquivo">
+        <button class="icon-btn" id="btn-attach" title="Anexar arquivo">
           <i class="fa-solid fa-paperclip"></i>
         </button>
-        <button class="icon-btn" onclick="triggerCameraInput()" title="Tirar foto">
+        <button class="icon-btn" id="btn-camera" title="Tirar foto">
           <i class="fa-solid fa-camera"></i>
         </button>
         
-        <textarea id="user-input" rows="1" placeholder="Pergunte qualquer coisa ao Radam Nox..." oninput="autoResize(this)" onfocus="scrollToBottom()" onkeydown="handleKeyDown(event)"></textarea>
+        <textarea id="user-input" rows="1" placeholder="Pergunte qualquer coisa ao Radam Nox..."></textarea>
 
-        <button class="icon-btn" id="mic-btn" onclick="toggleVoiceInput()" title="Voz">
+        <button class="icon-btn" id="mic-btn" title="Voz">
           <i class="fa-solid fa-microphone"></i>
         </button>
 
-        <button class="icon-btn" style="color: #a78bfa;" onclick="sendMessage()" id="send-btn">
+        <button class="icon-btn" id="send-btn" style="color: #a78bfa;" title="Enviar">
           <i class="fa-solid fa-arrow-up"></i>
         </button>
       </div>
@@ -420,213 +425,200 @@
   </div>
 
   <!-- Inputs Ocultos de Ficheiro e Câmara -->
-  <input type="file" id="file-input" multiple onchange="handleFileSelect(event)">
-  <input type="file" id="camera-input" accept="image/*" capture="environment" onchange="handleFileSelect(event)">
+  <input type="file" id="file-input" multiple>
+  <input type="file" id="camera-input" accept="image/*" capture="environment">
 
   <script>
-    const API_URL = "https://radamanthys-core.onrender.com/api/chat";
-    let selectedFiles = [];
-    let isRecording = false;
+    document.addEventListener("DOMContentLoaded", () => {
+      const API_URL = "https://radamanthys-core.onrender.com/api/chat";
+      let selectedFiles = [];
+      let isRecording = false;
 
-    function toggleSidebar() {
-      document.getElementById("sidebar").classList.toggle("active");
-    }
+      const sidebar = document.getElementById("sidebar");
+      const overlay = document.getElementById("sidebar-overlay");
+      const btnOpenSidebar = document.getElementById("btn-open-sidebar");
+      const btnCloseSidebar = document.getElementById("btn-close-sidebar");
+      const btnNewChat = document.getElementById("btn-new-chat");
+      
+      const chatContainer = document.getElementById("chat-container");
+      const userInput = document.getElementById("user-input");
+      const sendBtn = document.getElementById("send-btn");
 
-    function startNewChat() {
-      const container = document.getElementById("chat-container");
-      container.innerHTML = `
-        <div class="welcome-hero" id="welcome-hero">
-          <div class="welcome-icon"><i class="fa-solid fa-bolt"></i></div>
-          <h1 class="welcome-title">Olá, Blay</h1>
-          <p class="welcome-subtitle">Como posso te ajudar no Radam Nox hoje?</p>
-          <div class="suggestions-grid">
-            <div class="suggestion-card" onclick="sendQuickPrompt('Escreva um script de automação em Python')">
-              <i class="fa-solid fa-code card-icon"></i>
-              <span class="card-text">Criar script em Python</span>
-            </div>
-            <div class="suggestion-card" onclick="sendQuickPrompt('Analise uma arquitetura de microsserviços para o meu backend')">
-              <i class="fa-solid fa-network-wired card-icon"></i>
-              <span class="card-text">Arquitetura de Software</span>
-            </div>
-            <div class="suggestion-card" onclick="sendQuickPrompt('Pesquise e resuma as principais novidades de IA')">
-              <i class="fa-solid fa-globe card-icon"></i>
-              <span class="card-text">Pesquisa Web em Tempo Real</span>
-            </div>
-            <div class="suggestion-card" onclick="sendQuickPrompt('Ajude a revisar e otimizar meu código no GitHub')">
-              <i class="fa-solid fa-bug card-icon"></i>
-              <span class="card-text">Revisar e Refatorar Código</span>
-            </div>
-          </div>
-        </div>`;
-      if (document.getElementById("sidebar").classList.contains("active")) {
-        toggleSidebar();
+      const fileInput = document.getElementById("file-input");
+      const cameraInput = document.getElementById("camera-input");
+      const btnAttach = document.getElementById("btn-attach");
+      const btnCamera = document.getElementById("btn-camera");
+      const btnMic = document.getElementById("mic-btn");
+      const attachmentPreview = document.getElementById("attachment-preview");
+
+      // 1. Controlo do Menu Lateral (Sidebar)
+      function toggleSidebar(open) {
+        if (open) {
+          sidebar.classList.add("active");
+          overlay.classList.add("active");
+        } else {
+          sidebar.classList.remove("active");
+          overlay.classList.remove("active");
+        }
       }
-    }
 
-    function removeWelcomeHero() {
-      const hero = document.getElementById("welcome-hero");
-      if (hero) hero.remove();
-    }
+      btnOpenSidebar.addEventListener("click", () => toggleSidebar(true));
+      btnCloseSidebar.addEventListener("click", () => toggleSidebar(false));
+      overlay.addEventListener("click", () => toggleSidebar(false));
 
-    function sendQuickPrompt(promptText) {
-      document.getElementById("user-input").value = promptText;
-      sendMessage();
-    }
-
-    function autoResize(textarea) {
-      textarea.style.height = 'auto';
-      textarea.style.height = (textarea.scrollHeight) + 'px';
-      scrollToBottom();
-    }
-
-    function handleKeyDown(event) {
-      if (event.key === 'Enter' && !event.shiftKey) {
-        event.preventDefault();
-        sendMessage();
-      }
-    }
-
-    function scrollToBottom() {
-      setTimeout(() => {
-        const container = document.getElementById("chat-container");
-        container.scrollTop = container.scrollHeight;
-      }, 100);
-    }
-
-    function triggerFileInput() {
-      document.getElementById('file-input').click();
-    }
-
-    function triggerCameraInput() {
-      document.getElementById('camera-input').click();
-    }
-
-    function handleFileSelect(event) {
-      const files = Array.from(event.target.files);
-      files.forEach(file => {
-        selectedFiles.push(file);
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const previewContainer = document.getElementById("attachment-preview");
-          const div = document.createElement("div");
-          div.className = "preview-item";
-          div.innerHTML = `<img src="${e.target.result}" alt="preview">`;
-          previewContainer.appendChild(div);
-        };
-        reader.readAsDataURL(file);
+      // 2. Novo Chat
+      btnNewChat.addEventListener("click", () => {
+        chatContainer.innerHTML = `
+          <div class="welcome-hero" id="welcome-hero">
+            <div class="welcome-icon"><i class="fa-solid fa-bolt"></i></div>
+            <h1 class="welcome-title">Olá, Blay</h1>
+            <p class="welcome-subtitle">Como posso te ajudar no Radam Nox hoje?</p>
+            <div class="suggestions-grid">
+              <div class="suggestion-card" data-prompt="Escreva um script de automação em Python">
+                <i class="fa-solid fa-code card-icon"></i>
+                <span class="card-text">Criar script em Python</span>
+              </div>
+              <div class="suggestion-card" data-prompt="Analise uma arquitetura de microsserviços para o meu backend">
+                <i class="fa-solid fa-network-wired card-icon"></i>
+                <span class="card-text">Arquitetura de Software</span>
+              </div>
+              <div class="suggestion-card" data-prompt="Pesquise e resuma as principais novidades de IA">
+                <i class="fa-solid fa-globe card-icon"></i>
+                <span class="card-text">Pesquisa Web em Tempo Real</span>
+              </div>
+              <div class="suggestion-card" data-prompt="Ajude a revisar e optimizar meu código no GitHub">
+                <i class="fa-solid fa-bug card-icon"></i>
+                <span class="card-text">Revisar e Refatorar Código</span>
+              </div>
+            </div>
+          </div>`;
+        bindCards();
+        toggleSidebar(false);
       });
-    }
 
-    function toggleVoiceInput() {
-      const micBtn = document.getElementById("mic-btn");
-      if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-        alert("Reconhecimento de voz não suportado neste navegador.");
-        return;
+      // 3. Clique nos Cards de Sugestão Inicial
+      function bindCards() {
+        document.querySelectorAll(".suggestion-card").forEach(card => {
+          card.addEventListener("click", () => {
+            userInput.value = card.getAttribute("data-prompt");
+            processSendMessage();
+          });
+        });
+      }
+      bindCards();
+
+      // 4. Auto-resize do Textarea e Tecla Enter
+      userInput.addEventListener("input", () => {
+        userInput.style.height = 'auto';
+        userInput.style.height = (userInput.scrollHeight) + 'px';
+        scrollToBottom();
+      });
+
+      userInput.addEventListener("keydown", (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          processSendMessage();
+        }
+      });
+
+      sendBtn.addEventListener("click", () => processSendMessage());
+
+      // 5. Abertura de Câmara e Ficheiros
+      btnAttach.addEventListener("click", () => fileInput.click());
+      btnCamera.addEventListener("click", () => cameraInput.click());
+
+      fileInput.addEventListener("change", handleFileSelection);
+      cameraInput.addEventListener("change", handleFileSelection);
+
+      function handleFileSelection(e) {
+        const files = Array.from(e.target.files);
+        files.forEach(file => {
+          selectedFiles.push(file);
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            const div = document.createElement("div");
+            div.className = "preview-item";
+            div.innerHTML = `<img src="${event.target.result}" alt="preview">`;
+            attachmentPreview.appendChild(div);
+          };
+          reader.readAsDataURL(file);
+        });
       }
 
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      const recognition = new SpeechRecognition();
-      recognition.lang = 'pt-BR';
+      // 6. Microfone por Voz
+      btnMic.addEventListener("click", () => {
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+          alert("Reconhecimento de voz não suportado neste navegador.");
+          return;
+        }
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'pt-BR';
 
-      if (!isRecording) {
-        recognition.start();
-        isRecording = true;
-        micBtn.style.color = "red";
+        if (!isRecording) {
+          recognition.start();
+          isRecording = true;
+          btnMic.style.color = "red";
+        }
+
+        recognition.onresult = (event) => {
+          userInput.value += event.results[0][0].transcript;
+          btnMic.style.color = "var(--text-muted)";
+          isRecording = false;
+        };
+
+        recognition.onerror = () => {
+          btnMic.style.color = "var(--text-muted)";
+          isRecording = false;
+        };
+      });
+
+      // 7. Função de Envio de Mensagens para o Render
+      async function processSendMessage() {
+        const messageText = userInput.value.trim();
+        if (!messageText && selectedFiles.length === 0) return;
+
+        const welcomeHero = document.getElementById("welcome-hero");
+        if (welcomeHero) welcomeHero.remove();
+
+        appendUserMessage(messageText, selectedFiles);
+
+        userInput.value = "";
+        userInput.style.height = "auto";
+        attachmentPreview.innerHTML = "";
+        selectedFiles = [];
+
+        const loadingDiv = createLoadingIndicator();
+
+        try {
+          const response = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: messageText })
+          });
+
+          const data = await response.json();
+          loadingDiv.remove();
+
+          let replyText = data.reply || data.response || data.message || (typeof data === "string" ? data : JSON.stringify(data));
+          appendBotResponse(replyText, "Processado com sucesso pelo motor Radam Nox.");
+
+        } catch (error) {
+          loadingDiv.remove();
+          appendBotResponse("⚠️ Erro ao conectar ao servidor no Render. Tente novamente em instantes.");
+        }
       }
 
-      recognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
-        document.getElementById("user-input").value += transcript;
-        micBtn.style.color = "var(--text-muted)";
-        isRecording = false;
-      };
+      function appendUserMessage(text, files) {
+        const wrapper = document.createElement("div");
+        wrapper.className = "message-wrapper user-wrapper";
 
-      recognition.onerror = () => {
-        micBtn.style.color = "var(--text-muted)";
-        isRecording = false;
-      };
-    }
-
-    async function sendMessage() {
-      const inputField = document.getElementById("user-input");
-      const messageText = inputField.value.trim();
-
-      if (!messageText && selectedFiles.length === 0) return;
-
-      removeWelcomeHero();
-      appendUserMessage(messageText, selectedFiles);
-
-      inputField.value = "";
-      inputField.style.height = "auto";
-      document.getElementById("attachment-preview").innerHTML = "";
-      selectedFiles = [];
-
-      const botWrapper = createBotLoadingMessage();
-
-      try {
-        const response = await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: messageText })
+        let imgsHtml = "";
+        files.forEach(file => {
+          imgsHtml += `<br><img src="${URL.createObjectURL(file)}" style="max-width:180px; border-radius:8px; margin-top:5px;">`;
         });
 
-        const data = await response.json();
-        botWrapper.remove();
-
-        let replyText = data.reply || data.response || data.message || (typeof data === "string" ? data : JSON.stringify(data));
-        
-        appendBotResponse(replyText, "Processamento concluído com sucesso pelo motor Radam Nox.");
-
-      } catch (error) {
-        if (botWrapper) botWrapper.remove();
-        appendBotResponse("⚠️ Erro ao conectar ao motor no Render. O servidor pode estar a acordar, tente novamente.");
-      }
-    }
-
-    function appendUserMessage(text, files) {
-      const container = document.getElementById("chat-container");
-      const wrapper = document.createElement("div");
-      wrapper.className = "message-wrapper user-wrapper";
-
-      let imgsHtml = "";
-      files.forEach(file => {
-        imgsHtml += `<br><img src="${URL.createObjectURL(file)}" style="max-width:180px; border-radius:8px; margin-top:5px;">`;
-      });
-
-      wrapper.innerHTML = `<div class="message user-message">${text} ${imgsHtml}</div>`;
-      container.appendChild(wrapper);
-      scrollToBottom();
-    }
-
-    function createBotLoadingMessage() {
-      const container = document.getElementById("chat-container");
-      const wrapper = document.createElement("div");
-      wrapper.className = "message-wrapper bot-wrapper";
-      
-      wrapper.innerHTML = `
-        <div class="message bot-message">
-          <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:4px;">Radam Nox pensando...</div>
-          <div class="bouncing-dots">
-            <div class="dot"></div>
-            <div class="dot"></div>
-            <div class="dot"></div>
-          </div>
-        </div>`;
-      
-      container.appendChild(wrapper);
-      scrollToBottom();
-      return wrapper;
-    }
-
-    function appendBotResponse(text, thinkingSteps = "") {
-      const container = document.getElementById("chat-container");
-      const wrapper = document.createElement("div");
-      wrapper.className = "message-wrapper bot-wrapper";
-
-      let thinkingHtml = "";
-      if (thinkingSteps) {
-        thinkingHtml = `
-          <div class="thinking-accordion">
-            <div class="thinking-header" onclick="this.parentElement.classList.toggle('open')">
-              <span><i class="fa-solid fa-brain"></i> Raciocínio</span>
-              <i class="fa-solid fa-che
+        wrapper.innerHTML = `<div class="message user-message">${text} ${imgsHtml}</div>`;
+        chatContainer.appendChild(wrapper);
+        scrollToBottom();
+   
