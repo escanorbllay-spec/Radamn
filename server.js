@@ -6,36 +6,42 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Rota de teste simples
+// Log de diagnóstico para ver no painel do Render cada chamada que chega
+app.use((req, res, next) => {
+  console.log(`[REQUEST RECEBIDO] ${req.method} ${req.url}`);
+  next();
+});
+
 app.get('/', (req, res) => {
   res.json({ status: "Online", engine: "Radam Engine Core v11.3" });
 });
 
-// Rota principal conectada ao OpenRouter
-app.post('/api/chat', async (req, res) => {
+// Função centralizada para processar as mensagens via OpenRouter
+async function handleChat(req, res) {
   try {
     const authHeader = req.headers.authorization;
     const masterKey = process.env.RADAMN_MASTER_KEY;
 
     if (masterKey && authHeader !== `Bearer ${masterKey}`) {
-      return res.status(401).json({ error: 'Acesso não autorizado: Chave master inválida.' });
+      return res.status(401).json({ error: 'Acesso não autorizado.' });
     }
 
-    const { message, prompt, messages } = req.body;
-    const userText = message || prompt;
+    const { message, prompt, messages, content } = req.body || {};
+    const userText = message || prompt || content;
 
     let formattedMessages = [];
-    if (messages && Array.isArray(messages)) {
+    if (messages && Array.isArray(messages) && messages.length > 0) {
       formattedMessages = messages;
     } else if (userText) {
       formattedMessages = [{ role: 'user', content: userText }];
     } else {
-      return res.status(400).json({ error: 'Nenhuma mensagem enviada.' });
+      return res.status(400).json({ error: 'Nenhuma mensagem enviada no corpo da requisição.' });
     }
 
     const openRouterKey = process.env.OPENROUTER_API_KEY;
     if (!openRouterKey) {
-      return res.status(500).json({ error: 'OPENROUTER_API_KEY não configurada.' });
+      console.error("ERRO: OPENROUTER_API_KEY não configurada no Render.");
+      return res.status(500).json({ error: 'Chave do OpenRouter ausente no backend.' });
     }
 
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -55,24 +61,32 @@ app.post('/api/chat', async (req, res) => {
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('Erro OpenRouter:', data);
-      return res.status(response.status).json({ error: data.error?.message || 'Erro no OpenRouter.' });
+      console.error('Erro na resposta do OpenRouter:', data);
+      return res.status(response.status).json({ error: data.error?.message || 'Erro no provedor de IA.' });
     }
 
     const aiReply = data.choices?.[0]?.message?.content || 'Sem resposta gerada.';
 
+    // Retorna nos formatos padrão consumidos por bibliotecas de chat
     return res.json({ 
       reply: aiReply, 
-      message: aiReply 
+      message: aiReply,
+      text: aiReply,
+      choices: [{ message: { content: aiReply } }]
     });
 
   } catch (error) {
-    console.error('Erro no servidor:', error);
+    console.error('Erro interno no servidor:', error);
     return res.status(500).json({ error: error.message });
   }
-});
+}
+
+// Aceita requisições nas rotas mais comuns
+app.post('/api/chat', handleChat);
+app.post('/api/generate', handleChat);
+app.post('/api/completion', handleChat);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
+  console.log(`Servidor Radamn rodando na porta ${PORT}`);
 });
