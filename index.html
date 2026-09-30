@@ -2,623 +2,170 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Radam Nox</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
       --bg-color: #000000;
-      --sidebar-bg: #090b10;
       --card-bg: #12151e;
-      --card-hover: #1c2130;
       --text-color: #f3f4f6;
-      --text-muted: #8b949e;
-      --accent-gradient: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 50%, #06b6d4 100%);
-      --accent-purple: #8b5cf6;
+      --accent-color: #8b5cf6;
       --user-msg: #2563eb;
       --bot-msg: #12151e;
-      --border-color: rgba(255, 255, 255, 0.1);
-      --sidebar-width: 280px;
+      --border-color: rgba(255, 255, 255, 0.15);
     }
-
-    * { 
-      box-sizing: border-box; 
-      margin: 0; 
-      padding: 0; 
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    html, body {
-      height: 100%;
-      height: 100dvh;
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      overflow: hidden;
-    }
-
-    body { display: flex; width: 100vw; position: relative; }
-
-    /* Overlay Escuro para o Menu */
-    .sidebar-overlay {
-      position: fixed;
-      top: 0; left: 0; width: 100vw; height: 100dvh;
-      background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(3px);
-      z-index: 1500;
-      display: none;
-    }
-    .sidebar-overlay.active { display: block; }
-
-    /* Sidebar Flutuante */
-    .sidebar {
-      position: fixed;
-      top: 0; left: 0;
-      height: 100%; height: 100dvh;
-      width: var(--sidebar-width);
-      background-color: var(--sidebar-bg);
-      border-right: 1px solid var(--border-color);
-      display: flex;
-      flex-direction: column;
-      transform: translateX(-100%);
-      transition: transform 0.25s ease-in-out;
-      z-index: 2000;
-    }
-
-    .sidebar.active { transform: translateX(0); }
-
-    .sidebar-header {
-      padding: 1.2rem 1rem;
-      border-bottom: 1px solid var(--border-color);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .brand-title {
-      font-weight: 800;
-      font-size: 1.2rem;
-      background: var(--accent-gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .new-chat-btn {
-      width: calc(100% - 1.6rem);
-      margin: 0.8rem;
-      padding: 0.8rem;
-      background-color: var(--card-bg);
-      border: 1px solid rgba(139, 92, 246, 0.4);
-      border-radius: 12px;
-      color: #c4b5fd;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.6rem;
-      cursor: pointer;
-    }
-
-    /* Layout Principal */
-    .main-container {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      height: 100%; height: 100dvh;
-      width: 100%;
-      position: relative;
-      z-index: 1;
-    }
-
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    html, body { height: 100%; background-color: var(--bg-color); color: var(--text-color); display: flex; flex-direction: column; overflow: hidden; }
+    
     header {
-      background-color: var(--bg-color);
-      padding: 0.8rem 1rem;
+      background-color: var(--card-bg);
+      padding: 1rem;
       display: flex;
-      align-items: center;
       justify-content: space-between;
+      align-items: center;
       border-bottom: 1px solid var(--border-color);
-      flex-shrink: 0;
+      font-weight: bold;
+      font-size: 1.1rem;
+      color: var(--accent-color);
     }
 
-    .menu-toggle {
-      background: none;
-      border: none;
-      color: var(--text-color);
-      font-size: 1.3rem;
-      cursor: pointer;
-      padding: 0.4rem;
-    }
+    .menu-btn { background: none; border: none; color: white; font-size: 1.2rem; cursor: pointer; padding: 0.5rem; }
 
-    .model-select {
-      background: var(--card-bg);
-      color: var(--text-color);
-      border: 1px solid var(--border-color);
-      padding: 0.4rem 0.8rem;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      outline: none;
-    }
-
-    /* Área do Chat */
     #chat-container {
       flex: 1;
       overflow-y: auto;
       padding: 1rem;
       display: flex;
       flex-direction: column;
-      gap: 1.2rem;
-      -webkit-overflow-scrolling: touch;
+      gap: 1rem;
     }
-
-    .welcome-hero {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      margin: auto 0;
-      text-align: center;
-      padding: 1.5rem 0.5rem;
-    }
-
-    .welcome-icon {
-      width: 64px; height: 64px;
-      border-radius: 50%;
-      background: var(--accent-gradient);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.8rem; color: white;
-      margin-bottom: 1rem;
-      box-shadow: 0 0 30px rgba(139, 92, 246, 0.4);
-    }
-
-    .welcome-title {
-      font-size: 1.9rem; font-weight: 800; margin-bottom: 0.4rem;
-      background: var(--accent-gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .welcome-subtitle {
-      color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.8rem;
-    }
-
-    .suggestions-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 0.8rem; width: 100%; max-width: 500px;
-    }
-
-    @media (max-width: 480px) {
-      .suggestions-grid { grid-template-columns: 1fr; }
-    }
-
-    .suggestion-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 14px;
-      padding: 0.9rem;
-      text-align: left;
-      cursor: pointer;
-      display: flex; align-items: center; gap: 0.8rem;
-    }
-
-    .card-icon { font-size: 1.2rem; color: #a78bfa; }
-    .card-text { font-size: 0.85rem; color: var(--text-color); font-weight: 500; }
-
-    /* Mensagens */
-    .message-wrapper {
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
-      max-width: 90%;
-    }
-
-    .user-wrapper { align-self: flex-end; }
-    .bot-wrapper { align-self: flex-start; }
 
     .message {
+      max-width: 85%;
       padding: 0.9rem 1.1rem;
-      border-radius: 16px;
-      line-height: 1.5;
+      border-radius: 12px;
+      line-height: 1.4;
       word-break: break-word;
       font-size: 0.95rem;
     }
+    .user-message { align-self: flex-end; background-color: var(--user-msg); color: white; }
+    .bot-message { align-self: flex-start; background-color: var(--bot-msg); border: 1px solid var(--border-color); }
 
-    .user-message {
-      background-color: var(--user-msg);
-      color: white;
-      border-bottom-right-radius: 4px;
-    }
-
-    .bot-message {
-      background-color: var(--bot-msg);
-      border: 1px solid var(--border-color);
-      border-bottom-left-radius: 4px;
-    }
-
-    /* Processo de Raciocínio */
-    .thinking-accordion {
-      background-color: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--border-color);
-      border-radius: 10px;
-      overflow: hidden;
-      font-size: 0.82rem;
-    }
-
-    .thinking-header {
-      padding: 0.6rem 0.9rem;
-      background-color: rgba(255, 255, 255, 0.05);
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      color: var(--text-muted);
-    }
-
-    .thinking-content {
-      padding: 0.7rem 0.9rem;
-      display: none;
-      color: var(--text-muted);
-      border-top: 1px solid var(--border-color);
-      white-space: pre-wrap;
-    }
-
-    .thinking-accordion.open .thinking-content { display: block; }
-
-    /* Bolinhas de Carregamento */
-    .bouncing-dots {
-      display: flex; gap: 6px; align-items: center; padding: 0.4rem 0;
-    }
-
-    .dot {
-      width: 7px; height: 7px;
-      background-color: var(--accent-purple);
-      border-radius: 50%;
-      animation: bounce 1.4s infinite ease-in-out both;
-    }
-
-    .dot:nth-child(1) { animation-delay: -0.32s; }
-    .dot:nth-child(2) { animation-delay: -0.16s; }
-
-    @keyframes bounce {
-      0%, 80%, 100% { transform: scale(0); }
-      40% { transform: scale(1.0); }
-    }
-
-    /* Barra de Ações */
-    .actions-toolbar {
-      display: flex; gap: 0.6rem; margin-top: 0.3rem;
-    }
-
-    .action-btn {
-      background: none; border: none;
-      color: var(--text-muted);
-      cursor: pointer; font-size: 0.82rem;
-      padding: 0.3rem 0.6rem; border-radius: 6px;
-    }
-
-    /* Barra de Digitação */
     #input-container {
-      padding: 0.8rem 1rem 1.2rem 1rem;
-      background-color: var(--bg-color);
-      border-top: 1px solid var(--border-color);
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
-      flex-shrink: 0;
-      position: sticky;
-      bottom: 0;
-      width: 100%;
-      z-index: 10;
-    }
-
-    .attachment-preview {
-      display: flex; gap: 0.5rem; overflow-x: auto;
-    }
-
-    .preview-item {
-      width: 55px; height: 55px;
-      border-radius: 8px; border: 1px solid var(--border-color);
-      overflow: hidden;
-    }
-
-    .preview-item img { width: 100%; height: 100%; object-fit: cover; }
-
-    .input-box {
-      display: flex; align-items: center; gap: 0.5rem;
+      padding: 1rem;
       background-color: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 28px;
-      padding: 0.5rem 0.9rem;
+      display: flex;
+      gap: 0.8rem;
+      align-items: center;
+      border-top: 1px solid var(--border-color);
     }
 
     textarea {
-      flex: 1; background: none; border: none;
-      color: var(--text-color); outline: none;
-      resize: none; max-height: 100px;
-      font-size: 0.95rem;
+      flex: 1;
+      padding: 0.8rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      outline: none;
+      resize: none;
+      height: 44px;
+      font-size: 1rem;
     }
 
-    .icon-btn {
-      background: none; border: none;
-      color: var(--text-muted); font-size: 1.15rem;
-      cursor: pointer; padding: 0.4rem;
-      display: flex; align-items: center; justify-content: center;
+    .send-btn {
+      padding: 0.8rem 1.2rem;
+      border-radius: 8px;
+      border: none;
+      background-color: var(--accent-color);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1rem;
     }
-
-    input[type="file"] { display: none; }
+    .send-btn:disabled { opacity: 0.5; }
   </style>
 </head>
 <body>
 
-  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <header>
+    <span>Radam Nox</span>
+    <button class="menu-btn" onclick="alert('Radam Nox v1.0 Ativo')"><i class="fa-solid fa-bolt"></i></button>
+  </header>
 
-  <!-- Menu Lateral -->
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <span class="brand-title">Radam Nox</span>
-      <button class="menu-toggle" id="btn-close-sidebar"><i class="fa-solid fa-xmark"></i></button>
-    </div>
-    <button class="new-chat-btn" id="btn-new-chat"><i class="fa-solid fa-plus"></i> Novo Chat</button>
-  </aside>
-
-  <div class="main-container">
-    <header>
-      <div style="display: flex; align-items: center; gap: 0.8rem;">
-        <button class="menu-toggle" id="btn-open-sidebar"><i class="fa-solid fa-bars"></i></button>
-        <span class="brand-title">Radam Nox</span>
-      </div>
-      <select class="model-select" id="model-select">
-        <option value="radam-nox-fast">Nox Fast</option>
-        <option value="radam-nox-thinker">Nox Thinker</option>
-      </select>
-    </header>
-
-    <div id="chat-container">
-      <div class="welcome-hero" id="welcome-hero">
-        <div class="welcome-icon"><i class="fa-solid fa-bolt"></i></div>
-        <h1 class="welcome-title">Olá, Blay</h1>
-        <p class="welcome-subtitle">Como posso te ajudar no Radam Nox hoje?</p>
-        
-        <div class="suggestions-grid">
-          <div class="suggestion-card" data-prompt="Escreva um script de automação em Python">
-            <i class="fa-solid fa-code card-icon"></i>
-            <span class="card-text">Criar script em Python</span>
-          </div>
-          <div class="suggestion-card" data-prompt="Analise uma arquitetura de microsserviços para o meu backend">
-            <i class="fa-solid fa-network-wired card-icon"></i>
-            <span class="card-text">Arquitetura de Software</span>
-          </div>
-          <div class="suggestion-card" data-prompt="Pesquise e resuma as principais novidades de IA">
-            <i class="fa-solid fa-globe card-icon"></i>
-            <span class="card-text">Pesquisa Web em Tempo Real</span>
-          </div>
-          <div class="suggestion-card" data-prompt="Ajude a revisar e optimizar meu código no GitHub">
-            <i class="fa-solid fa-bug card-icon"></i>
-            <span class="card-text">Revisar e Refatorar Código</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Barra de Entrada de Texto -->
-    <div id="input-container">
-      <div class="attachment-preview" id="attachment-preview"></div>
-      <div class="input-box">
-        <button class="icon-btn" id="btn-attach" title="Anexar arquivo">
-          <i class="fa-solid fa-paperclip"></i>
-        </button>
-        <button class="icon-btn" id="btn-camera" title="Tirar foto">
-          <i class="fa-solid fa-camera"></i>
-        </button>
-        
-        <textarea id="user-input" rows="1" placeholder="Pergunte qualquer coisa ao Radam Nox..."></textarea>
-
-        <button class="icon-btn" id="mic-btn" title="Voz">
-          <i class="fa-solid fa-microphone"></i>
-        </button>
-
-        <button class="icon-btn" id="send-btn" style="color: #a78bfa;" title="Enviar">
-          <i class="fa-solid fa-arrow-up"></i>
-        </button>
-      </div>
+  <div id="chat-container">
+    <div class="message bot-message">
+      Olá, Blay! O motor do Radam Nox está pronto. Digite a sua mensagem abaixo.
     </div>
   </div>
 
-  <!-- Inputs Ocultos de Ficheiro e Câmara -->
-  <input type="file" id="file-input" multiple>
-  <input type="file" id="camera-input" accept="image/*" capture="environment">
+  <div id="input-container">
+    <textarea id="user-input" placeholder="Digite uma mensagem..." rows="1"></textarea>
+    <button class="send-btn" id="send-btn" onclick="sendMessage()">Enviar</button>
+  </div>
 
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const API_URL = "https://radamanthys-core.onrender.com/api/chat";
-      let selectedFiles = [];
-      let isRecording = false;
+    const API_URL = "https://radamanthys-core.onrender.com/api/chat";
 
-      const sidebar = document.getElementById("sidebar");
-      const overlay = document.getElementById("sidebar-overlay");
-      const btnOpenSidebar = document.getElementById("btn-open-sidebar");
-      const btnCloseSidebar = document.getElementById("btn-close-sidebar");
-      const btnNewChat = document.getElementById("btn-new-chat");
-      
-      const chatContainer = document.getElementById("chat-container");
-      const userInput = document.getElementById("user-input");
+    async function sendMessage() {
+      const inputField = document.getElementById("user-input");
       const sendBtn = document.getElementById("send-btn");
+      const chatContainer = document.getElementById("chat-container");
+      const messageText = inputField.value.trim();
 
-      const fileInput = document.getElementById("file-input");
-      const cameraInput = document.getElementById("camera-input");
-      const btnAttach = document.getElementById("btn-attach");
-      const btnCamera = document.getElementById("btn-camera");
-      const btnMic = document.getElementById("mic-btn");
-      const attachmentPreview = document.getElementById("attachment-preview");
+      if (!messageText) return;
 
-      // 1. Controlo do Menu Lateral (Sidebar)
-      function toggleSidebar(open) {
-        if (open) {
-          sidebar.classList.add("active");
-          overlay.classList.add("active");
-        } else {
-          sidebar.classList.remove("active");
-          overlay.classList.remove("active");
-        }
-      }
+      appendMessage(messageText, "user-message");
+      inputField.value = "";
+      sendBtn.disabled = true;
 
-      btnOpenSidebar.addEventListener("click", () => toggleSidebar(true));
-      btnCloseSidebar.addEventListener("click", () => toggleSidebar(false));
-      overlay.addEventListener("click", () => toggleSidebar(false));
+      const loadingDiv = appendMessage("A contactar o motor no Render...", "bot-message");
 
-      // 2. Novo Chat
-      btnNewChat.addEventListener("click", () => {
-        chatContainer.innerHTML = `
-          <div class="welcome-hero" id="welcome-hero">
-            <div class="welcome-icon"><i class="fa-solid fa-bolt"></i></div>
-            <h1 class="welcome-title">Olá, Blay</h1>
-            <p class="welcome-subtitle">Como posso te ajudar no Radam Nox hoje?</p>
-            <div class="suggestions-grid">
-              <div class="suggestion-card" data-prompt="Escreva um script de automação em Python">
-                <i class="fa-solid fa-code card-icon"></i>
-                <span class="card-text">Criar script em Python</span>
-              </div>
-              <div class="suggestion-card" data-prompt="Analise uma arquitetura de microsserviços para o meu backend">
-                <i class="fa-solid fa-network-wired card-icon"></i>
-                <span class="card-text">Arquitetura de Software</span>
-              </div>
-              <div class="suggestion-card" data-prompt="Pesquise e resuma as principais novidades de IA">
-                <i class="fa-solid fa-globe card-icon"></i>
-                <span class="card-text">Pesquisa Web em Tempo Real</span>
-              </div>
-              <div class="suggestion-card" data-prompt="Ajude a revisar e optimizar meu código no GitHub">
-                <i class="fa-solid fa-bug card-icon"></i>
-                <span class="card-text">Revisar e Refatorar Código</span>
-              </div>
-            </div>
-          </div>`;
-        bindCards();
-        toggleSidebar(false);
-      });
-
-      // 3. Clique nos Cards de Sugestão Inicial
-      function bindCards() {
-        document.querySelectorAll(".suggestion-card").forEach(card => {
-          card.addEventListener("click", () => {
-            userInput.value = card.getAttribute("data-prompt");
-            processSendMessage();
-          });
+      try {
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: messageText })
         });
-      }
-      bindCards();
 
-      // 4. Auto-resize do Textarea e Tecla Enter
-      userInput.addEventListener("input", () => {
-        userInput.style.height = 'auto';
-        userInput.style.height = (userInput.scrollHeight) + 'px';
-        scrollToBottom();
-      });
+        const data = await response.json();
+        loadingDiv.remove();
 
-      userInput.addEventListener("keydown", (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-          e.preventDefault();
-          processSendMessage();
-        }
-      });
-
-      sendBtn.addEventListener("click", () => processSendMessage());
-
-      // 5. Abertura de Câmara e Ficheiros
-      btnAttach.addEventListener("click", () => fileInput.click());
-      btnCamera.addEventListener("click", () => cameraInput.click());
-
-      fileInput.addEventListener("change", handleFileSelection);
-      cameraInput.addEventListener("change", handleFileSelection);
-
-      function handleFileSelection(e) {
-        const files = Array.from(e.target.files);
-        files.forEach(file => {
-          selectedFiles.push(file);
-          const reader = new FileReader();
-          reader.onload = (event) => {
-            const div = document.createElement("div");
-            div.className = "preview-item";
-            div.innerHTML = `<img src="${event.target.result}" alt="preview">`;
-            attachmentPreview.appendChild(div);
-          };
-          reader.readAsDataURL(file);
-        });
-      }
-
-      // 6. Microfone por Voz
-      btnMic.addEventListener("click", () => {
-        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-          alert("Reconhecimento de voz não suportado neste navegador.");
+        if (!response.ok) {
+          appendMessage(`⚠️️ ${data.error || 'Erro no servidor.'}`, "bot-message");
           return;
         }
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        const recognition = new SpeechRecognition();
-        recognition.lang = 'pt-BR';
 
-        if (!isRecording) {
-          recognition.start();
-          isRecording = true;
-          btnMic.style.color = "red";
-        }
+        let textToShow = data.reply || data.response || data.message || (typeof data === "string" ? data : JSON.stringify(data));
+        appendMessage(textToShow, "bot-message");
 
-        recognition.onresult = (event) => {
-          userInput.value += event.results[0][0].transcript;
-          btnMic.style.color = "var(--text-muted)";
-          isRecording = false;
-        };
-
-        recognition.onerror = () => {
-          btnMic.style.color = "var(--text-muted)";
-          isRecording = false;
-        };
-      });
-
-      // 7. Função de Envio de Mensagens para o Render
-      async function processSendMessage() {
-        const messageText = userInput.value.trim();
-        if (!messageText && selectedFiles.length === 0) return;
-
-        const welcomeHero = document.getElementById("welcome-hero");
-        if (welcomeHero) welcomeHero.remove();
-
-        appendUserMessage(messageText, selectedFiles);
-
-        userInput.value = "";
-        userInput.style.height = "auto";
-        attachmentPreview.innerHTML = "";
-        selectedFiles = [];
-
-        const loadingDiv = createLoadingIndicator();
-
-        try {
-          const response = await fetch(API_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ message: messageText })
-          });
-
-          const data = await response.json();
-          loadingDiv.remove();
-
-          let replyText = data.reply || data.response || data.message || (typeof data === "string" ? data : JSON.stringify(data));
-          appendBotResponse(replyText, "Processado com sucesso pelo motor Radam Nox.");
-
-        } catch (error) {
-          loadingDiv.remove();
-          appendBotResponse("⚠️ Erro ao conectar ao servidor no Render. Tente novamente em instantes.");
-        }
+      } catch (error) {
+        if (loadingDiv) loadingDiv.remove();
+        appendMessage("⚠️ Erro de conexão com o Render. O servidor pode estar a acordar, tente novamente.", "bot-message");
+      } finally {
+        sendBtn.disabled = false;
+        chatContainer.scrollTop = chatContainer.scrollHeight;
       }
+    }
 
-      function appendUserMessage(text, files) {
-        const wrapper = document.createElement("div");
-        wrapper.className = "message-wrapper user-wrapper";
+    function appendMessage(content, className) {
+      const chatContainer = document.getElementById("chat-container");
+      const msgDiv = document.createElement("div");
+      msgDiv.className = `message ${className}`;
+      msgDiv.innerHTML = content;
+      chatContainer.appendChild(msgDiv);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+      return msgDiv;
+    }
 
-        let imgsHtml = "";
-        files.forEach(file => {
-          imgsHtml += `<br><img src="${URL.createObjectURL(file)}" style="max-width:180px; border-radius:8px; margin-top:5px;">`;
-        });
-
-        wrapper.innerHTML = `<div class="message user-message">${text} ${imgsHtml}</div>`;
-        chatContainer.appendChild(wrapper);
-        scrollToBottom();
-   
+    // Suporte direto para tecla Enter
+    document.getElementById("user-input").addEventListener("keydown", function(event) {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage();
+      }
+    });
+  </script>
+</body>
+</html>
