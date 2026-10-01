@@ -2,141 +2,158 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Radam Nox - Core Interface</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Radam Nox</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
   <style>
     :root {
-      --bg-main: #0a0a10;
-      --bg-card: #12121e;
-      --bg-input: #181828;
-      --accent-purple: #8b5cf6;
-      --accent-glow: #a78bfa;
-      --user-msg: #2563eb;
-      --border-color: #26263d;
-      --text-main: #f1f5f9;
-      --text-muted: #94a3b8;
+      --bg-dark: #07070d;
+      --card-bg: rgba(22, 22, 37, 0.75);
+      --purple-main: #8b5cf6;
+      --purple-glow: rgba(139, 92, 246, 0.35);
+      --accent-cyan: #06b6d4;
+      --user-bg: linear-gradient(135deg, #2563eb, #1d4ed8);
+      --text-bright: #f8fafc;
+      --text-dim: #94a3b8;
+      --border-color: rgba(255, 255, 255, 0.08);
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Segoe UI', Roboto, -apple-system, sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    body {
-      background-color: var(--bg-main);
-      color: var(--text-main);
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
+    html, body {
+      width: 100%;
+      height: 100%;
+      background-color: var(--bg-dark);
+      color: var(--text-bright);
       overflow: hidden;
     }
 
-    /* Scrollbar Personalizada */
-    ::-webkit-scrollbar {
-      width: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: var(--bg-main);
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #2d2d48;
-      border-radius: 4px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: var(--accent-purple);
+    body {
+      display: flex;
+      flex-direction: column;
+      height: 100dvh; /* Garante ajuste perfeito em celulares sem cortar o rodapé */
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(139, 92, 246, 0.12) 0%, transparent 60%),
+        radial-gradient(circle at 100% 100%, rgba(6, 182, 212, 0.05) 0%, transparent 50%);
     }
 
+    /* BARRA SUPERIOR */
     header {
-      padding: 16px 20px;
-      background: linear-gradient(180deg, #161626 0%, rgba(22, 22, 38, 0.8) 100%);
+      padding: 16px;
+      background: rgba(13, 13, 24, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border-color);
-      text-align: center;
-      font-weight: 700;
-      font-size: 1.1rem;
-      letter-spacing: 1px;
-      color: var(--accent-glow);
-      text-transform: uppercase;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 10px;
+      z-index: 10;
     }
 
-    header::before {
-      content: '';
+    .status-dot {
       width: 8px;
       height: 8px;
       background-color: #10b981;
       border-radius: 50%;
       box-shadow: 0 0 10px #10b981;
+      animation: pulse 2s infinite;
     }
 
+    @keyframes pulse {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    header h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1rem;
+      letter-spacing: 2px;
+      color: var(--text-bright);
+      text-transform: uppercase;
+      background: linear-gradient(90deg, #ffffff, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* ÁREA DO CHAT */
     #chatContainer {
       flex: 1;
-      padding: 20px;
+      padding: 16px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 14px;
+      scroll-behavior: smooth;
     }
 
+    /* MENSAGENS */
     .message {
-      max-width: 82%;
+      max-width: 85%;
       padding: 12px 16px;
-      border-radius: 14px;
-      line-height: 1.5;
+      border-radius: 16px;
       font-size: 0.95rem;
+      line-height: 1.5;
       word-break: break-word;
-      animation: fadeIn 0.25s ease-out forwards;
+      animation: slideIn 0.2s ease-out;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(8px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
     .user-msg {
       align-self: flex-end;
-      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      background: var(--user-bg);
       color: #ffffff;
-      border-bottom-right-radius: 2px;
-      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+      border-bottom-right-radius: 4px;
+      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
     }
 
     .ai-msg {
       align-self: flex-start;
-      background-color: var(--bg-card);
-      color: var(--text-main);
+      background: var(--card-bg);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       border: 1px solid var(--border-color);
-      border-bottom-left-radius: 2px;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+      border-bottom-left-radius: 4px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
     }
 
     .chat-img {
       max-width: 100%;
-      max-height: 240px;
+      max-height: 220px;
       border-radius: 10px;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
       display: block;
       border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
+    /* PREVIEW DE IMAGEM */
     #imagePreviewContainer {
       display: none;
-      padding: 10px 20px;
-      background-color: var(--bg-card);
+      padding: 8px 16px;
+      background: rgba(18, 18, 30, 0.9);
       border-top: 1px solid var(--border-color);
       align-items: center;
       gap: 12px;
     }
 
     #imagePreview {
-      max-height: 55px;
+      max-height: 50px;
       border-radius: 8px;
-      border: 1px solid var(--accent-purple);
+      border: 1px solid var(--purple-main);
     }
 
     .remove-btn {
@@ -144,86 +161,92 @@
       color: #f87171;
       border: 1px solid rgba(239, 68, 68, 0.3);
       padding: 6px 12px;
-      border-radius: 6px;
+      border-radius: 8px;
       cursor: pointer;
-      font-size: 0.85rem;
-      transition: all 0.2s;
+      font-size: 0.8rem;
+      font-weight: 600;
     }
 
-    .remove-btn:hover {
-      background: #ef4444;
-      color: white;
-    }
-
+    /* RODAPÉ E BARRA DE ENVIO */
     footer {
-      padding: 14px 20px;
-      background-color: #12121c;
+      padding: 12px 16px;
+      background: rgba(13, 13, 24, 0.95);
       border-top: 1px solid var(--border-color);
       display: flex;
       gap: 10px;
       align-items: center;
     }
 
-    input[type="text"] {
+    .input-wrapper {
       flex: 1;
-      padding: 13px 16px;
-      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.05);
       border: 1px solid var(--border-color);
-      background-color: var(--bg-input);
+      border-radius: 12px;
+      padding: 2px 8px;
+      transition: all 0.2s ease;
+    }
+
+    .input-wrapper:focus-within {
+      border-color: var(--purple-main);
+      box-shadow: 0 0 12px var(--purple-glow);
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px 8px;
+      border: none;
+      background: transparent;
       color: #ffffff;
       outline: none;
       font-size: 0.95rem;
-      transition: border-color 0.2s, box-shadow 0.2s;
     }
 
-    input[type="text"]:focus {
-      border-color: var(--accent-purple);
-      box-shadow: 0 0 12px rgba(139, 92, 246, 0.25);
+    input[type="text"]::placeholder {
+      color: var(--text-dim);
     }
 
-    button.action-btn {
-      padding: 13px 20px;
-      background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+    .attach-btn {
+      background: transparent;
       border: none;
-      color: white;
-      border-radius: 10px;
+      color: var(--text-dim);
+      font-size: 1.2rem;
+      padding: 8px;
       cursor: pointer;
-      font-weight: 600;
-      font-size: 0.95rem;
-      transition: transform 0.15s, box-shadow 0.2s;
-      box-shadow: 0 4px 14px rgba(139, 92, 246, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s;
     }
 
-    button.action-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 18px rgba(139, 92, 246, 0.45);
+    .attach-btn:hover {
+      color: var(--purple-main);
     }
 
-    button.action-btn:active {
-      transform: translateY(0);
-    }
-
-    button.attach-btn {
-      padding: 13px 15px;
-      background-color: var(--bg-input);
-      border: 1px solid var(--border-color);
-      color: var(--text-muted);
-      border-radius: 10px;
+    .action-btn {
+      padding: 12px 18px;
+      background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+      border: none;
+      color: #ffffff;
+      border-radius: 12px;
       cursor: pointer;
-      font-size: 1.1rem;
-      transition: all 0.2s;
+      font-weight: 700;
+      font-size: 0.9rem;
+      box-shadow: 0 4px 12px var(--purple-glow);
+      transition: transform 0.1s, opacity 0.2s;
     }
 
-    button.attach-btn:hover {
-      border-color: var(--accent-purple);
-      color: var(--accent-glow);
+    .action-btn:active {
+      transform: scale(0.96);
     }
   </style>
 </head>
 <body>
 
   <header>
-    Radam Nox (Memória Ativa)
+    <div class="status-dot"></div>
+    <h1>Radam Nox</h1>
   </header>
 
   <div id="chatContainer"></div>
@@ -235,8 +258,10 @@
 
   <footer>
     <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
-    <button type="button" class="attach-btn" onclick="document.getElementById('fileInput').click()" title="Anexar Imagem">📎</button>
-    <input type="text" id="messageInput" placeholder="Pergunte qualquer coisa ao Radam Nox..." onkeypress="handleKeyPress(event)">
+    <div class="input-wrapper">
+      <button type="button" class="attach-btn" onclick="document.getElementById('fileInput').click()" title="Anexar Imagem">📎</button>
+      <input type="text" id="messageInput" placeholder="Mensagem..." onkeypress="handleKeyPress(event)">
+    </div>
     <button type="button" class="action-btn" onclick="sendMessage()">Enviar</button>
   </footer>
 
