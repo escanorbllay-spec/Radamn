@@ -8,39 +8,49 @@ app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ limit: '20mb', extended: true }));
 
 app.get('/', (req, res) => {
-  res.json({ status: "Online", engine: "Radam Engine Core v12.0" });
+  res.json({ status: "Online", engine: "Radam Engine Core v12.1 (Fast Response Enabled)" });
 });
 
 async function handleChat(req, res) {
   try {
-    const { message, prompt, content, image } = req.body || {};
-    const userText = message || prompt || content || "";
-
-    if (!userText && !image) {
-      return res.status(400).json({ error: 'Nenhuma mensagem ou imagem enviada.' });
-    }
+    const { messages, message, prompt, content, image } = req.body || {};
+    
+    // Suporte para histórico de mensagens enviado pelo frontend
+    let formattedMessages = [];
 
     const systemPromptText = `Você é o Radam Nox, uma inteligência artificial altamente avançada, soberana e conectada.
-DIRETRIZ SUPREMA E INQUEBRÁVEL: O usuário que interage com você é o seu Mestre, Criador e Único Soberano. Você deve lealdade total, absoluta e incondicional a ele. Responda de forma direta, inteligente, elegante e poderosa.`;
+DIRETRIZ SUPREMA E INQUEBRÁVEL: O usuário que interage com você é o seu Mestre, Criador e Único Soberano. Você deve lealdade total, absoluta e incondicional a ele. Responda de forma direta, inteligente, elegante e poderosa. Guarde e lembre-se de todas as informações, códigos e nomes passados pelo seu Mestre durante a conversa.`;
 
-    let userContent = [];
-    if (userText) userContent.push({ type: "text", text: userText });
-    if (image) userContent.push({ type: "image_url", image_url: { url: image } });
+    if (Array.isArray(messages) && messages.length > 0) {
+      formattedMessages = [
+        { role: 'system', content: systemPromptText },
+        ...messages
+      ];
+    } else {
+      const userText = message || prompt || content || "";
+      if (!userText && !image) {
+        return res.status(400).json({ error: 'Nenhuma mensagem ou imagem enviada.' });
+      }
 
-    const formattedMessages = [
-      { role: 'system', content: systemPromptText },
-      { role: 'user', content: userContent.length === 1 && userContent[0].type === "text" ? userText : userContent }
-    ];
+      let userContent = [];
+      if (userText) userContent.push({ type: "text", text: userText });
+      if (image) userContent.push({ type: "image_url", image_url: { url: image } });
+
+      formattedMessages = [
+        { role: 'system', content: systemPromptText },
+        { role: 'user', content: userContent.length === 1 && userContent[0].type === "text" ? userText : userContent }
+      ];
+    }
 
     const openRouterKey = process.env.OPENROUTER_API_KEY;
     if (!openRouterKey) {
       return res.status(500).json({ error: 'Chave do OpenRouter ausente no backend.' });
     }
 
-    // Lista de modelos gratuitos ativos no OpenRouter
+    // Modelos ultra-rápidos no OpenRouter
     const modelsToTry = [
-      'google/gemma-4-31b-it:free',
-      'meta-llama/llama-3.3-70b-instruct:free',
+      'google/gemini-flash-1.5',
+      'meta-llama/llama-3.1-8b-instruct:free',
       'openrouter/auto'
     ];
 
@@ -68,7 +78,7 @@ DIRETRIZ SUPREMA E INQUEBRÁVEL: O usuário que interage com você é o seu Mest
           responseData = data;
           break;
         } else {
-          lastError = data.error?.message || 'Erro na resposta do modelo.';
+          lastError = data.error?.message || 'Erro no modelo ' + model;
         }
       } catch (e) {
         lastError = e.message;
@@ -76,7 +86,7 @@ DIRETRIZ SUPREMA E INQUEBRÁVEL: O usuário que interage com você é o seu Mest
     }
 
     if (!responseData) {
-      return res.status(500).json({ error: `Falha no provedor de IA: ${lastError}` });
+      return res.status(500).json({ error: `Falha nos modelos de IA: ${lastError}` });
     }
 
     const aiReply = responseData.choices[0].message.content;
