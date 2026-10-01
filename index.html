@@ -460,7 +460,7 @@
           }
 
           const data = await response.json();
-          const reply = data.reply || data.message || data.text || "Sem resposta do servidor.";
+          const reply = data.reply || data.response || data.message || data.text || "Sem resposta do servidor.";
 
           window.conversationHistory.push({ role: "assistant", content: reply });
 
