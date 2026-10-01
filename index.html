@@ -10,12 +10,12 @@
   
   <style>
     :root {
-      --bg-dark: #0d0e15;
-      --panel-bg: #161722;
-      --card-bg: #1f202e;
-      --purple-accent: #8b5cf6;
-      --purple-glow: rgba(139, 92, 246, 0.3);
-      --user-msg: #3b82f6;
+      --bg-dark: #050508;
+      --panel-bg: #111118;
+      --card-bg: #181824;
+      --purple-accent: #7c3aed;
+      --purple-glow: rgba(124, 58, 237, 0.5);
+      --user-msg: #2563eb;
       --text-main: #f3f4f6;
       --text-muted: #9ca3af;
       --border-color: rgba(255, 255, 255, 0.08);
@@ -41,12 +41,14 @@
       display: flex;
       flex-direction: column;
       height: 100dvh;
+      background: radial-gradient(circle at 50% 100%, #111025 0%, #050508 70%);
     }
 
     /* HEADER */
     header {
       padding: 14px 18px;
-      background: var(--panel-bg);
+      background: rgba(17, 17, 24, 0.8);
+      backdrop-filter: blur(10px);
       border-bottom: 1px solid var(--border-color);
       display: flex;
       align-items: center;
@@ -96,7 +98,7 @@
       box-shadow: 0 0 10px #10b981;
     }
 
-    /* MENU DROPDOWN DE 3 PONTINHOS */
+    /* MENU DROPDOWN SUPERIOR */
     #topMenuDropdown {
       display: none;
       position: absolute;
@@ -105,7 +107,7 @@
       background: var(--card-bg);
       border: 1px solid var(--border-color);
       border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.6);
       padding: 8px;
       z-index: 80;
       flex-direction: column;
@@ -128,7 +130,6 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      transition: background 0.2s ease;
     }
 
     .dropdown-item:hover {
@@ -144,7 +145,7 @@
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.65);
+      background: rgba(0, 0, 0, 0.7);
       z-index: 90;
       backdrop-filter: blur(4px);
     }
@@ -155,7 +156,7 @@
       left: -290px;
       width: 290px;
       height: 100%;
-      background: #11121c;
+      background: #0a0a10;
       border-right: 1px solid var(--border-color);
       z-index: 100;
       transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -221,12 +222,60 @@
       background: rgba(255, 255, 255, 0.05);
     }
 
+    /* TELA DE BOAS-VINDAS CENTRAL (ESTILO GEMINI) */
+    #welcomeScreen {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 20px;
+      gap: 20px;
+    }
+
+    /* PIRÂMIDE ANIMADA */
+    .pyramid-container {
+      width: 64px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: pyramidPulse 2.5s infinite ease-in-out;
+    }
+
+    .pyramid-svg {
+      width: 100%;
+      height: 100%;
+      filter: drop-shadow(0 0 12px rgba(124, 58, 237, 0.8));
+    }
+
+    @keyframes pyramidPulse {
+      0%, 100% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 10px rgba(124, 58, 237, 0.6));
+      }
+      50% {
+        transform: scale(1.1);
+        filter: drop-shadow(0 0 22px rgba(168, 85, 247, 0.95));
+      }
+    }
+
+    .welcome-text {
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: #ffffff;
+      line-height: 1.3;
+      max-width: 320px;
+      letter-spacing: -0.02em;
+    }
+
     /* CHAT CONTAINER */
     #chatContainer {
       flex: 1;
       padding: 16px;
       overflow-y: auto;
-      display: flex;
+      display: none;
       flex-direction: column;
       gap: 16px;
     }
@@ -319,7 +368,7 @@
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.65);
+      background: rgba(0,0,0,0.7);
       z-index: 95;
       align-items: flex-end;
       backdrop-filter: blur(2px);
@@ -327,7 +376,7 @@
 
     #toolsModal {
       width: 100%;
-      background: #161722;
+      background: #111118;
       border-top-left-radius: 24px;
       border-top-right-radius: 24px;
       padding: 24px 20px 32px 20px;
@@ -366,12 +415,6 @@
       cursor: pointer;
       font-size: 0.8rem;
       text-align: center;
-      transition: transform 0.15s ease, border-color 0.15s ease;
-    }
-
-    .tool-card:active {
-      transform: scale(0.96);
-      border-color: var(--purple-accent);
     }
 
     .tool-card-icon {
@@ -381,7 +424,7 @@
     /* FOOTER / INPUT */
     footer {
       padding: 12px 16px;
-      background: var(--panel-bg);
+      background: rgba(17, 17, 24, 0.9);
       border-top: 1px solid var(--border-color);
       display: flex;
       gap: 10px;
@@ -392,7 +435,7 @@
       flex: 1;
       display: flex;
       align-items: center;
-      background: #0d0e15;
+      background: #08080d;
       border: 1px solid var(--border-color);
       border-radius: 24px;
       padding: 4px 14px;
@@ -457,11 +500,36 @@
     <div id="topMenuDropdown">
       <button class="dropdown-item" onclick="menuAction('Compartilhar')">🔗 Compartilhar</button>
       <button class="dropdown-item" onclick="menuAction('Renomear')">✏️ Renomear</button>
-      <button class="dropdown-item danger" onclick="menuAction('Excluir')">🗑️️ Excluir conversa</button>
+      <button class="dropdown-item danger" onclick="menuAction('Excluir')">🗑 Excluir conversa</button>
     </div>
   </header>
 
-  <!-- ÁREA DE MENSAGENS -->
+  <!-- TELA DE BOAS-VINDAS CENTRAL -->
+  <div id="welcomeScreen">
+    <div class="pyramid-container">
+      <svg class="pyramid-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="pyramidGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#c084fc" />
+            <stop offset="100%" stop-color="#7c3aed" />
+          </linearGradient>
+          <linearGradient id="pyramidGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#6366f1" />
+            <stop offset="100%" stop-color="#3b82f6" />
+          </linearGradient>
+        </defs>
+        <!-- Lado esquerdo da pirâmide -->
+        <polygon points="50,15 15,80 50,80" fill="url(#pyramidGrad1)" />
+        <!-- Lado direito da pirâmide -->
+        <polygon points="50,15 50,80 85,80" fill="url(#pyramidGrad2)" opacity="0.85" />
+        <!-- Linhas de brilho nos vértices -->
+        <line x1="50" y1="15" x2="50" y2="80" stroke="#ffffff" stroke-width="1.5" opacity="0.6" />
+      </svg>
+    </div>
+    <div class="welcome-text">Olá, Kalnoox RADAMN! No que você está pensando?</div>
+  </div>
+
+  <!-- ÁREA DE MENSAGENS DO CHAT -->
   <div id="chatContainer"></div>
 
   <!-- PREVIEW DE IMAGEM -->
@@ -535,7 +603,6 @@
       dropdown.classList.toggle('active');
     }
 
-    // Fecha o dropdown se clicar fora dele
     window.addEventListener('click', () => {
       document.getElementById('topMenuDropdown').classList.remove('active');
     });
@@ -565,6 +632,8 @@
     function newChat() {
       window.conversationHistory = [];
       document.getElementById('chatContainer').innerHTML = '';
+      document.getElementById('chatContainer').style.display = 'none';
+      document.getElementById('welcomeScreen').style.display = 'flex';
       if (document.getElementById('sidebar').classList.contains('active')) {
         toggleSidebar();
       }
@@ -604,7 +673,11 @@
     }
 
     function renderMessage(text, imageBase64, isUser) {
+      // Oculta a tela inicial de boas-vindas na primeira mensagem
+      document.getElementById('welcomeScreen').style.display = 'none';
+      
       const chatContainer = document.getElementById('chatContainer');
+      chatContainer.style.display = 'flex';
       
       const wrapper = document.createElement('div');
       wrapper.className = `message-wrapper ${isUser ? 'user-wrapper' : 'ai-wrapper'}`;
@@ -679,22 +752,4 @@
         const data = await response.json();
         
         if (!response.ok) {
-          throw new Error(data.error || 'Erro na resposta do servidor.');
-        }
-
-        const reply = data.reply || data.message || data.text || 'Sem resposta recebida.';
-        
-        window.conversationHistory.push({
-          role: "assistant",
-          content: reply
-        });
-
-        renderMessage(reply, null, false);
-      } catch (err) {
-        console.error('Erro de conexão:', err);
-        renderMessage(`Erro do Servidor: ${err.message || 'Não foi possível conectar ao Radam Nox.'}`, null, false);
-      }
-    }
-  </script>
-</body>
-</html>
+          throw new Error(dat
