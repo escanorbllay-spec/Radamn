@@ -26,7 +26,8 @@
       margin: 0;
       padding: 0;
       font-family: 'Plus Jakarta Sans', sans-serif;
-      -webkit-tap-highlight-color: transparent;
+      -webkit-tap-highlight-color: rgba(255, 255, 255, 0.1);
+      touch-action: manipulation;
     }
 
     body {
@@ -37,6 +38,15 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      position: relative;
+    }
+
+    /* BOTOES E CLIQUES */
+    button, .btn-action, .tool-card, .dropdown-item {
+      cursor: pointer !important;
+      pointer-events: auto !important;
+      user-select: none;
+      -webkit-user-select: none;
     }
 
     /* HEADER */
@@ -48,7 +58,7 @@
       align-items: center;
       justify-content: space-between;
       position: relative;
-      z-index: 10;
+      z-index: 100;
       flex-shrink: 0;
     }
 
@@ -63,10 +73,8 @@
       border: 1px solid var(--border-color);
       color: var(--text-main);
       font-size: 1.1rem;
-      cursor: pointer;
       padding: 10px 14px;
       border-radius: 8px;
-      user-select: none;
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -115,7 +123,6 @@
       border: none;
       background: transparent;
       text-align: left;
-      cursor: pointer;
       border-radius: 8px;
       width: 100%;
       display: flex;
@@ -252,7 +259,6 @@
       padding: 16px 8px;
       border-radius: 16px;
       text-align: center;
-      cursor: pointer;
       font-size: 0.75rem;
       font-weight: 500;
       color: var(--text-main);
@@ -260,12 +266,6 @@
       flex-direction: column;
       align-items: center;
       gap: 8px;
-      transition: background 0.2s, transform 0.1s;
-    }
-
-    .tool-card:active {
-      transform: scale(0.96);
-      background: #202030;
     }
 
     .tool-card svg {
@@ -276,6 +276,7 @@
       stroke-width: 2;
       stroke-linecap: round;
       stroke-linejoin: round;
+      pointer-events: none;
     }
 
     /* BARRA DE PREVIEW */
@@ -288,6 +289,7 @@
       border-top: 1px solid var(--border-color);
       font-size: 0.85rem;
       color: var(--text-muted);
+      z-index: 100;
     }
 
     /* FOOTER */
@@ -298,7 +300,7 @@
       display: flex;
       gap: 10px;
       position: relative;
-      z-index: 10;
+      z-index: 200;
       flex-shrink: 0;
       width: 100%;
       align-items: center;
@@ -334,7 +336,6 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
       font-size: 1.2rem;
       transition: all 0.2s ease;
       flex-shrink: 0;
@@ -355,36 +356,36 @@
     }
   </style>
 </head>
-<body onclick="closeDropdownIfOpen(event)">
+<body>
 
   <!-- OVERLAY E SIDEBAR -->
-  <div id="sidebarOverlay" onclick="closeSidebar()"></div>
+  <div id="sidebarOverlay"></div>
   <div id="sidebar">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
       <h3 style="color:#fff;">Radam Nox</h3>
-      <button class="btn-action" onclick="closeSidebar()">✕</button>
+      <button class="btn-action" id="btnCloseSidebar">✕</button>
     </div>
-    <button class="btn-action" onclick="btnNewChatAction()" style="width:100%; margin-bottom:15px; background:var(--purple-accent);">+ Nova conversa</button>
+    <button class="btn-action" id="btnNewChat" style="width:100%; margin-bottom:15px; background:var(--purple-accent);">+ Nova conversa</button>
     <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">RECENTES</div>
-    <button class="btn-action" onclick="btnHistAction('Análise de código')" style="margin-bottom:8px; text-align:left; width:100%;">💻 Análise de Código</button>
+    <button class="btn-action" id="btnHist1" style="margin-bottom:8px; text-align:left; width:100%;">💻 Análise de Código</button>
   </div>
 
   <!-- HEADER -->
   <header>
     <div class="header-left">
-      <button class="btn-action" onclick="openSidebar()">☰</button>
+      <button class="btn-action" id="btnOpenSidebar">☰</button>
       <div class="title-area">
         <div class="status-dot"></div>
         Radam Nox
       </div>
     </div>
-    <button class="btn-action" onclick="toggleTopMenu(event)">⋮</button>
+    <button class="btn-action" id="btnTopMenu">⋮</button>
 
     <!-- MENU DROPDOWN -->
     <div id="topMenuDropdown">
-      <button class="dropdown-item" onclick="alert('Link copiado!')">🔗 Compartilhar</button>
-      <button class="dropdown-item" onclick="alert('Opção de renomear selecionada.')">✏️ Renomear</button>
-      <button class="dropdown-item" onclick="resetChat()" style="color:#f87171;">🗑 Excluir conversa</button>
+      <button class="dropdown-item" id="btnActionShare">🔗 Compartilhar</button>
+      <button class="dropdown-item" id="btnActionRename">✏️ Renomear</button>
+      <button class="dropdown-item" id="btnActionDelete" style="color:#f87171;">🗑 Excluir conversa</button>
     </div>
   </header>
 
@@ -397,45 +398,29 @@
   <!-- CONTAINER DE MENSAGENS DO CHAT -->
   <div id="chatContainer"></div>
 
-  <!-- MODAL DE ANEXOS ATUALIZADO COM SVGs MODERNOS -->
-  <div id="toolsModalOverlay" onclick="closeToolsModal(event)">
+  <!-- MODAL DE ANEXOS (+) -->
+  <div id="toolsModalOverlay">
     <div id="toolsModal">
       <div style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">ANEXOS E FERRAMENTAS</div>
       <div class="tool-grid">
         
-        <!-- Fotos -->
-        <div class="tool-card" onclick="triggerFilePicker()">
-          <svg viewBox="0 0 24 24">
-            <rect x="3" y="3" width="18" height="18" rx="5" ry="5"></rect>
-            <circle cx="8.5" cy="8.5" r="1.5"></circle>
-            <polyline points="21 15 16 10 5 21"></polyline>
-          </svg>
+        <div class="tool-card" id="btnToolPhoto">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5" ry="5"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
           <span>Fotos</span>
         </div>
 
-        <!-- Câmera -->
-        <div class="tool-card" onclick="triggerFilePicker()">
-          <svg viewBox="0 0 24 24">
-            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-            <circle cx="12" cy="13" r="4"></circle>
-          </svg>
+        <div class="tool-card" id="btnToolCamera">
+          <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
           <span>Câmera</span>
         </div>
 
-        <!-- Arquivos -->
-        <div class="tool-card" onclick="triggerFilePicker()">
-          <svg viewBox="0 0 24 24">
-            <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
-            <polyline points="13 2 13 9 20 9"></polyline>
-          </svg>
+        <div class="tool-card" id="btnToolFile">
+          <svg viewBox="0 0 24 24"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
           <span>Arquivos</span>
         </div>
 
-        <!-- Nuvem / Drive -->
-        <div class="tool-card" onclick="triggerFilePicker()">
-          <svg viewBox="0 0 24 24">
-            <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
-          </svg>
+        <div class="tool-card" id="btnToolDrive">
+          <svg viewBox="0 0 24 24"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path></svg>
           <span>Drive</span>
         </div>
 
@@ -443,21 +428,21 @@
     </div>
   </div>
 
-  <input type="file" id="fileInput" accept="image/*,application/pdf,text/*" style="display:none;" onchange="handleFileSelected(event)">
+  <input type="file" id="fileInput" accept="image/*,application/pdf,text/*" style="display:none;">
 
   <!-- BARRA DE PREVIEW -->
   <div id="attachmentPreviewBar">
     <span id="attachmentFileName"></span>
-    <button id="btnRemoveAttachment" onclick="clearAttachment()" style="background:none; border:none; color:#f87171; cursor:pointer; font-size:1rem; margin-left:auto;">✕</button>
+    <button id="btnRemoveAttachment" style="background:none; border:none; color:#f87171; font-size:1rem; margin-left:auto;">✕</button>
   </div>
 
   <!-- FOOTER -->
   <footer>
     <div class="input-bar">
-      <button class="btn-action" onclick="openToolsModal()" style="border:none; background:transparent;">+</button>
-      <input type="text" id="messageInput" placeholder="Peça ao Radam Nox..." oninput="updateButtonState()" onkeypress="handleKeyPress(event)">
+      <button class="btn-action" id="btnOpenTools" style="border:none; background:transparent;">+</button>
+      <input type="text" id="messageInput" placeholder="Peça ao Radam Nox...">
     </div>
-    <button class="btn-dynamic waves" id="btnActionDynamic" onclick="send()">❙❚❙</button>
+    <button class="btn-dynamic waves" id="btnActionDynamic">❙❚❙</button>
   </footer>
 
   <script>
@@ -467,7 +452,22 @@
     let abortController = null;
     let pendingAttachment = null;
 
-    // PERSISTÊNCIA NO LOCALSTORAGE
+    // AÇÃO DE TOQUE HÍBRIDA (SUPORTA TOUCH E CLICK SEM ATRASO)
+    function attachTrigger(element, fn) {
+      if (!element) return;
+      let handled = false;
+      const handler = function(e) {
+        if (e.type === 'touchstart') handled = true;
+        else if (e.type === 'click' && handled) {
+          handled = false;
+          return;
+        }
+        fn(e);
+      };
+      element.addEventListener('touchstart', handler, { passive: true });
+      element.addEventListener('click', handler);
+    }
+
     function saveHistoryToStorage() {
       try {
         localStorage.setItem('radam_nox_history', JSON.stringify(window.conversationHistory));
@@ -479,9 +479,7 @@
         const saved = localStorage.getItem('radam_nox_history');
         if (saved) {
           window.conversationHistory = JSON.parse(saved);
-          if (window.conversationHistory.length > 0) {
-            renderFullHistory();
-          }
+          if (window.conversationHistory.length > 0) renderFullHistory();
         }
       } catch (e) {}
     }
@@ -505,9 +503,7 @@
         div.className = item.role === 'user' ? 'msg-user' : 'msg-ai';
 
         let htmlContent = '';
-        if (item.image) {
-          htmlContent += `<img src="${item.image}" class="msg-preview-img"><br>`;
-        }
+        if (item.image) htmlContent += `<img src="${item.image}" class="msg-preview-img"><br>`;
         htmlContent += item.content || '';
         div.innerHTML = htmlContent;
 
@@ -517,7 +513,6 @@
       chatContainer.scrollTop = chatContainer.scrollHeight;
     }
 
-    // ESTADO DO BOTÃO DE ENVIAR / PARAR
     function updateButtonState() {
       const btn = document.getElementById('btnActionDynamic');
       const input = document.getElementById('messageInput');
@@ -535,7 +530,6 @@
       }
     }
 
-    // CONTROLE DE SIDEBAR
     function openSidebar() {
       document.getElementById('sidebar').style.left = "0px";
       document.getElementById('sidebarOverlay').style.display = "block";
@@ -546,67 +540,6 @@
       document.getElementById('sidebarOverlay').style.display = "none";
     }
 
-    function btnNewChatAction() {
-      closeSidebar();
-      resetChat();
-    }
-
-    function btnHistAction(text) {
-      closeSidebar();
-      send(text);
-    }
-
-    // CONTROLE DO MENU DROPDOWN
-    function toggleTopMenu(e) {
-      if (e) e.stopPropagation();
-      const menu = document.getElementById('topMenuDropdown');
-      const isVisible = menu.style.display === "flex";
-      menu.style.display = isVisible ? "none" : "flex";
-    }
-
-    function closeDropdownIfOpen(e) {
-      const menu = document.getElementById('topMenuDropdown');
-      if (menu && menu.style.display === "flex") {
-        menu.style.display = "none";
-      }
-    }
-
-    // CONTROLE DE MODAL DE FERRAMENTAS (+)
-    function openToolsModal() {
-      document.getElementById('toolsModalOverlay').style.display = "flex";
-    }
-
-    function closeToolsModal(e) {
-      if (!e || e.target === document.getElementById('toolsModalOverlay')) {
-        document.getElementById('toolsModalOverlay').style.display = "none";
-      }
-    }
-
-    function triggerFilePicker() {
-      closeToolsModal();
-      document.getElementById('fileInput').click();
-    }
-
-    // GERENCIAMENTO DE ARQUIVOS
-    function handleFileSelected(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        pendingAttachment = {
-          name: file.name,
-          mimeType: file.type,
-          base64: evt.target.result
-        };
-
-        document.getElementById('attachmentFileName').innerText = `📎 ${file.name}`;
-        document.getElementById('attachmentPreviewBar').style.display = 'flex';
-        updateButtonState();
-      };
-      reader.readAsDataURL(file);
-    }
-
     function clearAttachment() {
       pendingAttachment = null;
       document.getElementById('fileInput').value = '';
@@ -614,7 +547,6 @@
       updateButtonState();
     }
 
-    // LIMPEZA DE CHAT
     function resetChat() {
       window.conversationHistory = [];
       localStorage.removeItem('radam_nox_history');
@@ -627,11 +559,6 @@
       updateButtonState();
     }
 
-    function handleKeyPress(e) {
-      if (e.key === 'Enter') send();
-    }
-
-    // ENVIO DE MENSAGENS E REQUISIÇÕES
     async function send(textToSend) {
       const input = document.getElementById('messageInput');
       const chatContainer = document.getElementById('chatContainer');
@@ -705,8 +632,65 @@
           chatContainer.removeChild(loadingDiv);
         }
 
-        if (!response.ok) {
-          throw new Error(`Status ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`Status ${response.status}`);
 
-        const data = awa
+        const data = await response.json();
+        const reply = data.reply || data.response || data.message || data.text || "Sem resposta.";
+
+        window.conversationHistory.push({ role: "assistant", content: reply });
+        saveHistoryToStorage();
+
+        const aiDiv = document.createElement('div');
+        aiDiv.className = "msg-ai";
+        aiDiv.innerText = reply;
+        chatContainer.appendChild(aiDiv);
+
+      } catch (err) {
+        if (chatContainer.contains(loadingDiv)) {
+          chatContainer.removeChild(loadingDiv);
+        }
+        if (err.name !== 'AbortError') {
+          const errDiv = document.createElement('div');
+          errDiv.className = "msg-ai";
+          errDiv.style.borderColor = "#f87171";
+          errDiv.innerText = `Erro ao conectar. (${err.message})`;
+          chatContainer.appendChild(errDiv);
+        }
+      }
+
+      isProcessing = false;
+      updateButtonState();
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    // VINCULAÇÃO DOS EVENTOS NATIVOS
+    document.addEventListener('DOMContentLoaded', function() {
+      loadHistoryFromStorage();
+
+      attachTrigger(document.getElementById('btnOpenSidebar'), openSidebar);
+      attachTrigger(document.getElementById('btnCloseSidebar'), closeSidebar);
+      attachTrigger(document.getElementById('sidebarOverlay'), closeSidebar);
+
+      attachTrigger(document.getElementById('btnNewChat'), function() {
+        closeSidebar();
+        resetChat();
+      });
+
+      attachTrigger(document.getElementById('btnHist1'), function() {
+        closeSidebar();
+        send("Análise de código");
+      });
+
+      const topMenuDropdown = document.getElementById('topMenuDropdown');
+      attachTrigger(document.getElementById('btnTopMenu'), function(e) {
+        e.stopPropagation();
+        topMenuDropdown.style.display = (topMenuDropdown.style.display === "flex") ? "none" : "flex";
+      });
+
+      document.addEventListener('click', function(e) {
+        if (topMenuDropdown.style.display === "flex" && !e.target.closest('#btnTopMenu')) {
+          topMenuDropdown.style.display = "none";
+        }
+      });
+
+      attachTrigger(document.
