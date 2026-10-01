@@ -66,6 +66,9 @@
       padding: 10px 14px;
       border-radius: 8px;
       user-select: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .btn-action:active {
@@ -88,7 +91,7 @@
       border-radius: 50%;
     }
 
-    /* DROPDOWN SUPERIOR */
+    /* DROPDOWN SUPERIOR DE TRÊS PONTOS */
     #topMenuDropdown {
       display: none;
       position: absolute;
@@ -101,6 +104,7 @@
       z-index: 500;
       flex-direction: column;
       min-width: 180px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
     }
 
     .dropdown-item {
@@ -113,6 +117,9 @@
       cursor: pointer;
       border-radius: 8px;
       width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
     .dropdown-item:active {
@@ -141,7 +148,7 @@
       flex-direction: column;
     }
 
-    /* MAIN / WELCOME */
+    /* MAIN / BOAS-VINDAS */
     #mainArea {
       flex: 1;
       display: flex;
@@ -161,7 +168,7 @@
       -webkit-text-fill-color: transparent;
     }
 
-    /* CHAT CONTAINER */
+    /* ÁREA DE MENSAGENS / CHAT */
     #chatContainer {
       flex: 1;
       padding: 16px;
@@ -188,8 +195,9 @@
       color: white;
       padding: 10px 14px;
       border-radius: 12px;
-      max-width: 80%;
+      max-width: 85%;
       word-break: break-word;
+      line-height: 1.4;
     }
 
     .msg-loading {
@@ -199,7 +207,7 @@
       font-style: italic;
     }
 
-    /* MODAL ANEXOS */
+    /* MODAL DE ANEXOS FERRAMENTAS (+) */
     #toolsModalOverlay {
       display: none;
       position: fixed;
@@ -274,12 +282,12 @@
   <div id="sidebarOverlay"></div>
   <div id="sidebar">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-      <h3>Radam Nox</h3>
+      <h3 style="color:#fff;">Radam Nox</h3>
       <button class="btn-action" id="btnCloseSidebar">✕</button>
     </div>
     <button class="btn-action" id="btnNewChat" style="width:100%; margin-bottom:15px; background:var(--purple-accent);">+ Nova conversa</button>
     <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">RECENTES</div>
-    <div class="btn-action" id="btnHist1" style="margin-bottom:8px; text-align:left;">💻 Análise de Código</div>
+    <div class="btn-action" id="btnHist1" style="margin-bottom:8px; text-align:left; width:100%;">💻 Análise de Código</div>
   </div>
 
   <!-- HEADER -->
@@ -293,6 +301,7 @@
     </div>
     <button class="btn-action" id="btnTopMenu">⋮</button>
 
+    <!-- MENU DROPDOWN -->
     <div id="topMenuDropdown">
       <button class="dropdown-item" id="btnActionShare">🔗 Compartilhar</button>
       <button class="dropdown-item" id="btnActionRename">✏️ Renomear</button>
@@ -300,15 +309,16 @@
     </div>
   </header>
 
-  <!-- ÁREA CENTRAL -->
+  <!-- TELA INICIAL / WELCOME -->
   <div id="mainArea">
     <div class="welcome-title">RADAM NOX</div>
     <p style="color:var(--text-muted)">Boas-vindas, KALNOOX RADAMN! No que posso ajudar?</p>
   </div>
 
+  <!-- CONTAINER DE MENSAGENS DO CHAT -->
   <div id="chatContainer"></div>
 
-  <!-- MODAL FERRAMENTAS -->
+  <!-- MODAL DE ANEXOS (+) -->
   <div id="toolsModalOverlay">
     <div id="toolsModal">
       <div style="font-size:0.8rem; color:var(--text-muted);">ANEXOS E ARQUIVOS</div>
@@ -323,7 +333,7 @@
 
   <input type="file" id="fileInput" accept="image/*" style="display:none;">
 
-  <!-- FOOTER -->
+  <!-- FOOTER E CAMPO DE TEXTO -->
   <footer>
     <div class="input-bar">
       <button class="btn-action" id="btnOpenTools" style="border:none; background:transparent;">+</button>
@@ -346,7 +356,7 @@
       const chatContainer = document.getElementById('chatContainer');
       const mainArea = document.getElementById('mainArea');
 
-      // 1. Sidebar
+      // 1. Sidebar (Menu Lateral)
       document.getElementById('btnOpenSidebar').onclick = function() {
         sidebar.style.left = "0px";
         sidebarOverlay.style.display = "block";
@@ -360,7 +370,7 @@
       document.getElementById('btnCloseSidebar').onclick = closeSidebar;
       sidebarOverlay.onclick = closeSidebar;
 
-      // 2. Menu Três Pontos
+      // 2. Menu Três Pontos Superior
       document.getElementById('btnTopMenu').onclick = function(e) {
         e.stopPropagation();
         const isVisible = topMenuDropdown.style.display === "flex";
@@ -373,11 +383,11 @@
         }
       };
 
-      document.getElementById('btnActionShare').onclick = function() { alert("Link copiado!"); };
-      document.getElementById('btnActionRename').onclick = function() { alert("Função de renomear acionada."); };
+      document.getElementById('btnActionShare').onclick = function() { alert("Link da conversa copiado!"); };
+      document.getElementById('btnActionRename').onclick = function() { alert("Opção de renomear ativada."); };
       document.getElementById('btnActionDelete').onclick = function() { resetChat(); };
 
-      // 3. Modal Ferramentas
+      // 3. Modal de Anexos
       document.getElementById('btnOpenTools').onclick = function() {
         toolsModalOverlay.style.display = "flex";
       };
@@ -398,7 +408,7 @@
       document.getElementById('btnToolFile').onclick = triggerFile;
       document.getElementById('btnToolDrive').onclick = triggerFile;
 
-      // 4. Lógica de Envio Real ao Render
+      // 4. Lógica de Limpeza e Envio Real de Mensagens
       function resetChat() {
         window.conversationHistory = [];
         chatContainer.innerHTML = "";
@@ -406,14 +416,14 @@
         mainArea.style.display = "flex";
       }
 
-      async function send() {
-        const txt = messageInput.value.trim();
+      async function send(textToSend) {
+        const txt = textToSend || messageInput.value.trim();
         if (!txt) return;
 
         mainArea.style.display = "none";
         chatContainer.style.display = "flex";
 
-        // Exibe mensagem do usuário
+        // Adiciona mensagem do usuário na tela
         const userDiv = document.createElement('div');
         userDiv.className = "msg-user";
         userDiv.innerText = txt;
@@ -423,10 +433,10 @@
         messageInput.value = "";
         chatContainer.scrollTop = chatContainer.scrollHeight;
 
-        // Indicador de carregamento
+        // Indicador de resposta da IA
         const loadingDiv = document.createElement('div');
         loadingDiv.className = "msg-loading";
-        loadingDiv.innerText = "Radam Nox está pensando (Servidor conectando)...";
+        loadingDiv.innerText = "Radam Nox está pensando...";
         chatContainer.appendChild(loadingDiv);
         chatContainer.scrollTop = chatContainer.scrollHeight;
 
@@ -441,14 +451,16 @@
             })
           });
 
-          chatContainer.removeChild(loadingDiv);
+          if (chatContainer.contains(loadingDiv)) {
+            chatContainer.removeChild(loadingDiv);
+          }
 
           if (!response.ok) {
-            throw new Error(`Erro ${response.status}: Falha no servidor Render.`);
+            throw new Error(`Servidor respondeu com status ${response.status}`);
           }
 
           const data = await response.json();
-          const reply = data.reply || data.message || data.text || "Sem resposta recebida.";
+          const reply = data.reply || data.message || data.text || "Sem resposta do servidor.";
 
           window.conversationHistory.push({ role: "assistant", content: reply });
 
@@ -456,6 +468,7 @@
           aiDiv.className = "msg-ai";
           aiDiv.innerText = reply;
           chatContainer.appendChild(aiDiv);
+
         } catch (err) {
           if (chatContainer.contains(loadingDiv)) {
             chatContainer.removeChild(loadingDiv);
@@ -463,14 +476,14 @@
           const errDiv = document.createElement('div');
           errDiv.className = "msg-ai";
           errDiv.style.borderColor = "#f87171";
-          errDiv.innerText = `Erro de conexão: ${err.message}`;
+          errDiv.innerText = `Servidor indisponível ou em inicialização. (${err.message})`;
           chatContainer.appendChild(errDiv);
         }
 
         chatContainer.scrollTop = chatContainer.scrollHeight;
       }
 
-      document.getElementById('btnSend').onclick = send;
+      document.getElementById('btnSend').onclick = function() { send(); };
       messageInput.onkeypress = function(e) {
         if (e.key === 'Enter') send();
       };
@@ -482,8 +495,7 @@
 
       document.getElementById('btnHist1').onclick = function() {
         closeSidebar();
-        messageInput.value = "Análise de código";
-        send();
+        send("Análise de código");
       };
     };
   </script>
