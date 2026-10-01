@@ -118,7 +118,7 @@
 <body>
 
   <header>
-    Radam Nox
+    Radam Nox (Memória Ativa)
   </header>
 
   <div id="chatContainer"></div>
@@ -139,8 +139,8 @@
     const BACKEND_URL = "https://radamn.onrender.com";
     let selectedBase64Image = null;
     
-    // Array que guarda todo o histórico da conversa na sessão
-    let conversationHistory = [];
+    // Armazena todas as interações da sessão atual
+    window.conversationHistory = [];
 
     function handleFileSelect(event) {
       const file = event.target.files[0];
@@ -198,14 +198,18 @@
       const currentImage = selectedBase64Image;
       renderMessage(messageText, currentImage, true);
 
-      // Adiciona a mensagem do usuário ao histórico
-      let userMsgContent = [];
-      if (messageText) userMsgContent.push({ type: "text", text: messageText });
-      if (currentImage) userMsgContent.push({ type: "image_url", image_url: { url: currentImage } });
+      // Prepara a entrada do usuário
+      let userEntryContent = messageText;
+      if (currentImage) {
+        userEntryContent = [];
+        if (messageText) userEntryContent.push({ type: "text", text: messageText });
+        userEntryContent.push({ type: "image_url", image_url: { url: currentImage } });
+      }
 
-      conversationHistory.push({
+      // Adiciona a mensagem atual ao histórico global
+      window.conversationHistory.push({
         role: "user",
-        content: userMsgContent.length === 1 && userMsgContent[0].type === "text" ? messageText : userMsgContent
+        content: userEntryContent
       });
 
       inputEl.value = '';
@@ -213,11 +217,14 @@
 
       try {
         const endpoint = `${BACKEND_URL.replace(/\/$/, '')}/api/chat`;
+        
+        // Envia o array de histórico completo
         const response = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            messages: conversationHistory
+            messages: window.conversationHistory,
+            message: messageText
           })
         });
 
@@ -229,8 +236,8 @@
 
         const reply = data.reply || data.message || data.text || 'Sem resposta recebida.';
         
-        // Adiciona a resposta da IA ao histórico de memória
-        conversationHistory.push({
+        // Adiciona a resposta da IA ao histórico global
+        window.conversationHistory.push({
           role: "assistant",
           content: reply
         });
