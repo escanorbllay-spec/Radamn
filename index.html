@@ -92,7 +92,7 @@
       border-radius: 50%;
     }
 
-    /* DROPDOWN SUPERIOR DE TRÊS PONTOS */
+    /* DROPDOWN SUPERIOR */
     #topMenuDropdown {
       display: none;
       position: absolute;
@@ -127,7 +127,7 @@
       background: rgba(255, 255, 255, 0.1);
     }
 
-    /* SIDEBAR (MENU LATERAL) */
+    /* SIDEBAR */
     #sidebarOverlay {
       display: none;
       position: fixed;
@@ -170,7 +170,7 @@
       -webkit-text-fill-color: transparent;
     }
 
-    /* ÁREA DE MENSAGENS / CHAT */
+    /* ÁREA DE CHAT */
     #chatContainer {
       flex: 1;
       padding: 16px;
@@ -217,12 +217,13 @@
       display: block;
     }
 
-    /* MODAL DE ANEXOS FERRAMENTAS (+) */
+    /* MODAL DE ANEXOS (+) COM SVG ATUALIZADO */
     #toolsModalOverlay {
       display: none;
       position: fixed;
       top: 0; left: 0; width: 100vw; height: 100vh;
       background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
       z-index: 950;
       align-items: flex-end;
     }
@@ -230,51 +231,66 @@
     #toolsModal {
       width: 100%;
       background: #111118;
-      border-top-left-radius: 20px;
-      border-top-right-radius: 20px;
-      padding: 20px 20px 35px 20px;
+      border-top-left-radius: 24px;
+      border-top-right-radius: 24px;
+      padding: 24px 20px 35px 20px;
       border-top: 1px solid var(--border-color);
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 16px;
     }
 
     .tool-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
+      gap: 12px;
     }
 
     .tool-card {
       background: var(--card-bg);
       border: 1px solid var(--border-color);
-      padding: 15px 5px;
-      border-radius: 10px;
+      padding: 16px 8px;
+      border-radius: 16px;
       text-align: center;
       cursor: pointer;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s, transform 0.1s;
     }
 
-    /* BARRA DE PREVIEW DE ANEXO SELECIONADO */
+    .tool-card:active {
+      transform: scale(0.96);
+      background: #202030;
+    }
+
+    .tool-card svg {
+      width: 26px;
+      height: 26px;
+      stroke: #a855f7;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* BARRA DE PREVIEW */
     #attachmentPreviewBar {
       display: none;
       align-items: center;
       gap: 8px;
-      padding: 6px 12px;
+      padding: 8px 14px;
       background: #181824;
       border-top: 1px solid var(--border-color);
       font-size: 0.85rem;
       color: var(--text-muted);
     }
 
-    #attachmentPreviewBar img {
-      width: 32px;
-      height: 32px;
-      border-radius: 4px;
-      object-fit: cover;
-    }
-
-    /* FOOTER FIXO E ELEVADO */
+    /* FOOTER */
     footer {
       padding: 12px 12px 25px 12px;
       background: #111118;
@@ -308,7 +324,6 @@
       font-size: 0.95rem;
     }
 
-    /* BOTÃO DINÂMICO REDONDO */
     .btn-dynamic {
       width: 42px;
       height: 42px;
@@ -330,18 +345,6 @@
       color: #a855f7;
       font-size: 1.1rem;
       letter-spacing: -2px;
-    }
-
-    .btn-dynamic.recording {
-      background: #ef4444 !important;
-      color: white !important;
-      animation: pulse 1s infinite;
-    }
-
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.08); }
-      100% { transform: scale(1); }
     }
 
     .btn-dynamic.stop {
@@ -380,48 +383,80 @@
     <!-- MENU DROPDOWN -->
     <div id="topMenuDropdown">
       <button class="dropdown-item" id="btnActionShare">🔗 Compartilhar</button>
-      <button class="dropdown-item" id="btnActionRename">✏️️ Renomear</button>
+      <button class="dropdown-item" id="btnActionRename">✏️ Renomear</button>
       <button class="dropdown-item" id="btnActionDelete" style="color:#f87171;">🗑 Excluir conversa</button>
     </div>
   </header>
 
-  <!-- TELA INICIAL / WELCOME -->
+  <!-- TELA INICIAL -->
   <div id="mainArea">
     <div class="welcome-title">RADAM NOX</div>
-    <p style="color:var(--text-muted)">Boas-vindas, KALNOOX RADAMN! No que posso ajudar?</p>
+    <p style="color:var(--text-muted)">Boas-vindas! No que posso ajudar?</p>
   </div>
 
   <!-- CONTAINER DE MENSAGENS DO CHAT -->
   <div id="chatContainer"></div>
 
-  <!-- MODAL DE ANEXOS (+) -->
+  <!-- MODAL DE ANEXOS ATUALIZADO COM SVG MODERNOS -->
   <div id="toolsModalOverlay">
     <div id="toolsModal">
-      <div style="font-size:0.8rem; color:var(--text-muted);">ANEXOS E ARQUIVOS</div>
+      <div style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">ANEXOS E FERRAMENTAS</div>
       <div class="tool-grid">
-        <div class="tool-card" id="btnToolPhoto">🖼️<br>Fotos</div>
-        <div class="tool-card" id="btnToolCamera">📷<br>Câmera</div>
-        <div class="tool-card" id="btnToolFile">📁<br>Arquivos</div>
-        <div class="tool-card" id="btnToolDrive">☁️<br>Drive</div>
+        
+        <!-- Fotos -->
+        <div class="tool-card" id="btnToolPhoto">
+          <svg viewBox="0 0 24 24">
+            <rect x="3" y="3" width="18" height="18" rx="5" ry="5"></rect>
+            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+            <polyline points="21 15 16 10 5 21"></polyline>
+          </svg>
+          <span>Fotos</span>
+        </div>
+
+        <!-- Câmera -->
+        <div class="tool-card" id="btnToolCamera">
+          <svg viewBox="0 0 24 24">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+            <circle cx="12" cy="13" r="4"></circle>
+          </svg>
+          <span>Câmera</span>
+        </div>
+
+        <!-- Arquivos -->
+        <div class="tool-card" id="btnToolFile">
+          <svg viewBox="0 0 24 24">
+            <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+            <polyline points="13 2 13 9 20 9"></polyline>
+          </svg>
+          <span>Arquivos</span>
+        </div>
+
+        <!-- Nuvem / Drive -->
+        <div class="tool-card" id="btnToolDrive">
+          <svg viewBox="0 0 24 24">
+            <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
+          </svg>
+          <span>Drive</span>
+        </div>
+
       </div>
     </div>
   </div>
 
   <input type="file" id="fileInput" accept="image/*,application/pdf,text/*" style="display:none;">
 
-  <!-- BARRA DE PRÉ-VISUALIZAÇÃO DE ARQUIVO SELECIONADO -->
+  <!-- BARRA DE PREVIEW -->
   <div id="attachmentPreviewBar">
     <span id="attachmentFileName"></span>
     <button id="btnRemoveAttachment" style="background:none; border:none; color:#f87171; cursor:pointer; font-size:1rem; margin-left:auto;">✕</button>
   </div>
 
-  <!-- FOOTER E CAMPO DE TEXTO COM BOTÃO DINÂMICO -->
+  <!-- FOOTER -->
   <footer>
     <div class="input-bar">
       <button class="btn-action" id="btnOpenTools" style="border:none; background:transparent;">+</button>
       <input type="text" id="messageInput" placeholder="Peça ao Radam Nox...">
     </div>
-    <!-- BOTÃO DE AÇÃO DINÂMICO (3 ESTADOS) -->
     <button class="btn-dynamic waves" id="btnActionDynamic">❙❚❙</button>
   </footer>
 
@@ -429,18 +464,13 @@
     const BACKEND_URL = "https://radamn.onrender.com";
     window.conversationHistory = [];
     let isProcessing = false;
-    let isRecording = false;
     let abortController = null;
-    let recognition = null;
-    let pendingAttachment = null; // { name: '', base64: '', mimeType: '' }
+    let pendingAttachment = null;
 
-    // 1. PERSISTÊNCIA LOCAL (LOCALSTORAGE)
     function saveHistoryToStorage() {
       try {
         localStorage.setItem('radam_nox_history', JSON.stringify(window.conversationHistory));
-      } catch (e) {
-        console.warn('Não foi possível salvar o histórico localmente.', e);
-      }
+      } catch (e) {}
     }
 
     function loadHistoryFromStorage() {
@@ -452,9 +482,7 @@
             renderFullHistory();
           }
         }
-      } catch (e) {
-        console.warn('Erro ao carregar histórico salvo.', e);
-      }
+      } catch (e) {}
     }
 
     function renderFullHistory() {
@@ -488,39 +516,6 @@
       chatContainer.scrollTop = chatContainer.scrollHeight;
     }
 
-    // 2. RECONHECIMENTO DE VOZ (WEB SPEECH API)
-    function initSpeechRecognition() {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SpeechRecognition) return null;
-
-      const rec = new SpeechRecognition();
-      rec.lang = 'pt-BR';
-      rec.continuous = false;
-      rec.interimResults = true;
-
-      rec.onresult = function(event) {
-        let transcript = '';
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          transcript += event.results[i][0].transcript;
-        }
-        const messageInput = document.getElementById('messageInput');
-        messageInput.value = transcript;
-        updateButtonState();
-      };
-
-      rec.onend = function() {
-        isRecording = false;
-        updateButtonState();
-      };
-
-      rec.onerror = function() {
-        isRecording = false;
-        updateButtonState();
-      };
-
-      return rec;
-    }
-
     window.onload = function() {
       const sidebar = document.getElementById('sidebar');
       const sidebarOverlay = document.getElementById('sidebarOverlay');
@@ -535,18 +530,12 @@
       const attachmentFileName = document.getElementById('attachmentFileName');
       const btnRemoveAttachment = document.getElementById('btnRemoveAttachment');
 
-      recognition = initSpeechRecognition();
-
       loadHistoryFromStorage();
 
-      // Atualizar o estado do botão de ação
       function updateButtonState() {
         if (isProcessing) {
           btnActionDynamic.className = "btn-dynamic stop";
           btnActionDynamic.innerHTML = "⏹";
-        } else if (isRecording) {
-          btnActionDynamic.className = "btn-dynamic recording";
-          btnActionDynamic.innerHTML = "🎙️";
         } else if (messageInput.value.trim().length > 0 || pendingAttachment) {
           btnActionDynamic.className = "btn-dynamic";
           btnActionDynamic.innerHTML = "↑";
@@ -558,7 +547,6 @@
 
       messageInput.oninput = updateButtonState;
 
-      // 3. GERENCIAMENTO DE ANEXOS / IMAGENS
       function clearAttachment() {
         pendingAttachment = null;
         fileInput.value = '';
@@ -587,7 +575,6 @@
         reader.readAsDataURL(file);
       };
 
-      // 4. CONTROLE DA SIDEBAR
       document.getElementById('btnOpenSidebar').onclick = function() {
         sidebar.style.left = "0px";
         sidebarOverlay.style.display = "block";
@@ -601,7 +588,6 @@
       document.getElementById('btnCloseSidebar').onclick = closeSidebar;
       sidebarOverlay.onclick = closeSidebar;
 
-      // 5. MENU TRÊS PONTOS
       document.getElementById('btnTopMenu').onclick = function(e) {
         e.stopPropagation();
         const isVisible = topMenuDropdown.style.display === "flex";
@@ -614,11 +600,10 @@
         }
       };
 
-      document.getElementById('btnActionShare').onclick = function() { alert("Link da conversa copiado!"); };
-      document.getElementById('btnActionRename').onclick = function() { alert("Opção de renomear ativada."); };
+      document.getElementById('btnActionShare').onclick = function() { alert("Link copiado!"); };
+      document.getElementById('btnActionRename').onclick = function() { alert("Opção de renomear selecionada."); };
       document.getElementById('btnActionDelete').onclick = function() { resetChat(); };
 
-      // 6. MODAL DE ANEXOS (+)
       document.getElementById('btnOpenTools').onclick = function() {
         toolsModalOverlay.style.display = "flex";
       };
@@ -639,7 +624,6 @@
       document.getElementById('btnToolFile').onclick = triggerFile;
       document.getElementById('btnToolDrive').onclick = triggerFile;
 
-      // 7. LIMPEZA E NOVO CHAT
       function resetChat() {
         window.conversationHistory = [];
         localStorage.removeItem('radam_nox_history');
@@ -651,36 +635,11 @@
         updateButtonState();
       }
 
-      // 8. LÓGICA DE ENVIAR MENSAGEM / GRAVAR VOZ / CANCELAR
       async function send(textToSend) {
         const txt = textToSend || messageInput.value.trim();
 
-        // Se estiver a gravar voz e clicar no botão, para a gravação
-        if (isRecording && recognition) {
-          recognition.stop();
-          isRecording = false;
-          updateButtonState();
-          return;
-        }
+        if (!txt && !pendingAttachment && !isProcessing) return;
 
-        // Se não tiver texto nem anexo e não estiver processando -> Inicia Gravação de Voz
-        if (!txt && !pendingAttachment && !isProcessing) {
-          if (recognition) {
-            try {
-              isRecording = true;
-              updateButtonState();
-              recognition.start();
-            } catch(e) {
-              isRecording = false;
-              updateButtonState();
-            }
-          } else {
-            alert('Reconhecimento de voz não é suportado neste navegador.');
-          }
-          return;
-        }
-
-        // Se estiver processando e o usuário clicar no quadrado -> Aborta
         if (isProcessing) {
           if (abortController) abortController.abort();
           isProcessing = false;
@@ -691,4 +650,47 @@
         isProcessing = true;
         updateButtonState();
 
-        main
+        mainArea.style.display = "none";
+        chatContainer.style.display = "flex";
+
+        const userDiv = document.createElement('div');
+        userDiv.className = "msg-user";
+
+        let userHtml = '';
+        let currentAttachment = pendingAttachment;
+
+        if (currentAttachment && currentAttachment.mimeType.startsWith('image/')) {
+          userHtml += `<img src="${currentAttachment.base64}" class="msg-preview-img"><br>`;
+        } else if (currentAttachment) {
+          userHtml += `<div style="font-size:0.8rem; opacity:0.8;">📎 ${currentAttachment.name}</div>`;
+        }
+
+        userHtml += txt;
+        userDiv.innerHTML = userHtml;
+        chatContainer.appendChild(userDiv);
+
+        window.conversationHistory.push({
+          role: "user",
+          content: txt,
+          image: currentAttachment ? currentAttachment.base64 : null
+        });
+        saveHistoryToStorage();
+
+        messageInput.value = "";
+        clearAttachment();
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+
+        const loadingDiv = document.createElement('div');
+        loadingDiv.className = "msg-loading";
+        loadingDiv.innerText = "Radam Nox está pensando...";
+        chatContainer.appendChild(loadingDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+
+        abortController = new AbortController();
+
+        try {
+          const endpoint = `${BACKEND_URL.replace(/\/$/, '')}/api/chat`;
+          const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            bo
