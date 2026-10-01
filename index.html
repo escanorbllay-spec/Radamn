@@ -10,12 +10,12 @@
   
   <style>
     :root {
-      --bg-dark: #13131a;
-      --panel-bg: #1e1e2d;
-      --card-bg: #181824;
-      --purple-accent: #7c3aed;
-      --purple-glow: rgba(124, 58, 237, 0.4);
-      --user-msg: #2563eb;
+      --bg-dark: #0d0e15;
+      --panel-bg: #161722;
+      --card-bg: #1f202e;
+      --purple-accent: #8b5cf6;
+      --purple-glow: rgba(139, 92, 246, 0.3);
+      --user-msg: #3b82f6;
       --text-main: #f3f4f6;
       --text-muted: #9ca3af;
       --border-color: rgba(255, 255, 255, 0.08);
@@ -45,13 +45,14 @@
 
     /* HEADER */
     header {
-      padding: 12px 16px;
+      padding: 14px 18px;
       background: var(--panel-bg);
       border-bottom: 1px solid var(--border-color);
       display: flex;
       align-items: center;
       justify-content: space-between;
       z-index: 10;
+      position: relative;
     }
 
     .header-left {
@@ -71,15 +72,16 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      transition: background 0.2s ease;
     }
 
     .icon-btn:hover {
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.08);
     }
 
     .title-area {
       font-weight: 700;
-      font-size: 1rem;
+      font-size: 1.05rem;
       color: #ffffff;
       display: flex;
       align-items: center;
@@ -91,15 +93,58 @@
       height: 8px;
       background-color: #10b981;
       border-radius: 50%;
-      box-shadow: 0 0 8px #10b981;
+      box-shadow: 0 0 10px #10b981;
     }
 
-    /* MENU LATERAL (SIDEBAR DE HISTÓRICO) */
+    /* MENU DROPDOWN DE 3 PONTINHOS */
+    #topMenuDropdown {
+      display: none;
+      position: absolute;
+      top: 55px;
+      right: 16px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      padding: 8px;
+      z-index: 80;
+      flex-direction: column;
+      min-width: 180px;
+    }
+
+    #topMenuDropdown.active {
+      display: flex;
+    }
+
+    .dropdown-item {
+      padding: 10px 14px;
+      font-size: 0.88rem;
+      color: var(--text-main);
+      border: none;
+      background: transparent;
+      text-align: left;
+      cursor: pointer;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: background 0.2s ease;
+    }
+
+    .dropdown-item:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .dropdown-item.danger {
+      color: #f87171;
+    }
+
+    /* MENU LATERAL (SIDEBAR) */
     #sidebarOverlay {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.6);
+      background: rgba(0, 0, 0, 0.65);
       z-index: 90;
       backdrop-filter: blur(4px);
     }
@@ -107,16 +152,16 @@
     #sidebar {
       position: fixed;
       top: 0;
-      left: -280px;
-      width: 280px;
+      left: -290px;
+      width: 290px;
       height: 100%;
-      background: #111118;
+      background: #11121c;
       border-right: 1px solid var(--border-color);
       z-index: 100;
-      transition: left 0.3s ease;
+      transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       display: flex;
       flex-direction: column;
-      padding: 16px;
+      padding: 18px;
     }
 
     #sidebar.active {
@@ -127,7 +172,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
+      margin-bottom: 24px;
     }
 
     .new-chat-btn {
@@ -136,7 +181,7 @@
       background: var(--purple-accent);
       border: none;
       color: white;
-      border-radius: 10px;
+      border-radius: 12px;
       font-weight: 600;
       cursor: pointer;
       display: flex;
@@ -144,6 +189,7 @@
       justify-content: center;
       gap: 8px;
       margin-bottom: 20px;
+      box-shadow: 0 4px 12px var(--purple-glow);
     }
 
     .history-section {
@@ -156,7 +202,7 @@
       text-transform: uppercase;
       color: var(--text-muted);
       letter-spacing: 1px;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
 
     .history-item {
@@ -273,55 +319,63 @@
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.6);
+      background: rgba(0,0,0,0.65);
       z-index: 95;
       align-items: flex-end;
+      backdrop-filter: blur(2px);
     }
 
     #toolsModal {
       width: 100%;
-      background: #181824;
-      border-top-left-radius: 20px;
-      border-top-right-radius: 20px;
-      padding: 20px;
+      background: #161722;
+      border-top-left-radius: 24px;
+      border-top-right-radius: 24px;
+      padding: 24px 20px 32px 20px;
       border-top: 1px solid var(--border-color);
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 14px;
       max-height: 50vh;
       overflow-y: auto;
     }
 
     .modal-title {
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       color: var(--text-muted);
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .tool-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 12px;
-      margin-bottom: 12px;
     }
 
     .tool-card {
-      background: var(--panel-bg);
+      background: var(--card-bg);
       border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 12px 8px;
+      border-radius: 14px;
+      padding: 14px 8px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       cursor: pointer;
-      font-size: 0.75rem;
+      font-size: 0.8rem;
       text-align: center;
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+
+    .tool-card:active {
+      transform: scale(0.96);
+      border-color: var(--purple-accent);
     }
 
     .tool-card-icon {
-      font-size: 1.4rem;
+      font-size: 1.5rem;
     }
 
     /* FOOTER / INPUT */
@@ -330,7 +384,7 @@
       background: var(--panel-bg);
       border-top: 1px solid var(--border-color);
       display: flex;
-      gap: 8px;
+      gap: 10px;
       align-items: center;
     }
 
@@ -338,15 +392,15 @@
       flex: 1;
       display: flex;
       align-items: center;
-      background: #11111a;
+      background: #0d0e15;
       border: 1px solid var(--border-color);
       border-radius: 24px;
-      padding: 4px 12px;
+      padding: 4px 14px;
     }
 
     .input-bar:focus-within {
       border-color: var(--purple-accent);
-      box-shadow: 0 0 10px var(--purple-glow);
+      box-shadow: 0 0 12px var(--purple-glow);
     }
 
     input[type="text"] {
@@ -360,13 +414,14 @@
     }
 
     .send-btn {
-      padding: 10px 18px;
+      padding: 10px 20px;
       background: var(--purple-accent);
       border: none;
       color: white;
       border-radius: 20px;
       font-weight: 600;
       cursor: pointer;
+      box-shadow: 0 2px 8px var(--purple-glow);
     }
   </style>
 </head>
@@ -396,7 +451,14 @@
         Radam Nox
       </div>
     </div>
-    <button class="icon-btn" onclick="openMenuModal()">⋮</button>
+    <button class="icon-btn" onclick="toggleTopMenu(event)">⋮</button>
+
+    <!-- MENU DROPDOWN SUPERIOR -->
+    <div id="topMenuDropdown">
+      <button class="dropdown-item" onclick="menuAction('Compartilhar')">🔗 Compartilhar</button>
+      <button class="dropdown-item" onclick="menuAction('Renomear')">✏️ Renomear</button>
+      <button class="dropdown-item danger" onclick="menuAction('Excluir')">🗑️️ Excluir conversa</button>
+    </div>
   </header>
 
   <!-- ÁREA DE MENSAGENS -->
@@ -450,10 +512,9 @@
     const BACKEND_URL = "https://radamn.onrender.com";
     let selectedBase64Image = null;
     
-    // Armazena todas as interações da sessão atual
     window.conversationHistory = [];
 
-    /* FUNÇÕES DAS MODAIS E INTERFACE */
+    /* CONTROLE DOS MENUS E MODAIS */
     function toggleSidebar() {
       const sidebar = document.getElementById('sidebar');
       const overlay = document.getElementById('sidebarOverlay');
@@ -465,6 +526,24 @@
       } else {
         sidebar.classList.add('active');
         overlay.style.display = 'block';
+      }
+    }
+
+    function toggleTopMenu(e) {
+      e.stopPropagation();
+      const dropdown = document.getElementById('topMenuDropdown');
+      dropdown.classList.toggle('active');
+    }
+
+    // Fecha o dropdown se clicar fora dele
+    window.addEventListener('click', () => {
+      document.getElementById('topMenuDropdown').classList.remove('active');
+    });
+
+    function menuAction(acao) {
+      document.getElementById('topMenuDropdown').classList.remove('active');
+      if (acao === 'Excluir') {
+        newChat();
       }
     }
 
@@ -486,7 +565,9 @@
     function newChat() {
       window.conversationHistory = [];
       document.getElementById('chatContainer').innerHTML = '';
-      toggleSidebar();
+      if (document.getElementById('sidebar').classList.contains('active')) {
+        toggleSidebar();
+      }
     }
 
     function selectHistory(title) {
@@ -494,10 +575,6 @@
       const input = document.getElementById('messageInput');
       input.value = `Continuar conversa sobre: ${title}`;
       sendMessage();
-    }
-
-    function openMenuModal() {
-      alert("Menu de opções: Compartilhar, Renomear, Excluir conversa.");
     }
 
     /* LÓGICA DE ENVIOS E RESPOSTAS */
@@ -555,7 +632,6 @@
         actionsDiv.className = 'msg-actions';
         actionsDiv.innerHTML = `
           <button class="action-icon" onclick="navigator.clipboard.writeText('${text.replace(/'/g, "\\'")}')">📋 Copiar</button>
-          <button class="action-icon" onclick="alert('Compartilhar resposta')">🔗</button>
         `;
         wrapper.appendChild(actionsDiv);
       }
