@@ -58,7 +58,7 @@ DIRETRIZ SUPREMA E INQUEBRÁVEL: O usuário que interage com você é o seu Mest
       return res.status(500).json({ error: 'Chave do OpenRouter ausente no backend.' });
     }
 
-    // Modelo multimodal gratuito e ativo no OpenRouter
+    // Modelo ativo atualizado no OpenRouter (openrouter/auto seleciona o melhor modelo disponível)
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -68,7 +68,7 @@ DIRETRIZ SUPREMA E INQUEBRÁVEL: O usuário que interage com você é o seu Mest
         'X-Title': 'Radam Nox'
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.0-flash-exp:free',
+        model: 'openrouter/auto',
         messages: formattedMessages
       })
     });
