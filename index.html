@@ -26,8 +26,7 @@
       margin: 0;
       padding: 0;
       font-family: 'Plus Jakarta Sans', sans-serif;
-      -webkit-tap-highlight-color: rgba(255, 255, 255, 0.1);
-      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
@@ -38,15 +37,6 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      position: relative;
-    }
-
-    /* BOTOES E CLIQUES */
-    button, .btn-action, .tool-card, .dropdown-item {
-      cursor: pointer !important;
-      pointer-events: auto !important;
-      user-select: none;
-      -webkit-user-select: none;
     }
 
     /* HEADER */
@@ -58,7 +48,7 @@
       align-items: center;
       justify-content: space-between;
       position: relative;
-      z-index: 100;
+      z-index: 10;
       flex-shrink: 0;
     }
 
@@ -73,8 +63,10 @@
       border: 1px solid var(--border-color);
       color: var(--text-main);
       font-size: 1.1rem;
+      cursor: pointer;
       padding: 10px 14px;
       border-radius: 8px;
+      user-select: none;
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -100,7 +92,7 @@
       border-radius: 50%;
     }
 
-    /* DROPDOWN SUPERIOR */
+    /* DROPDOWN SUPERIOR DE TRÊS PONTOS */
     #topMenuDropdown {
       display: none;
       position: absolute;
@@ -123,6 +115,7 @@
       border: none;
       background: transparent;
       text-align: left;
+      cursor: pointer;
       border-radius: 8px;
       width: 100%;
       display: flex;
@@ -134,7 +127,7 @@
       background: rgba(255, 255, 255, 0.1);
     }
 
-    /* SIDEBAR */
+    /* SIDEBAR (MENU LATERAL) */
     #sidebarOverlay {
       display: none;
       position: fixed;
@@ -177,7 +170,7 @@
       -webkit-text-fill-color: transparent;
     }
 
-    /* ÁREA DE CHAT */
+    /* ÁREA DE MENSAGENS / CHAT */
     #chatContainer {
       flex: 1;
       padding: 16px;
@@ -216,21 +209,12 @@
       font-style: italic;
     }
 
-    .msg-preview-img {
-      max-width: 200px;
-      max-height: 200px;
-      border-radius: 8px;
-      margin-bottom: 6px;
-      display: block;
-    }
-
-    /* MODAL DE ANEXOS (+) */
+    /* MODAL DE ANEXOS FERRAMENTAS (+) */
     #toolsModalOverlay {
       display: none;
       position: fixed;
       top: 0; left: 0; width: 100vw; height: 100vh;
       background: rgba(0,0,0,0.7);
-      backdrop-filter: blur(4px);
       z-index: 950;
       align-items: flex-end;
     }
@@ -238,61 +222,32 @@
     #toolsModal {
       width: 100%;
       background: #111118;
-      border-top-left-radius: 24px;
-      border-top-right-radius: 24px;
-      padding: 24px 20px 35px 20px;
+      border-top-left-radius: 20px;
+      border-top-right-radius: 20px;
+      padding: 20px 20px 35px 20px;
       border-top: 1px solid var(--border-color);
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 12px;
     }
 
     .tool-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
+      gap: 10px;
     }
 
     .tool-card {
       background: var(--card-bg);
       border: 1px solid var(--border-color);
-      padding: 16px 8px;
-      border-radius: 16px;
+      padding: 15px 5px;
+      border-radius: 10px;
       text-align: center;
-      font-size: 0.75rem;
-      font-weight: 500;
-      color: var(--text-main);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
+      cursor: pointer;
+      font-size: 0.8rem;
     }
 
-    .tool-card svg {
-      width: 26px;
-      height: 26px;
-      stroke: #a855f7;
-      fill: none;
-      stroke-width: 2;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      pointer-events: none;
-    }
-
-    /* BARRA DE PREVIEW */
-    #attachmentPreviewBar {
-      display: none;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 14px;
-      background: #181824;
-      border-top: 1px solid var(--border-color);
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      z-index: 100;
-    }
-
-    /* FOOTER */
+    /* FOOTER FIXO E ELEVADO PARA NÃO CORTAR */
     footer {
       padding: 12px 12px 25px 12px;
       background: #111118;
@@ -300,7 +255,7 @@
       display: flex;
       gap: 10px;
       position: relative;
-      z-index: 200;
+      z-index: 10;
       flex-shrink: 0;
       width: 100%;
       align-items: center;
@@ -326,6 +281,7 @@
       font-size: 0.95rem;
     }
 
+    /* BOTÃO DINÂMICO REDONDO */
     .btn-dynamic {
       width: 42px;
       height: 42px;
@@ -336,6 +292,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      cursor: pointer;
       font-size: 1.2rem;
       transition: all 0.2s ease;
       flex-shrink: 0;
@@ -367,7 +324,7 @@
     </div>
     <button class="btn-action" id="btnNewChat" style="width:100%; margin-bottom:15px; background:var(--purple-accent);">+ Nova conversa</button>
     <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">RECENTES</div>
-    <button class="btn-action" id="btnHist1" style="margin-bottom:8px; text-align:left; width:100%;">💻 Análise de Código</button>
+    <div class="btn-action" id="btnHist1" style="margin-bottom:8px; text-align:left; width:100%;">💻 Análise de Código</div>
   </div>
 
   <!-- HEADER -->
@@ -389,10 +346,10 @@
     </div>
   </header>
 
-  <!-- TELA INICIAL -->
+  <!-- TELA INICIAL / WELCOME -->
   <div id="mainArea">
     <div class="welcome-title">RADAM NOX</div>
-    <p style="color:var(--text-muted)">Boas-vindas! No que posso ajudar?</p>
+    <p style="color:var(--text-muted)">Boas-vindas, KALNOOX RADAMN! No que posso ajudar?</p>
   </div>
 
   <!-- CONTAINER DE MENSAGENS DO CHAT -->
@@ -401,47 +358,25 @@
   <!-- MODAL DE ANEXOS (+) -->
   <div id="toolsModalOverlay">
     <div id="toolsModal">
-      <div style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">ANEXOS E FERRAMENTAS</div>
+      <div style="font-size:0.8rem; color:var(--text-muted);">ANEXOS E ARQUIVOS</div>
       <div class="tool-grid">
-        
-        <div class="tool-card" id="btnToolPhoto">
-          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5" ry="5"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
-          <span>Fotos</span>
-        </div>
-
-        <div class="tool-card" id="btnToolCamera">
-          <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-          <span>Câmera</span>
-        </div>
-
-        <div class="tool-card" id="btnToolFile">
-          <svg viewBox="0 0 24 24"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
-          <span>Arquivos</span>
-        </div>
-
-        <div class="tool-card" id="btnToolDrive">
-          <svg viewBox="0 0 24 24"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path></svg>
-          <span>Drive</span>
-        </div>
-
+        <div class="tool-card" id="btnToolPhoto">🖼️<br>Fotos</div>
+        <div class="tool-card" id="btnToolCamera">📷<br>Câmera</div>
+        <div class="tool-card" id="btnToolFile">📁<br>Arquivos</div>
+        <div class="tool-card" id="btnToolDrive">☁️<br>Drive</div>
       </div>
     </div>
   </div>
 
-  <input type="file" id="fileInput" accept="image/*,application/pdf,text/*" style="display:none;">
+  <input type="file" id="fileInput" accept="image/*" style="display:none;">
 
-  <!-- BARRA DE PREVIEW -->
-  <div id="attachmentPreviewBar">
-    <span id="attachmentFileName"></span>
-    <button id="btnRemoveAttachment" style="background:none; border:none; color:#f87171; font-size:1rem; margin-left:auto;">✕</button>
-  </div>
-
-  <!-- FOOTER -->
+  <!-- FOOTER E CAMPO DE TEXTO COM BOTÃO DINÂMICO -->
   <footer>
     <div class="input-bar">
       <button class="btn-action" id="btnOpenTools" style="border:none; background:transparent;">+</button>
       <input type="text" id="messageInput" placeholder="Peça ao Radam Nox...">
     </div>
+    <!-- BOTÃO DE AÇÃO DINÂMICO (3 ESTADOS) -->
     <button class="btn-dynamic waves" id="btnActionDynamic">❙❚❙</button>
   </footer>
 
@@ -450,247 +385,194 @@
     window.conversationHistory = [];
     let isProcessing = false;
     let abortController = null;
-    let pendingAttachment = null;
 
-    // AÇÃO DE TOQUE HÍBRIDA (SUPORTA TOUCH E CLICK SEM ATRASO)
-    function attachTrigger(element, fn) {
-      if (!element) return;
-      let handled = false;
-      const handler = function(e) {
-        if (e.type === 'touchstart') handled = true;
-        else if (e.type === 'click' && handled) {
-          handled = false;
-          return;
-        }
-        fn(e);
-      };
-      element.addEventListener('touchstart', handler, { passive: true });
-      element.addEventListener('click', handler);
-    }
-
-    function saveHistoryToStorage() {
-      try {
-        localStorage.setItem('radam_nox_history', JSON.stringify(window.conversationHistory));
-      } catch (e) {}
-    }
-
-    function loadHistoryFromStorage() {
-      try {
-        const saved = localStorage.getItem('radam_nox_history');
-        if (saved) {
-          window.conversationHistory = JSON.parse(saved);
-          if (window.conversationHistory.length > 0) renderFullHistory();
-        }
-      } catch (e) {}
-    }
-
-    function renderFullHistory() {
-      const chatContainer = document.getElementById('chatContainer');
-      const mainArea = document.getElementById('mainArea');
-      chatContainer.innerHTML = "";
-
-      if (window.conversationHistory.length === 0) {
-        chatContainer.style.display = "none";
-        mainArea.style.display = "flex";
-        return;
-      }
-
-      mainArea.style.display = "none";
-      chatContainer.style.display = "flex";
-
-      window.conversationHistory.forEach(item => {
-        const div = document.createElement('div');
-        div.className = item.role === 'user' ? 'msg-user' : 'msg-ai';
-
-        let htmlContent = '';
-        if (item.image) htmlContent += `<img src="${item.image}" class="msg-preview-img"><br>`;
-        htmlContent += item.content || '';
-        div.innerHTML = htmlContent;
-
-        chatContainer.appendChild(div);
-      });
-
-      chatContainer.scrollTop = chatContainer.scrollHeight;
-    }
-
-    function updateButtonState() {
-      const btn = document.getElementById('btnActionDynamic');
-      const input = document.getElementById('messageInput');
-      if (!btn || !input) return;
-
-      if (isProcessing) {
-        btn.className = "btn-dynamic stop";
-        btn.innerHTML = "⏹";
-      } else if (input.value.trim().length > 0 || pendingAttachment) {
-        btn.className = "btn-dynamic";
-        btn.innerHTML = "↑";
-      } else {
-        btn.className = "btn-dynamic waves";
-        btn.innerHTML = "❙❚❙";
-      }
-    }
-
-    function openSidebar() {
-      document.getElementById('sidebar').style.left = "0px";
-      document.getElementById('sidebarOverlay').style.display = "block";
-    }
-
-    function closeSidebar() {
-      document.getElementById('sidebar').style.left = "-290px";
-      document.getElementById('sidebarOverlay').style.display = "none";
-    }
-
-    function clearAttachment() {
-      pendingAttachment = null;
-      document.getElementById('fileInput').value = '';
-      document.getElementById('attachmentPreviewBar').style.display = 'none';
-      updateButtonState();
-    }
-
-    function resetChat() {
-      window.conversationHistory = [];
-      localStorage.removeItem('radam_nox_history');
-      const chatContainer = document.getElementById('chatContainer');
-      chatContainer.innerHTML = "";
-      chatContainer.style.display = "none";
-      document.getElementById('mainArea').style.display = "flex";
-      isProcessing = false;
-      clearAttachment();
-      updateButtonState();
-    }
-
-    async function send(textToSend) {
-      const input = document.getElementById('messageInput');
-      const chatContainer = document.getElementById('chatContainer');
-      const mainArea = document.getElementById('mainArea');
-      const txt = textToSend || input.value.trim();
-
-      if (!txt && !pendingAttachment && !isProcessing) return;
-
-      if (isProcessing) {
-        if (abortController) abortController.abort();
-        isProcessing = false;
-        updateButtonState();
-        return;
-      }
-
-      isProcessing = true;
-      updateButtonState();
-
-      mainArea.style.display = "none";
-      chatContainer.style.display = "flex";
-
-      const userDiv = document.createElement('div');
-      userDiv.className = "msg-user";
-
-      let userHtml = '';
-      let currentAttachment = pendingAttachment;
-
-      if (currentAttachment && currentAttachment.mimeType.startsWith('image/')) {
-        userHtml += `<img src="${currentAttachment.base64}" class="msg-preview-img"><br>`;
-      } else if (currentAttachment) {
-        userHtml += `<div style="font-size:0.8rem; opacity:0.8;">📎 ${currentAttachment.name}</div>`;
-      }
-
-      userHtml += txt;
-      userDiv.innerHTML = userHtml;
-      chatContainer.appendChild(userDiv);
-
-      window.conversationHistory.push({
-        role: "user",
-        content: txt,
-        image: currentAttachment ? currentAttachment.base64 : null
-      });
-      saveHistoryToStorage();
-
-      input.value = "";
-      clearAttachment();
-      chatContainer.scrollTop = chatContainer.scrollHeight;
-
-      const loadingDiv = document.createElement('div');
-      loadingDiv.className = "msg-loading";
-      loadingDiv.innerText = "Radam Nox está pensando...";
-      chatContainer.appendChild(loadingDiv);
-      chatContainer.scrollTop = chatContainer.scrollHeight;
-
-      abortController = new AbortController();
-
-      try {
-        const endpoint = `${BACKEND_URL.replace(/\/$/, '')}/api/chat`;
-        const response = await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            messages: window.conversationHistory,
-            message: txt,
-            attachment: currentAttachment
-          }),
-          signal: abortController.signal
-        });
-
-        if (chatContainer.contains(loadingDiv)) {
-          chatContainer.removeChild(loadingDiv);
-        }
-
-        if (!response.ok) throw new Error(`Status ${response.status}`);
-
-        const data = await response.json();
-        const reply = data.reply || data.response || data.message || data.text || "Sem resposta.";
-
-        window.conversationHistory.push({ role: "assistant", content: reply });
-        saveHistoryToStorage();
-
-        const aiDiv = document.createElement('div');
-        aiDiv.className = "msg-ai";
-        aiDiv.innerText = reply;
-        chatContainer.appendChild(aiDiv);
-
-      } catch (err) {
-        if (chatContainer.contains(loadingDiv)) {
-          chatContainer.removeChild(loadingDiv);
-        }
-        if (err.name !== 'AbortError') {
-          const errDiv = document.createElement('div');
-          errDiv.className = "msg-ai";
-          errDiv.style.borderColor = "#f87171";
-          errDiv.innerText = `Erro ao conectar. (${err.message})`;
-          chatContainer.appendChild(errDiv);
-        }
-      }
-
-      isProcessing = false;
-      updateButtonState();
-      chatContainer.scrollTop = chatContainer.scrollHeight;
-    }
-
-    // VINCULAÇÃO DOS EVENTOS NATIVOS
-    document.addEventListener('DOMContentLoaded', function() {
-      loadHistoryFromStorage();
-
-      attachTrigger(document.getElementById('btnOpenSidebar'), openSidebar);
-      attachTrigger(document.getElementById('btnCloseSidebar'), closeSidebar);
-      attachTrigger(document.getElementById('sidebarOverlay'), closeSidebar);
-
-      attachTrigger(document.getElementById('btnNewChat'), function() {
-        closeSidebar();
-        resetChat();
-      });
-
-      attachTrigger(document.getElementById('btnHist1'), function() {
-        closeSidebar();
-        send("Análise de código");
-      });
-
+    window.onload = function() {
+      const sidebar = document.getElementById('sidebar');
+      const sidebarOverlay = document.getElementById('sidebarOverlay');
       const topMenuDropdown = document.getElementById('topMenuDropdown');
-      attachTrigger(document.getElementById('btnTopMenu'), function(e) {
-        e.stopPropagation();
-        topMenuDropdown.style.display = (topMenuDropdown.style.display === "flex") ? "none" : "flex";
-      });
+      const toolsModalOverlay = document.getElementById('toolsModalOverlay');
+      const fileInput = document.getElementById('fileInput');
+      const messageInput = document.getElementById('messageInput');
+      const chatContainer = document.getElementById('chatContainer');
+      const mainArea = document.getElementById('mainArea');
+      const btnActionDynamic = document.getElementById('btnActionDynamic');
 
-      document.addEventListener('click', function(e) {
-        if (topMenuDropdown.style.display === "flex" && !e.target.closest('#btnTopMenu')) {
+      // Atualizar o estado do botão de ação
+      function updateButtonState() {
+        if (isProcessing) {
+          btnActionDynamic.className = "btn-dynamic stop";
+          btnActionDynamic.innerHTML = "⏹";
+        } else if (messageInput.value.trim().length > 0) {
+          btnActionDynamic.className = "btn-dynamic";
+          btnActionDynamic.innerHTML = "↑";
+        } else {
+          btnActionDynamic.className = "btn-dynamic waves";
+          btnActionDynamic.innerHTML = "❙❚❙";
+        }
+      }
+
+      messageInput.oninput = updateButtonState;
+
+      // 1. Sidebar (Menu Lateral)
+      document.getElementById('btnOpenSidebar').onclick = function() {
+        sidebar.style.left = "0px";
+        sidebarOverlay.style.display = "block";
+      };
+
+      function closeSidebar() {
+        sidebar.style.left = "-290px";
+        sidebarOverlay.style.display = "none";
+      }
+
+      document.getElementById('btnCloseSidebar').onclick = closeSidebar;
+      sidebarOverlay.onclick = closeSidebar;
+
+      // 2. Menu Três Pontos Superior
+      document.getElementById('btnTopMenu').onclick = function(e) {
+        e.stopPropagation();
+        const isVisible = topMenuDropdown.style.display === "flex";
+        topMenuDropdown.style.display = isVisible ? "none" : "flex";
+      };
+
+      document.onclick = function() {
+        if (topMenuDropdown.style.display === "flex") {
           topMenuDropdown.style.display = "none";
         }
-      });
+      };
 
-      attachTrigger(document.
+      document.getElementById('btnActionShare').onclick = function() { alert("Link da conversa copiado!"); };
+      document.getElementById('btnActionRename').onclick = function() { alert("Opção de renomear ativada."); };
+      document.getElementById('btnActionDelete').onclick = function() { resetChat(); };
+
+      // 3. Modal de Anexos
+      document.getElementById('btnOpenTools').onclick = function() {
+        toolsModalOverlay.style.display = "flex";
+      };
+
+      toolsModalOverlay.onclick = function(e) {
+        if (e.target === toolsModalOverlay) {
+          toolsModalOverlay.style.display = "none";
+        }
+      };
+
+      const triggerFile = function() {
+        toolsModalOverlay.style.display = "none";
+        fileInput.click();
+      };
+
+      document.getElementById('btnToolPhoto').onclick = triggerFile;
+      document.getElementById('btnToolCamera').onclick = triggerFile;
+      document.getElementById('btnToolFile').onclick = triggerFile;
+      document.getElementById('btnToolDrive').onclick = triggerFile;
+
+      // 4. Lógica de Limpeza e Envio Real
+      function resetChat() {
+        window.conversationHistory = [];
+        chatContainer.innerHTML = "";
+        chatContainer.style.display = "none";
+        mainArea.style.display = "flex";
+        isProcessing = false;
+        updateButtonState();
+      }
+
+      async function send(textToSend) {
+        const txt = textToSend || messageInput.value.trim();
+        if (!txt && !isProcessing) return;
+
+        // Se estiver a processar e o utilizador clicar no quadrado, cancela
+        if (isProcessing) {
+          if (abortController) abortController.abort();
+          isProcessing = false;
+          updateButtonState();
+          return;
+        }
+
+        isProcessing = true;
+        updateButtonState();
+
+        mainArea.style.display = "none";
+        chatContainer.style.display = "flex";
+
+        const userDiv = document.createElement('div');
+        userDiv.className = "msg-user";
+        userDiv.innerText = txt;
+        chatContainer.appendChild(userDiv);
+
+        window.conversationHistory.push({ role: "user", content: txt });
+        messageInput.value = "";
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+
+        const loadingDiv = document.createElement('div');
+        loadingDiv.className = "msg-loading";
+        loadingDiv.innerText = "Radam Nox está pensando...";
+        chatContainer.appendChild(loadingDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+
+        abortController = new AbortController();
+
+        try {
+          const endpoint = `${BACKEND_URL.replace(/\/$/, '')}/api/chat`;
+          const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              messages: window.conversationHistory,
+              message: txt
+            }),
+            signal: abortController.signal
+          });
+
+          if (chatContainer.contains(loadingDiv)) {
+            chatContainer.removeChild(loadingDiv);
+          }
+
+          if (!response.ok) {
+            throw new Error(`Servidor respondeu com status ${response.status}`);
+          }
+
+          const data = await response.json();
+          const reply = data.reply || data.response || data.message || data.text || "Sem resposta do servidor.";
+
+          window.conversationHistory.push({ role: "assistant", content: reply });
+
+          const aiDiv = document.createElement('div');
+          aiDiv.className = "msg-ai";
+          aiDiv.innerText = reply;
+          chatContainer.appendChild(aiDiv);
+
+        } catch (err) {
+          if (chatContainer.contains(loadingDiv)) {
+            chatContainer.removeChild(loadingDiv);
+          }
+          if (err.name !== 'AbortError') {
+            const errDiv = document.createElement('div');
+            errDiv.className = "msg-ai";
+            errDiv.style.borderColor = "#f87171";
+            errDiv.innerText = `Servidor indisponível ou em inicialização. (${err.message})`;
+            chatContainer.appendChild(errDiv);
+          }
+        }
+
+        isProcessing = false;
+        updateButtonState();
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }
+
+      btnActionDynamic.onclick = function() { send(); };
+      messageInput.onkeypress = function(e) {
+        if (e.key === 'Enter') send();
+      };
+
+      document.getElementById('btnNewChat').onclick = function() {
+        closeSidebar();
+        resetChat();
+      };
+
+      document.getElementById('btnHist1').onclick = function() {
+        closeSidebar();
+        send("Análise de código");
+      };
+    };
+  </script>
+</body>
+</html>
