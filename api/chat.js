@@ -14,16 +14,16 @@ const checkMasterKey = (req, res, next) => {
   next();
 };
 
-// Endpoint de Saúde
-app.get('/health', checkMasterKey, (req, res) => {
+// Endpoints de Saúde (suporta ambas as variações de rota)
+app.get(['/', '/health', '/api/chat/health'], checkMasterKey, (req, res) => {
   return res.status(200).json({
     status: 'ONLINE',
     system: 'Radam Nox PaaS Bridge'
   });
 });
 
-// Endpoint principal mapeado para a raiz da função (que corresponde a /api/chat)
-app.post('/', checkMasterKey, async (req, res) => {
+// Endpoint principal mapeado para corresponder a / e /api/chat
+app.post(['/', '/api/chat'], checkMasterKey, async (req, res) => {
   const GATEWAY_URL = process.env.RADAMN_GATEWAY_URL || 'https://api.openai.com/v1/chat/completions';
   const MASTER_KEY = process.env.RADAMN_MASTER_KEY || 'RADAMN_MASTER_KEY_2026';
 
@@ -56,4 +56,3 @@ app.post('/', checkMasterKey, async (req, res) => {
 });
 
 export default app;
-
