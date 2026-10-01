@@ -22,9 +22,9 @@ app.get('/health', checkMasterKey, (req, res) => {
   });
 });
 
-// PONTO DE CONEXÃO DIRETA: Roteamento ajustado para /api/chat
-app.post('/api/chat', checkMasterKey, async (req, res) => {
-  const GATEWAY_URL = process.env.RADAMN_GATEWAY_URL || 'https://radamn.vercel.app/api/chat';
+// Endpoint principal mapeado para a raiz da função (que corresponde a /api/chat)
+app.post('/', checkMasterKey, async (req, res) => {
+  const GATEWAY_URL = process.env.RADAMN_GATEWAY_URL || 'https://api.openai.com/v1/chat/completions';
   const MASTER_KEY = process.env.RADAMN_MASTER_KEY || 'RADAMN_MASTER_KEY_2026';
 
   try {
@@ -35,10 +35,11 @@ app.post('/api/chat', checkMasterKey, async (req, res) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY || ''}`,
         'x-master-key': MASTER_KEY
       },
       body: JSON.stringify({
-        message: payloadMessage,
+        model: "deepseek/deepseek-chat",
         messages: messages || [{ role: 'user', content: payloadMessage }]
       })
     });
