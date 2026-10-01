@@ -6,18 +6,18 @@
   <title>Radam Nox</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <style>
     :root {
-      --bg-dark: #07070d;
-      --card-bg: rgba(22, 22, 37, 0.75);
-      --purple-main: #8b5cf6;
-      --purple-glow: rgba(139, 92, 246, 0.35);
-      --accent-cyan: #06b6d4;
-      --user-bg: linear-gradient(135deg, #2563eb, #1d4ed8);
-      --text-bright: #f8fafc;
-      --text-dim: #94a3b8;
+      --bg-dark: #13131a;
+      --panel-bg: #1e1e2d;
+      --card-bg: #181824;
+      --purple-accent: #7c3aed;
+      --purple-glow: rgba(124, 58, 237, 0.4);
+      --user-msg: #2563eb;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
       --border-color: rgba(255, 255, 255, 0.08);
     }
 
@@ -33,31 +33,57 @@
       width: 100%;
       height: 100%;
       background-color: var(--bg-dark);
-      color: var(--text-bright);
+      color: var(--text-main);
       overflow: hidden;
     }
 
     body {
       display: flex;
       flex-direction: column;
-      height: 100dvh; /* Garante ajuste perfeito em celulares sem cortar o rodapé */
-      background-image: 
-        radial-gradient(circle at 50% 0%, rgba(139, 92, 246, 0.12) 0%, transparent 60%),
-        radial-gradient(circle at 100% 100%, rgba(6, 182, 212, 0.05) 0%, transparent 50%);
+      height: 100dvh;
     }
 
-    /* BARRA SUPERIOR */
+    /* HEADER */
     header {
-      padding: 16px;
-      background: rgba(13, 13, 24, 0.85);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      padding: 12px 16px;
+      background: var(--panel-bg);
       border-bottom: 1px solid var(--border-color);
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 10px;
+      justify-content: space-between;
       z-index: 10;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .icon-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-main);
+      font-size: 1.3rem;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .icon-btn:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .title-area {
+      font-weight: 700;
+      font-size: 1rem;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     .status-dot {
@@ -65,39 +91,106 @@
       height: 8px;
       background-color: #10b981;
       border-radius: 50%;
-      box-shadow: 0 0 10px #10b981;
-      animation: pulse 2s infinite;
+      box-shadow: 0 0 8px #10b981;
     }
 
-    @keyframes pulse {
-      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-      70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
-      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    /* MENU LATERAL (SIDEBAR DE HISTÓRICO) */
+    #sidebarOverlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 90;
+      backdrop-filter: blur(4px);
     }
 
-    header h1 {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 1rem;
-      letter-spacing: 2px;
-      color: var(--text-bright);
+    #sidebar {
+      position: fixed;
+      top: 0;
+      left: -280px;
+      width: 280px;
+      height: 100%;
+      background: #111118;
+      border-right: 1px solid var(--border-color);
+      z-index: 100;
+      transition: left 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      padding: 16px;
+    }
+
+    #sidebar.active {
+      left: 0;
+    }
+
+    .sidebar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .new-chat-btn {
+      width: 100%;
+      padding: 12px;
+      background: var(--purple-accent);
+      border: none;
+      color: white;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .history-section {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .history-title {
+      font-size: 0.75rem;
       text-transform: uppercase;
-      background: linear-gradient(90deg, #ffffff, #a78bfa);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+      margin-bottom: 10px;
     }
 
-    /* ÁREA DO CHAT */
+    .history-item {
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      color: var(--text-main);
+      cursor: pointer;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 6px;
+    }
+
+    .history-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    /* CHAT CONTAINER */
     #chatContainer {
       flex: 1;
       padding: 16px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 14px;
-      scroll-behavior: smooth;
+      gap: 16px;
     }
 
-    /* MENSAGENS */
+    .message-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
     .message {
       max-width: 85%;
       padding: 12px 16px;
@@ -105,30 +198,40 @@
       font-size: 0.95rem;
       line-height: 1.5;
       word-break: break-word;
-      animation: slideIn 0.2s ease-out;
     }
 
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
+    .user-wrapper {
+      align-items: flex-end;
     }
 
     .user-msg {
-      align-self: flex-end;
-      background: var(--user-bg);
+      background: var(--user-msg);
       color: #ffffff;
       border-bottom-right-radius: 4px;
-      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+    }
+
+    .ai-wrapper {
+      align-items: flex-start;
     }
 
     .ai-msg {
-      align-self: flex-start;
-      background: var(--card-bg);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+      background: var(--panel-bg);
       border: 1px solid var(--border-color);
       border-bottom-left-radius: 4px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .msg-actions {
+      display: flex;
+      gap: 8px;
+      padding: 0 4px;
+    }
+
+    .action-icon {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      cursor: pointer;
     }
 
     .chat-img {
@@ -137,14 +240,13 @@
       border-radius: 10px;
       margin-bottom: 8px;
       display: block;
-      border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    /* PREVIEW DE IMAGEM */
+    /* PREVIEW DA IMAGEM */
     #imagePreviewContainer {
       display: none;
       padding: 8px 16px;
-      background: rgba(18, 18, 30, 0.9);
+      background: var(--panel-bg);
       border-top: 1px solid var(--border-color);
       align-items: center;
       gap: 12px;
@@ -153,48 +255,102 @@
     #imagePreview {
       max-height: 50px;
       border-radius: 8px;
-      border: 1px solid var(--purple-main);
+      border: 1px solid var(--purple-accent);
     }
 
     .remove-btn {
-      background: rgba(239, 68, 68, 0.15);
+      background: rgba(239, 68, 68, 0.2);
       color: #f87171;
-      border: 1px solid rgba(239, 68, 68, 0.3);
+      border: none;
       padding: 6px 12px;
-      border-radius: 8px;
+      border-radius: 6px;
       cursor: pointer;
       font-size: 0.8rem;
+    }
+
+    /* MODAL DE FERRAMENTAS (+) */
+    #toolsModalOverlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 95;
+      align-items: flex-end;
+    }
+
+    #toolsModal {
+      width: 100%;
+      background: #181824;
+      border-top-left-radius: 20px;
+      border-top-right-radius: 20px;
+      padding: 20px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 50vh;
+      overflow-y: auto;
+    }
+
+    .modal-title {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
       font-weight: 600;
     }
 
-    /* RODAPÉ E BARRA DE ENVIO */
+    .tool-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .tool-card {
+      background: var(--panel-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 12px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      text-align: center;
+    }
+
+    .tool-card-icon {
+      font-size: 1.4rem;
+    }
+
+    /* FOOTER / INPUT */
     footer {
       padding: 12px 16px;
-      background: rgba(13, 13, 24, 0.95);
+      background: var(--panel-bg);
       border-top: 1px solid var(--border-color);
       display: flex;
-      gap: 10px;
+      gap: 8px;
       align-items: center;
     }
 
-    .input-wrapper {
+    .input-bar {
       flex: 1;
       display: flex;
       align-items: center;
-      background: rgba(255, 255, 255, 0.05);
+      background: #11111a;
       border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 2px 8px;
-      transition: all 0.2s ease;
+      border-radius: 24px;
+      padding: 4px 12px;
     }
 
-    .input-wrapper:focus-within {
-      border-color: var(--purple-main);
-      box-shadow: 0 0 12px var(--purple-glow);
+    .input-bar:focus-within {
+      border-color: var(--purple-accent);
+      box-shadow: 0 0 10px var(--purple-glow);
     }
 
     input[type="text"] {
-      width: 100%;
+      flex: 1;
       padding: 10px 8px;
       border: none;
       background: transparent;
@@ -203,66 +359,91 @@
       font-size: 0.95rem;
     }
 
-    input[type="text"]::placeholder {
-      color: var(--text-dim);
-    }
-
-    .attach-btn {
-      background: transparent;
+    .send-btn {
+      padding: 10px 18px;
+      background: var(--purple-accent);
       border: none;
-      color: var(--text-dim);
-      font-size: 1.2rem;
-      padding: 8px;
+      color: white;
+      border-radius: 20px;
+      font-weight: 600;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: color 0.2s;
-    }
-
-    .attach-btn:hover {
-      color: var(--purple-main);
-    }
-
-    .action-btn {
-      padding: 12px 18px;
-      background: linear-gradient(135deg, #8b5cf6, #6d28d9);
-      border: none;
-      color: #ffffff;
-      border-radius: 12px;
-      cursor: pointer;
-      font-weight: 700;
-      font-size: 0.9rem;
-      box-shadow: 0 4px 12px var(--purple-glow);
-      transition: transform 0.1s, opacity 0.2s;
-    }
-
-    .action-btn:active {
-      transform: scale(0.96);
     }
   </style>
 </head>
 <body>
 
+  <!-- OVERLAY E SIDEBAR DO MENU LATERAL -->
+  <div id="sidebarOverlay" onclick="toggleSidebar()"></div>
+  <div id="sidebar">
+    <div class="sidebar-header">
+      <div class="title-area">Radam Nox</div>
+      <button class="icon-btn" onclick="toggleSidebar()">✕</button>
+    </div>
+    <button class="new-chat-btn" onclick="newChat()">+ Nova conversa</button>
+    <div class="history-section">
+      <div class="history-title">Recentes</div>
+      <div class="history-item" onclick="selectHistory('Análise de Código')">💻 Análise de Código</div>
+      <div class="history-item" onclick="selectHistory('Planejamento de Projeto')">🚀 Planejamento de Projeto</div>
+    </div>
+  </div>
+
+  <!-- HEADER DA PÁGINA -->
   <header>
-    <div class="status-dot"></div>
-    <h1>Radam Nox</h1>
+    <div class="header-left">
+      <button class="icon-btn" onclick="toggleSidebar()">☰</button>
+      <div class="title-area">
+        <div class="status-dot"></div>
+        Radam Nox
+      </div>
+    </div>
+    <button class="icon-btn" onclick="openMenuModal()">⋮</button>
   </header>
 
+  <!-- ÁREA DE MENSAGENS -->
   <div id="chatContainer"></div>
 
+  <!-- PREVIEW DE IMAGEM -->
   <div id="imagePreviewContainer">
     <img id="imagePreview" src="" alt="Preview">
     <button type="button" class="remove-btn" onclick="clearSelectedImage()">✕ Remover</button>
   </div>
 
-  <footer>
-    <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
-    <div class="input-wrapper">
-      <button type="button" class="attach-btn" onclick="document.getElementById('fileInput').click()" title="Anexar Imagem">📎</button>
-      <input type="text" id="messageInput" placeholder="Mensagem..." onkeypress="handleKeyPress(event)">
+  <!-- MODAL DE FERRAMENTAS (+) -->
+  <div id="toolsModalOverlay" onclick="closeToolsModal(event)">
+    <div id="toolsModal">
+      <div class="modal-title">Anexos e Arquivos</div>
+      
+      <div class="tool-grid">
+        <div class="tool-card" onclick="triggerFileInput()">
+          <div class="tool-card-icon">🖼️</div>
+          <div>Fotos</div>
+        </div>
+        <div class="tool-card" onclick="triggerFileInput()">
+          <div class="tool-card-icon">📷</div>
+          <div>Câmera</div>
+        </div>
+        <div class="tool-card" onclick="triggerFileInput()">
+          <div class="tool-card-icon">📁</div>
+          <div>Arquivos</div>
+        </div>
+        <div class="tool-card" onclick="triggerFileInput()">
+          <div class="tool-card-icon">☁️</div>
+          <div>Drive</div>
+        </div>
+      </div>
     </div>
-    <button type="button" class="action-btn" onclick="sendMessage()">Enviar</button>
+  </div>
+
+  <!-- INPUT DE ARQUIVOS (INVISÍVEL) -->
+  <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
+
+  <!-- RODAPÉ DE ENVIO -->
+  <footer>
+    <div class="input-bar">
+      <button class="icon-btn" onclick="openToolsModal()">+</button>
+      <input type="text" id="messageInput" placeholder="Peça ao Radam Nox..." onkeypress="handleKeyPress(event)">
+    </div>
+    <button class="send-btn" onclick="sendMessage()">Enviar</button>
   </footer>
 
   <script>
@@ -272,6 +453,54 @@
     // Armazena todas as interações da sessão atual
     window.conversationHistory = [];
 
+    /* FUNÇÕES DAS MODAIS E INTERFACE */
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      const isActive = sidebar.classList.contains('active');
+      
+      if (isActive) {
+        sidebar.classList.remove('active');
+        overlay.style.display = 'none';
+      } else {
+        sidebar.classList.add('active');
+        overlay.style.display = 'block';
+      }
+    }
+
+    function openToolsModal() {
+      document.getElementById('toolsModalOverlay').style.display = 'flex';
+    }
+
+    function closeToolsModal(e) {
+      if (e.target.id === 'toolsModalOverlay') {
+        document.getElementById('toolsModalOverlay').style.display = 'none';
+      }
+    }
+
+    function triggerFileInput() {
+      document.getElementById('toolsModalOverlay').style.display = 'none';
+      document.getElementById('fileInput').click();
+    }
+
+    function newChat() {
+      window.conversationHistory = [];
+      document.getElementById('chatContainer').innerHTML = '';
+      toggleSidebar();
+    }
+
+    function selectHistory(title) {
+      toggleSidebar();
+      const input = document.getElementById('messageInput');
+      input.value = `Continuar conversa sobre: ${title}`;
+      sendMessage();
+    }
+
+    function openMenuModal() {
+      alert("Menu de opções: Compartilhar, Renomear, Excluir conversa.");
+    }
+
+    /* LÓGICA DE ENVIOS E RESPOSTAS */
     function handleFileSelect(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -299,6 +528,10 @@
 
     function renderMessage(text, imageBase64, isUser) {
       const chatContainer = document.getElementById('chatContainer');
+      
+      const wrapper = document.createElement('div');
+      wrapper.className = `message-wrapper ${isUser ? 'user-wrapper' : 'ai-wrapper'}`;
+
       const msgDiv = document.createElement('div');
       msgDiv.className = `message ${isUser ? 'user-msg' : 'ai-msg'}`;
 
@@ -315,7 +548,19 @@
         msgDiv.appendChild(textEl);
       }
 
-      chatContainer.appendChild(msgDiv);
+      wrapper.appendChild(msgDiv);
+
+      if (!isUser) {
+        const actionsDiv = document.createElement('div');
+        actionsDiv.className = 'msg-actions';
+        actionsDiv.innerHTML = `
+          <button class="action-icon" onclick="navigator.clipboard.writeText('${text.replace(/'/g, "\\'")}')">📋 Copiar</button>
+          <button class="action-icon" onclick="alert('Compartilhar resposta')">🔗</button>
+        `;
+        wrapper.appendChild(actionsDiv);
+      }
+
+      chatContainer.appendChild(wrapper);
       chatContainer.scrollTop = chatContainer.scrollHeight;
     }
 
@@ -328,7 +573,6 @@
       const currentImage = selectedBase64Image;
       renderMessage(messageText, currentImage, true);
 
-      // Prepara a entrada do usuário
       let userEntryContent = messageText;
       if (currentImage) {
         userEntryContent = [];
@@ -336,7 +580,6 @@
         userEntryContent.push({ type: "image_url", image_url: { url: currentImage } });
       }
 
-      // Adiciona a mensagem atual ao histórico global
       window.conversationHistory.push({
         role: "user",
         content: userEntryContent
@@ -348,7 +591,6 @@
       try {
         const endpoint = `${BACKEND_URL.replace(/\/$/, '')}/api/chat`;
         
-        // Envia o array de histórico completo
         const response = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -366,7 +608,6 @@
 
         const reply = data.reply || data.message || data.text || 'Sem resposta recebida.';
         
-        // Adiciona a resposta da IA ao histórico global
         window.conversationHistory.push({
           role: "assistant",
           content: reply
