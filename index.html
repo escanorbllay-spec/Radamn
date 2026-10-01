@@ -224,7 +224,7 @@
       background: #111118;
       border-top-left-radius: 20px;
       border-top-right-radius: 20px;
-      padding: 20px;
+      padding: 20px 20px 35px 20px;
       border-top: 1px solid var(--border-color);
       display: flex;
       flex-direction: column;
@@ -247,9 +247,9 @@
       font-size: 0.8rem;
     }
 
-    /* FOOTER FIXO NA PARTE INFERIOR */
+    /* FOOTER FIXO E ELEVADO PARA NÃO CORTAR */
     footer {
-      padding: 12px;
+      padding: 12px 12px 25px 12px;
       background: #111118;
       border-top: 1px solid var(--border-color);
       display: flex;
@@ -258,6 +258,7 @@
       z-index: 10;
       flex-shrink: 0;
       width: 100%;
+      align-items: center;
     }
 
     .input-bar {
@@ -266,8 +267,8 @@
       align-items: center;
       background: #08080d;
       border: 1px solid var(--border-color);
-      border-radius: 20px;
-      padding: 0 10px;
+      border-radius: 24px;
+      padding: 4px 8px;
     }
 
     input[type="text"] {
@@ -278,6 +279,37 @@
       color: white;
       outline: none;
       font-size: 0.95rem;
+    }
+
+    /* BOTÃO DINÂMICO REDONDO */
+    .btn-dynamic {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: none;
+      background: var(--purple-accent);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .btn-dynamic.waves {
+      background: #1d1b26;
+      color: #a855f7;
+      font-size: 1.1rem;
+      letter-spacing: -2px;
+    }
+
+    .btn-dynamic.stop {
+      background: #262636;
+      color: #ffffff;
+      border: 1px solid var(--border-color);
+      font-size: 0.9rem;
     }
   </style>
 </head>
@@ -338,18 +370,21 @@
 
   <input type="file" id="fileInput" accept="image/*" style="display:none;">
 
-  <!-- FOOTER E CAMPO DE TEXTO -->
+  <!-- FOOTER E CAMPO DE TEXTO COM BOTÃO DINÂMICO -->
   <footer>
     <div class="input-bar">
       <button class="btn-action" id="btnOpenTools" style="border:none; background:transparent;">+</button>
       <input type="text" id="messageInput" placeholder="Peça ao Radam Nox...">
     </div>
-    <button class="btn-action" id="btnSend" style="background:var(--purple-accent);">Enviar</button>
+    <!-- BOTÃO DE AÇÃO DINÂMICO (3 ESTADOS) -->
+    <button class="btn-dynamic waves" id="btnActionDynamic">❙❚❙</button>
   </footer>
 
   <script>
     const BACKEND_URL = "https://radamn.onrender.com";
     window.conversationHistory = [];
+    let isProcessing = false;
+    let abortController = null;
 
     window.onload = function() {
       const sidebar = document.getElementById('sidebar');
@@ -360,6 +395,23 @@
       const messageInput = document.getElementById('messageInput');
       const chatContainer = document.getElementById('chatContainer');
       const mainArea = document.getElementById('mainArea');
+      const btnActionDynamic = document.getElementById('btnActionDynamic');
+
+      // Atualizar o estado do botão de ação
+      function updateButtonState() {
+        if (isProcessing) {
+          btnActionDynamic.className = "btn-dynamic stop";
+          btnActionDynamic.innerHTML = "⏹";
+        } else if (messageInput.value.trim().length > 0) {
+          btnActionDynamic.className = "btn-dynamic";
+          btnActionDynamic.innerHTML = "↑";
+        } else {
+          btnActionDynamic.className = "btn-dynamic waves";
+          btnActionDynamic.innerHTML = "❙❚❙";
+        }
+      }
+
+      messageInput.oninput = updateButtonState;
 
       // 1. Sidebar (Menu Lateral)
       document.getElementById('btnOpenSidebar').onclick = function() {
@@ -413,22 +465,34 @@
       document.getElementById('btnToolFile').onclick = triggerFile;
       document.getElementById('btnToolDrive').onclick = triggerFile;
 
-      // 4. Lógica de Limpeza e Envio Real de Mensagens
+      // 4. Lógica de Limpeza e Envio Real
       function resetChat() {
         window.conversationHistory = [];
         chatContainer.innerHTML = "";
         chatContainer.style.display = "none";
         mainArea.style.display = "flex";
+        isProcessing = false;
+        updateButtonState();
       }
 
       async function send(textToSend) {
         const txt = textToSend || messageInput.value.trim();
-        if (!txt) return;
+        if (!txt && !isProcessing) return;
+
+        // Se estiver a processar e o utilizador clicar no quadrado, cancela
+        if (isProcessing) {
+          if (abortController) abortController.abort();
+          isProcessing = false;
+          updateButtonState();
+          return;
+        }
+
+        isProcessing = true;
+        updateButtonState();
 
         mainArea.style.display = "none";
         chatContainer.style.display = "flex";
 
-        // Adiciona mensagem do usuário na tela
         const userDiv = document.createElement('div');
         userDiv.className = "msg-user";
         userDiv.innerText = txt;
@@ -438,12 +502,13 @@
         messageInput.value = "";
         chatContainer.scrollTop = chatContainer.scrollHeight;
 
-        // Indicador de resposta da IA
         const loadingDiv = document.createElement('div');
         loadingDiv.className = "msg-loading";
         loadingDiv.innerText = "Radam Nox está pensando...";
         chatContainer.appendChild(loadingDiv);
         chatContainer.scrollTop = chatContainer.scrollHeight;
+
+        abortController = new AbortController();
 
         try {
           const endpoint = `${BACKEND_URL.replace(/\/$/, '')}/api/chat`;
@@ -453,7 +518,8 @@
             body: JSON.stringify({
               messages: window.conversationHistory,
               message: txt
-            })
+            }),
+            signal: abortController.signal
           });
 
           if (chatContainer.contains(loadingDiv)) {
@@ -478,17 +544,21 @@
           if (chatContainer.contains(loadingDiv)) {
             chatContainer.removeChild(loadingDiv);
           }
-          const errDiv = document.createElement('div');
-          errDiv.className = "msg-ai";
-          errDiv.style.borderColor = "#f87171";
-          errDiv.innerText = `Servidor indisponível ou em inicialização. (${err.message})`;
-          chatContainer.appendChild(errDiv);
+          if (err.name !== 'AbortError') {
+            const errDiv = document.createElement('div');
+            errDiv.className = "msg-ai";
+            errDiv.style.borderColor = "#f87171";
+            errDiv.innerText = `Servidor indisponível ou em inicialização. (${err.message})`;
+            chatContainer.appendChild(errDiv);
+          }
         }
 
+        isProcessing = false;
+        updateButtonState();
         chatContainer.scrollTop = chatContainer.scrollHeight;
       }
 
-      document.getElementById('btnSend').onclick = function() { send(); };
+      btnActionDynamic.onclick = function() { send(); };
       messageInput.onkeypress = function(e) {
         if (e.key === 'Enter') send();
       };
