@@ -42,6 +42,7 @@
       flex-direction: column;
       height: 100dvh;
       background: radial-gradient(circle at 50% 100%, #111025 0%, #050508 70%);
+      position: relative;
     }
 
     /* HEADER */
@@ -69,16 +70,17 @@
       color: var(--text-main);
       font-size: 1.3rem;
       cursor: pointer;
-      padding: 6px;
+      padding: 8px;
       border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
       transition: background 0.2s ease;
+      touch-action: manipulation;
     }
 
-    .icon-btn:hover {
-      background: rgba(255, 255, 255, 0.08);
+    .icon-btn:active {
+      background: rgba(255, 255, 255, 0.15);
     }
 
     .title-area {
@@ -100,7 +102,8 @@
 
     /* MENU DROPDOWN SUPERIOR */
     #topMenuDropdown {
-      display: none;
+      opacity: 0;
+      pointer-events: none;
       position: absolute;
       top: 55px;
       right: 16px;
@@ -109,17 +112,20 @@
       border-radius: 12px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.6);
       padding: 8px;
-      z-index: 80;
+      z-index: 800;
+      display: flex;
       flex-direction: column;
       min-width: 180px;
+      transition: opacity 0.2s ease;
     }
 
-    #topMenuDropdown.active {
-      display: flex;
+    #topMenuDropdown.show {
+      opacity: 1;
+      pointer-events: auto;
     }
 
     .dropdown-item {
-      padding: 10px 14px;
+      padding: 12px 14px;
       font-size: 0.88rem;
       color: var(--text-main);
       border: none;
@@ -130,10 +136,11 @@
       display: flex;
       align-items: center;
       gap: 10px;
+      width: 100%;
     }
 
-    .dropdown-item:hover {
-      background: rgba(255, 255, 255, 0.08);
+    .dropdown-item:active {
+      background: rgba(255, 255, 255, 0.1);
     }
 
     .dropdown-item.danger {
@@ -142,12 +149,19 @@
 
     /* MENU LATERAL (SIDEBAR) */
     #sidebarOverlay {
-      display: none;
+      opacity: 0;
+      pointer-events: none;
       position: fixed;
       inset: 0;
       background: rgba(0, 0, 0, 0.7);
-      z-index: 90;
+      z-index: 900;
       backdrop-filter: blur(4px);
+      transition: opacity 0.3s ease;
+    }
+
+    #sidebarOverlay.show {
+      opacity: 1;
+      pointer-events: auto;
     }
 
     #sidebar {
@@ -158,14 +172,14 @@
       height: 100%;
       background: #0a0a10;
       border-right: 1px solid var(--border-color);
-      z-index: 100;
+      z-index: 1000;
       transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       display: flex;
       flex-direction: column;
       padding: 18px;
     }
 
-    #sidebar.active {
+    #sidebar.show {
       left: 0;
     }
 
@@ -218,8 +232,8 @@
       margin-bottom: 6px;
     }
 
-    .history-item:hover {
-      background: rgba(255, 255, 255, 0.05);
+    .history-item:active {
+      background: rgba(255, 255, 255, 0.1);
     }
 
     /* TELA DE BOAS-VINDAS CENTRAL */
@@ -375,13 +389,21 @@
 
     /* MODAL DE FERRAMENTAS (+) */
     #toolsModalOverlay {
-      display: none;
+      opacity: 0;
+      pointer-events: none;
       position: fixed;
       inset: 0;
       background: rgba(0,0,0,0.7);
-      z-index: 95;
+      z-index: 950;
+      display: flex;
       align-items: flex-end;
       backdrop-filter: blur(2px);
+      transition: opacity 0.2s ease;
+    }
+
+    #toolsModalOverlay.show {
+      opacity: 1;
+      pointer-events: auto;
     }
 
     #toolsModal {
@@ -427,6 +449,10 @@
       text-align: center;
     }
 
+    .tool-card:active {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
     .tool-card-icon {
       font-size: 1.5rem;
     }
@@ -439,6 +465,7 @@
       display: flex;
       gap: 10px;
       align-items: center;
+      z-index: 20;
     }
 
     .input-bar {
@@ -475,42 +502,43 @@
       font-weight: 600;
       cursor: pointer;
       box-shadow: 0 2px 8px var(--purple-glow);
+      touch-action: manipulation;
     }
   </style>
 </head>
 <body>
 
   <!-- OVERLAY E SIDEBAR DO MENU LATERAL -->
-  <div id="sidebarOverlay" onclick="toggleSidebar()"></div>
+  <div id="sidebarOverlay"></div>
   <div id="sidebar">
     <div class="sidebar-header">
       <div class="title-area">Radam Nox</div>
-      <button class="icon-btn" onclick="toggleSidebar()">✕</button>
+      <button class="icon-btn" id="btnCloseSidebar">✕</button>
     </div>
-    <button class="new-chat-btn" onclick="newChat()">+ Nova conversa</button>
+    <button class="new-chat-btn" id="btnNewChat">+ Nova conversa</button>
     <div class="history-section">
       <div class="history-title">Recentes</div>
-      <div class="history-item" onclick="selectHistory('Análise de Código')">💻 Análise de Código</div>
-      <div class="history-item" onclick="selectHistory('Planejamento de Projeto')">🚀 Planejamento de Projeto</div>
+      <div class="history-item" data-history="Análise de Código">💻 Análise de Código</div>
+      <div class="history-item" data-history="Planejamento de Projeto">🚀 Planejamento de Projeto</div>
     </div>
   </div>
 
   <!-- HEADER DA PÁGINA -->
   <header>
     <div class="header-left">
-      <button class="icon-btn" onclick="toggleSidebar()">☰</button>
+      <button class="icon-btn" id="btnOpenSidebar">☰</button>
       <div class="title-area">
         <div class="status-dot"></div>
         Radam Nox
       </div>
     </div>
-    <button class="icon-btn" onclick="toggleTopMenu(event)">⋮</button>
+    <button class="icon-btn" id="btnTopMenu">⋮</button>
 
     <!-- MENU DROPDOWN SUPERIOR -->
     <div id="topMenuDropdown">
-      <button class="dropdown-item" onclick="menuAction('Compartilhar')">🔗 Compartilhar</button>
-      <button class="dropdown-item" onclick="menuAction('Renomear')">✏️ Renomear</button>
-      <button class="dropdown-item danger" onclick="menuAction('Excluir')">🗑 Excluir conversa</button>
+      <button class="dropdown-item" data-action="Compartilhar">🔗 Compartilhar</button>
+      <button class="dropdown-item" data-action="Renomear">✏️ Renomear</button>
+      <button class="dropdown-item danger" data-action="Excluir">🗑 Excluir conversa</button>
     </div>
   </header>
 
@@ -543,29 +571,28 @@
   <!-- PREVIEW DE IMAGEM -->
   <div id="imagePreviewContainer">
     <img id="imagePreview" src="" alt="Preview">
-    <button type="button" class="remove-btn" onclick="clearSelectedImage()">✕ Remover</button>
+    <button type="button" class="remove-btn" id="btnRemoveImage">✕ Remover</button>
   </div>
 
   <!-- MODAL DE FERRAMENTAS (+) -->
-  <div id="toolsModalOverlay" onclick="closeToolsModal(event)">
+  <div id="toolsModalOverlay">
     <div id="toolsModal">
       <div class="modal-title">Anexos e Arquivos</div>
-      
       <div class="tool-grid">
-        <div class="tool-card" onclick="triggerFileInput()">
+        <div class="tool-card trigger-file">
           <div class="tool-card-icon">🖼️</div>
           <div>Fotos</div>
         </div>
-        <div class="tool-card" onclick="triggerFileInput()">
+        <div class="tool-card trigger-file">
           <div class="tool-card-icon">📷</div>
           <div>Câmera</div>
         </div>
-        <div class="tool-card" onclick="triggerFileInput()">
+        <div class="tool-card trigger-file">
           <div class="tool-card-icon">📁</div>
           <div>Arquivos</div>
         </div>
-        <div class="tool-card" onclick="triggerFileInput()">
-          <div class="tool-card-icon">☁️️</div>
+        <div class="tool-card trigger-file">
+          <div class="tool-card-icon">☁️</div>
           <div>Drive</div>
         </div>
       </div>
@@ -573,185 +600,155 @@
   </div>
 
   <!-- INPUT DE ARQUIVOS (INVISÍVEL) -->
-  <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
+  <input type="file" id="fileInput" accept="image/*" style="display: none;">
 
   <!-- RODAPÉ DE ENVIO -->
   <footer>
     <div class="input-bar">
-      <button class="icon-btn" onclick="openToolsModal()">+</button>
-      <input type="text" id="messageInput" placeholder="Peça ao Radam Nox..." onkeypress="handleKeyPress(event)">
+      <button class="icon-btn" id="btnOpenTools">+</button>
+      <input type="text" id="messageInput" placeholder="Peça ao Radam Nox...">
     </div>
-    <button class="send-btn" onclick="sendMessage()">Enviar</button>
+    <button class="send-btn" id="btnSend">Enviar</button>
   </footer>
 
   <script>
-    const BACKEND_URL = "https://radamn.onrender.com";
-    let selectedBase64Image = null;
-    window.conversationHistory = [];
-
-    function toggleSidebar() {
-      const sidebar = document.getElementById('sidebar');
-      const overlay = document.getElementById('sidebarOverlay');
-      const isActive = sidebar.classList.contains('active');
-      
-      if (isActive) {
-        sidebar.classList.remove('active');
-        overlay.style.display = 'none';
-      } else {
-        sidebar.classList.add('active');
-        overlay.style.display = 'block';
-      }
-    }
-
-    function toggleTopMenu(e) {
-      if(e) e.stopPropagation();
-      const dropdown = document.getElementById('topMenuDropdown');
-      dropdown.classList.toggle('active');
-    }
-
-    window.addEventListener('click', (e) => {
-      const dropdown = document.getElementById('topMenuDropdown');
-      if (dropdown && dropdown.classList.contains('active')) {
-        dropdown.classList.remove('active');
-      }
-    });
-
-    function menuAction(acao) {
-      document.getElementById('topMenuDropdown').classList.remove('active');
-      if (acao === 'Excluir') {
-        newChat();
-      } else {
-        alert('Ação acionada: ' + acao);
-      }
-    }
-
-    function openToolsModal() {
-      document.getElementById('toolsModalOverlay').style.display = 'flex';
-    }
-
-    function closeToolsModal(e) {
-      if (e.target.id === 'toolsModalOverlay') {
-        document.getElementById('toolsModalOverlay').style.display = 'none';
-      }
-    }
-
-    function triggerFileInput() {
-      document.getElementById('toolsModalOverlay').style.display = 'none';
-      document.getElementById('fileInput').click();
-    }
-
-    function newChat() {
+    document.addEventListener("DOMContentLoaded", () => {
+      const BACKEND_URL = "https://radamn.onrender.com";
+      let selectedBase64Image = null;
       window.conversationHistory = [];
-      document.getElementById('chatContainer').innerHTML = '';
-      document.getElementById('chatContainer').style.display = 'none';
-      document.getElementById('welcomeScreen').style.display = 'flex';
-      if (document.getElementById('sidebar').classList.contains('active')) {
-        toggleSidebar();
-      }
-    }
 
-    function selectHistory(title) {
-      toggleSidebar();
-      const input = document.getElementById('messageInput');
-      input.value = `Continuar conversa sobre: ${title}`;
-      sendMessage();
-    }
-
-    function handleFileSelect(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        selectedBase64Image = e.target.result;
-        document.getElementById('imagePreview').src = selectedBase64Image;
-        document.getElementById('imagePreviewContainer').style.display = 'flex';
-      };
-      reader.readAsDataURL(file);
-    }
-
-    function clearSelectedImage() {
-      selectedBase64Image = null;
-      document.getElementById('fileInput').value = '';
-      document.getElementById('imagePreviewContainer').style.display = 'none';
-    }
-
-    function handleKeyPress(event) {
-      if (event.key === 'Enter') {
-        sendMessage();
-      }
-    }
-
-    function renderMessage(text, imageBase64, isUser) {
-      document.getElementById('welcomeScreen').style.display = 'none';
-      
+      // ELEMENTOS DO DOM
+      const sidebar = document.getElementById('sidebar');
+      const sidebarOverlay = document.getElementById('sidebarOverlay');
+      const topMenuDropdown = document.getElementById('topMenuDropdown');
+      const toolsModalOverlay = document.getElementById('toolsModalOverlay');
+      const fileInput = document.getElementById('fileInput');
+      const messageInput = document.getElementById('messageInput');
       const chatContainer = document.getElementById('chatContainer');
-      chatContainer.style.display = 'flex';
-      
-      const wrapper = document.createElement('div');
-      wrapper.className = `message-wrapper ${isUser ? 'user-wrapper' : 'ai-wrapper'}`;
+      const welcomeScreen = document.getElementById('welcomeScreen');
+      const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+      const imagePreview = document.getElementById('imagePreview');
 
-      const msgDiv = document.createElement('div');
-      msgDiv.className = `message ${isUser ? 'user-msg' : 'ai-msg'}`;
+      // SIDEBAR (MENU LATERAL)
+      const openSidebar = () => {
+        sidebar.classList.add('show');
+        sidebarOverlay.classList.add('show');
+      };
 
-      if (imageBase64) {
-        const imgEl = document.createElement('img');
-        imgEl.src = imageBase64;
-        imgEl.className = 'chat-img';
-        msgDiv.appendChild(imgEl);
-      }
+      const closeSidebar = () => {
+        sidebar.classList.remove('show');
+        sidebarOverlay.classList.remove('show');
+      };
 
-      if (text) {
-        const textEl = document.createElement('p');
-        textEl.textContent = text;
-        msgDiv.appendChild(textEl);
-      }
+      document.getElementById('btnOpenSidebar').addEventListener('click', openSidebar);
+      document.getElementById('btnCloseSidebar').addEventListener('click', closeSidebar);
+      sidebarOverlay.addEventListener('click', closeSidebar);
 
-      wrapper.appendChild(msgDiv);
-
-      if (!isUser && text) {
-        const actionsDiv = document.createElement('div');
-        actionsDiv.className = 'msg-actions';
-        const copyBtn = document.createElement('button');
-        copyBtn.className = 'action-icon';
-        copyBtn.innerHTML = '📋 Copiar';
-        copyBtn.onclick = () => {
-          navigator.clipboard.writeText(text);
-        };
-        actionsDiv.appendChild(copyBtn);
-        wrapper.appendChild(actionsDiv);
-      }
-
-      chatContainer.appendChild(wrapper);
-      chatContainer.scrollTop = chatContainer.scrollHeight;
-    }
-
-    async function sendMessage() {
-      const inputEl = document.getElementById('messageInput');
-      const messageText = inputEl.value.trim();
-
-      if (!messageText && !selectedBase64Image) return;
-
-      const currentImage = selectedBase64Image;
-      renderMessage(messageText, currentImage, true);
-
-      let userEntryContent = messageText;
-      if (currentImage) {
-        userEntryContent = [];
-        if (messageText) userEntryContent.push({ type: "text", text: messageText });
-        userEntryContent.push({ type: "image_url", image_url: { url: currentImage } });
-      }
-
-      window.conversationHistory.push({
-        role: "user",
-        content: userEntryContent
+      // MENU TRÊS PONTOS (DROPDOWN)
+      document.getElementById('btnTopMenu').addEventListener('click', (e) => {
+        e.stopPropagation();
+        topMenuDropdown.classList.toggle('show');
       });
 
-      inputEl.value = '';
-      clearSelectedImage();
+      document.addEventListener('click', (e) => {
+        if (!topMenuDropdown.contains(e.target) && e.target.id !== 'btnTopMenu') {
+          topMenuDropdown.classList.remove('show');
+        }
+      });
 
-      try {
-        const endpoint = `${BACKEND_URL.replace(/\/$/, '')}/api/chat`;
-        
-        const response = await fetch(endpoint, {
-          method: 
+      document.querySelectorAll('.dropdown-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+          const action = e.currentTarget.dataset.action;
+          topMenuDropdown.classList.remove('show');
+          if (action === 'Excluir') {
+            newChat();
+          } else {
+            alert('Ação selecionada: ' + action);
+          }
+        });
+      });
+
+      // MODAL FERRAMENTAS (+)
+      const openToolsModal = () => toolsModalOverlay.classList.add('show');
+      const closeToolsModal = () => toolsModalOverlay.classList.remove('show');
+
+      document.getElementById('btnOpenTools').addEventListener('click', openToolsModal);
+      toolsModalOverlay.addEventListener('click', (e) => {
+        if (e.target === toolsModalOverlay) closeToolsModal();
+      });
+
+      document.querySelectorAll('.trigger-file').forEach(card => {
+        card.addEventListener('click', () => {
+          closeToolsModal();
+          fileInput.click();
+        });
+      });
+
+      // SELEÇÃO DE ARQUIVOS
+      fileInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          selectedBase64Image = e.target.result;
+          imagePreview.src = selectedBase64Image;
+          imagePreviewContainer.style.display = 'flex';
+        };
+        reader.readAsDataURL(file);
+      });
+
+      document.getElementById('btnRemoveImage').addEventListener('click', () => {
+        selectedBase64Image = null;
+        fileInput.value = '';
+        imagePreviewContainer.style.display = 'none';
+      });
+
+      // GERENCIAMENTO DA CONVERSA
+      const newChat = () => {
+        window.conversationHistory = [];
+        chatContainer.innerHTML = '';
+        chatContainer.style.display = 'none';
+        welcomeScreen.style.display = 'flex';
+        closeSidebar();
+      };
+
+      document.getElementById('btnNewChat').addEventListener('click', newChat);
+
+      document.querySelectorAll('.history-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+          const topic = e.currentTarget.dataset.history;
+          closeSidebar();
+          messageInput.value = `Continuar sobre: ${topic}`;
+          sendMessage();
+        });
+      });
+
+      // RENDERIZAÇÃO E ENVIO DE MENSAGENS
+      function renderMessage(text, imageBase64, isUser) {
+        welcomeScreen.style.display = 'none';
+        chatContainer.style.display = 'flex';
+
+        const wrapper = document.createElement('div');
+        wrapper.className = `message-wrapper ${isUser ? 'user-wrapper' : 'ai-wrapper'}`;
+
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `message ${isUser ? 'user-msg' : 'ai-msg'}`;
+
+        if (imageBase64) {
+          const imgEl = document.createElement('img');
+          imgEl.src = imageBase64;
+          imgEl.className = 'chat-img';
+          msgDiv.appendChild(imgEl);
+        }
+
+        if (text) {
+          const textEl = document.createElement('p');
+          textEl.textContent = text;
+          msgDiv.appendChild(textEl);
+        }
+
+        wrapper.appendChild(msgDiv);
+
+        if (!isUser && text) {
+ 
