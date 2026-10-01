@@ -123,30 +123,25 @@
 
   <div id="chatContainer"></div>
 
-  <!-- Preview da imagem selecionada -->
   <div id="imagePreviewContainer">
     <img id="imagePreview" src="" alt="Preview">
     <button type="button" class="remove-btn" onclick="clearSelectedImage()">✕ Remover</button>
   </div>
 
   <footer>
-    <!-- Input invisível para capturar a imagem do celular ou PC -->
     <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
-    
     <button type="button" class="attach-btn" onclick="document.getElementById('fileInput').click()">📎</button>
-    
     <input type="text" id="messageInput" placeholder="Pergunte qualquer coisa ao Radam Nox..." onkeypress="handleKeyPress(event)">
-    
     <button type="button" class="action-btn" onclick="sendMessage()">Enviar</button>
   </footer>
 
   <script>
-    // URL DO SEU BACKEND NO RENDER (Serviço Radamn ativo)
     const BACKEND_URL = "https://radamn.onrender.com";
-
     let selectedBase64Image = null;
+    
+    // Array que guarda todo o histórico da conversa na sessão
+    let conversationHistory = [];
 
-    // Converte a imagem escolhida para Base64
     function handleFileSelect(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -160,21 +155,18 @@
       reader.readAsDataURL(file);
     }
 
-    // Limpa a seleção da imagem
     function clearSelectedImage() {
       selectedBase64Image = null;
       document.getElementById('fileInput').value = '';
       document.getElementById('imagePreviewContainer').style.display = 'none';
     }
 
-    // Permite enviar com a tecla Enter
     function handleKeyPress(event) {
       if (event.key === 'Enter') {
         sendMessage();
       }
     }
 
-    // Exibe mensagens na tela
     function renderMessage(text, imageBase64, isUser) {
       const chatContainer = document.getElementById('chatContainer');
       const msgDiv = document.createElement('div');
@@ -197,7 +189,6 @@
       chatContainer.scrollTop = chatContainer.scrollHeight;
     }
 
-    // Função principal para enviar dados ao backend no Render
     async function sendMessage() {
       const inputEl = document.getElementById('messageInput');
       const messageText = inputEl.value.trim();
@@ -207,7 +198,16 @@
       const currentImage = selectedBase64Image;
       renderMessage(messageText, currentImage, true);
 
-      // Limpa os campos
+      // Adiciona a mensagem do usuário ao histórico
+      let userMsgContent = [];
+      if (messageText) userMsgContent.push({ type: "text", text: messageText });
+      if (currentImage) userMsgContent.push({ type: "image_url", image_url: { url: currentImage } });
+
+      conversationHistory.push({
+        role: "user",
+        content: userMsgContent.length === 1 && userMsgContent[0].type === "text" ? messageText : userMsgContent
+      });
+
       inputEl.value = '';
       clearSelectedImage();
 
@@ -217,8 +217,7 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            message: messageText,
-            image: currentImage
+            messages: conversationHistory
           })
         });
 
@@ -229,6 +228,13 @@
         }
 
         const reply = data.reply || data.message || data.text || 'Sem resposta recebida.';
+        
+        // Adiciona a resposta da IA ao histórico de memória
+        conversationHistory.push({
+          role: "assistant",
+          content: reply
+        });
+
         renderMessage(reply, null, false);
       } catch (err) {
         console.error('Erro de conexão:', err);
