@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Radam Nox - Teste Direto</title>
+  <title>Radam Nox</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -161,7 +161,7 @@
       -webkit-text-fill-color: transparent;
     }
 
-    /* CHAT MESSAGES CONTAINER */
+    /* CHAT CONTAINER */
     #chatContainer {
       flex: 1;
       padding: 16px;
@@ -178,6 +178,7 @@
       padding: 10px 14px;
       border-radius: 12px;
       max-width: 80%;
+      word-break: break-word;
     }
 
     .msg-ai {
@@ -188,6 +189,14 @@
       padding: 10px 14px;
       border-radius: 12px;
       max-width: 80%;
+      word-break: break-word;
+    }
+
+    .msg-loading {
+      align-self: flex-start;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-style: italic;
     }
 
     /* MODAL ANEXOS */
@@ -257,31 +266,9 @@
       color: white;
       outline: none;
     }
-
-    /* DEBUG LOG CONSOLE (PAINEL DE TESTE) */
-    #debugLog {
-      position: fixed;
-      bottom: 70px;
-      left: 10px;
-      right: 10px;
-      background: rgba(0, 0, 0, 0.85);
-      border: 1px solid #7c3aed;
-      color: #00ff88;
-      font-family: monospace;
-      font-size: 0.75rem;
-      padding: 8px;
-      border-radius: 8px;
-      max-height: 80px;
-      overflow-y: auto;
-      z-index: 9999;
-      pointer-events: none;
-    }
   </style>
 </head>
 <body>
-
-  <!-- CONSOLE DE DIAGNÓSTICO EM TEMPO REAL -->
-  <div id="debugLog">> Sistema iniciado. Aguardando cliques...</div>
 
   <!-- OVERLAY E SIDEBAR -->
   <div id="sidebarOverlay"></div>
@@ -346,17 +333,10 @@
   </footer>
 
   <script>
-    function log(msg) {
-      const consoleEl = document.getElementById('debugLog');
-      consoleEl.innerHTML += `<br>> ${msg}`;
-      consoleEl.scrollTop = consoleEl.scrollHeight;
-      console.log(msg);
-    }
+    const BACKEND_URL = "https://radamn.onrender.com";
+    window.conversationHistory = [];
 
-    // Vinculação de eventos onclick direta pelo JS sem depender de frameworks ou rotas externas
     window.onload = function() {
-      log("Página completamente carregada.");
-
       const sidebar = document.getElementById('sidebar');
       const sidebarOverlay = document.getElementById('sidebarOverlay');
       const topMenuDropdown = document.getElementById('topMenuDropdown');
@@ -366,15 +346,13 @@
       const chatContainer = document.getElementById('chatContainer');
       const mainArea = document.getElementById('mainArea');
 
-      // 1. Sidebar (Menu Hambúrguer)
+      // 1. Sidebar
       document.getElementById('btnOpenSidebar').onclick = function() {
-        log("Clique: Abrir Sidebar");
         sidebar.style.left = "0px";
         sidebarOverlay.style.display = "block";
       };
 
       function closeSidebar() {
-        log("Ação: Fechar Sidebar");
         sidebar.style.left = "-290px";
         sidebarOverlay.style.display = "none";
       }
@@ -385,7 +363,6 @@
       // 2. Menu Três Pontos
       document.getElementById('btnTopMenu').onclick = function(e) {
         e.stopPropagation();
-        log("Clique: Menu Três Pontos");
         const isVisible = topMenuDropdown.style.display === "flex";
         topMenuDropdown.style.display = isVisible ? "none" : "flex";
       };
@@ -396,18 +373,12 @@
         }
       };
 
-      document.getElementById('btnActionShare').onclick = function() { log("Ação: Compartilhar clicado"); alert("Compartilhar"); };
-      document.getElementById('btnActionRename').onclick = function() { log("Ação: Renomear clicado"); alert("Renomear"); };
-      document.getElementById('btnActionDelete').onclick = function() {
-        log("Ação: Excluir conversa");
-        chatContainer.innerHTML = "";
-        chatContainer.style.display = "none";
-        mainArea.style.display = "flex";
-      };
+      document.getElementById('btnActionShare').onclick = function() { alert("Link copiado!"); };
+      document.getElementById('btnActionRename').onclick = function() { alert("Função de renomear acionada."); };
+      document.getElementById('btnActionDelete').onclick = function() { resetChat(); };
 
-      // 3. Modal Ferramentas (+)
+      // 3. Modal Ferramentas
       document.getElementById('btnOpenTools').onclick = function() {
-        log("Clique: Botão (+)");
         toolsModalOverlay.style.display = "flex";
       };
 
@@ -417,48 +388,86 @@
         }
       };
 
-      const triggerFile = function(type) {
-        log("Ação: Anexo " + type);
+      const triggerFile = function() {
         toolsModalOverlay.style.display = "none";
         fileInput.click();
       };
 
-      document.getElementById('btnToolPhoto').onclick = () => triggerFile("Fotos");
-      document.getElementById('btnToolCamera').onclick = () => triggerFile("Câmera");
-      document.getElementById('btnToolFile').onclick = () => triggerFile("Arquivos");
-      document.getElementById('btnToolDrive').onclick = () => triggerFile("Drive");
+      document.getElementById('btnToolPhoto').onclick = triggerFile;
+      document.getElementById('btnToolCamera').onclick = triggerFile;
+      document.getElementById('btnToolFile').onclick = triggerFile;
+      document.getElementById('btnToolDrive').onclick = triggerFile;
 
-      fileInput.onchange = function(e) {
-        if (e.target.files.length > 0) {
-          log("Arquivo selecionado: " + e.target.files[0].name);
-        }
-      };
+      // 4. Lógica de Envio Real ao Render
+      function resetChat() {
+        window.conversationHistory = [];
+        chatContainer.innerHTML = "";
+        chatContainer.style.display = "none";
+        mainArea.style.display = "flex";
+      }
 
-      // 4. Envio de Mensagens
-      function send() {
+      async function send() {
         const txt = messageInput.value.trim();
         if (!txt) return;
 
-        log("Enviando mensagem: " + txt);
         mainArea.style.display = "none";
         chatContainer.style.display = "flex";
 
+        // Exibe mensagem do usuário
         const userDiv = document.createElement('div');
         userDiv.className = "msg-user";
         userDiv.innerText = txt;
         chatContainer.appendChild(userDiv);
 
+        window.conversationHistory.push({ role: "user", content: txt });
         messageInput.value = "";
         chatContainer.scrollTop = chatContainer.scrollHeight;
 
-        // Resposta simulada de confirmação
-        setTimeout(() => {
+        // Indicador de carregamento
+        const loadingDiv = document.createElement('div');
+        loadingDiv.className = "msg-loading";
+        loadingDiv.innerText = "Radam Nox está pensando (Servidor conectando)...";
+        chatContainer.appendChild(loadingDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+
+        try {
+          const endpoint = `${BACKEND_URL.replace(/\/$/, '')}/api/chat`;
+          const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              messages: window.conversationHistory,
+              message: txt
+            })
+          });
+
+          chatContainer.removeChild(loadingDiv);
+
+          if (!response.ok) {
+            throw new Error(`Erro ${response.status}: Falha no servidor Render.`);
+          }
+
+          const data = await response.json();
+          const reply = data.reply || data.message || data.text || "Sem resposta recebida.";
+
+          window.conversationHistory.push({ role: "assistant", content: reply });
+
           const aiDiv = document.createElement('div');
           aiDiv.className = "msg-ai";
-          aiDiv.innerText = "Recebido! Os eventos do sistema estão respondendo corretamente.";
+          aiDiv.innerText = reply;
           chatContainer.appendChild(aiDiv);
-          chatContainer.scrollTop = chatContainer.scrollHeight;
-        }, 600);
+        } catch (err) {
+          if (chatContainer.contains(loadingDiv)) {
+            chatContainer.removeChild(loadingDiv);
+          }
+          const errDiv = document.createElement('div');
+          errDiv.className = "msg-ai";
+          errDiv.style.borderColor = "#f87171";
+          errDiv.innerText = `Erro de conexão: ${err.message}`;
+          chatContainer.appendChild(errDiv);
+        }
+
+        chatContainer.scrollTop = chatContainer.scrollHeight;
       }
 
       document.getElementById('btnSend').onclick = send;
@@ -467,15 +476,11 @@
       };
 
       document.getElementById('btnNewChat').onclick = function() {
-        log("Ação: Nova conversa");
         closeSidebar();
-        chatContainer.innerHTML = "";
-        chatContainer.style.display = "none";
-        mainArea.style.display = "flex";
+        resetChat();
       };
 
       document.getElementById('btnHist1').onclick = function() {
-        log("Ação: Histórico selecionado");
         closeSidebar();
         messageInput.value = "Análise de código";
         send();
