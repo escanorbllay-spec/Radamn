@@ -209,6 +209,14 @@
       font-style: italic;
     }
 
+    .msg-preview-img {
+      max-width: 200px;
+      max-height: 200px;
+      border-radius: 8px;
+      margin-bottom: 6px;
+      display: block;
+    }
+
     /* MODAL DE ANEXOS FERRAMENTAS (+) */
     #toolsModalOverlay {
       display: none;
@@ -247,7 +255,26 @@
       font-size: 0.8rem;
     }
 
-    /* FOOTER FIXO E ELEVADO PARA NÃO CORTAR */
+    /* BARRA DE PREVIEW DE ANEXO SELECIONADO */
+    #attachmentPreviewBar {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      background: #181824;
+      border-top: 1px solid var(--border-color);
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    #attachmentPreviewBar img {
+      width: 32px;
+      height: 32px;
+      border-radius: 4px;
+      object-fit: cover;
+    }
+
+    /* FOOTER FIXO E ELEVADO */
     footer {
       padding: 12px 12px 25px 12px;
       background: #111118;
@@ -305,6 +332,18 @@
       letter-spacing: -2px;
     }
 
+    .btn-dynamic.recording {
+      background: #ef4444 !important;
+      color: white !important;
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+      100% { transform: scale(1); }
+    }
+
     .btn-dynamic.stop {
       background: #262636;
       color: #ffffff;
@@ -341,7 +380,7 @@
     <!-- MENU DROPDOWN -->
     <div id="topMenuDropdown">
       <button class="dropdown-item" id="btnActionShare">🔗 Compartilhar</button>
-      <button class="dropdown-item" id="btnActionRename">✏️ Renomear</button>
+      <button class="dropdown-item" id="btnActionRename">✏️️ Renomear</button>
       <button class="dropdown-item" id="btnActionDelete" style="color:#f87171;">🗑 Excluir conversa</button>
     </div>
   </header>
@@ -368,7 +407,13 @@
     </div>
   </div>
 
-  <input type="file" id="fileInput" accept="image/*" style="display:none;">
+  <input type="file" id="fileInput" accept="image/*,application/pdf,text/*" style="display:none;">
+
+  <!-- BARRA DE PRÉ-VISUALIZAÇÃO DE ARQUIVO SELECIONADO -->
+  <div id="attachmentPreviewBar">
+    <span id="attachmentFileName"></span>
+    <button id="btnRemoveAttachment" style="background:none; border:none; color:#f87171; cursor:pointer; font-size:1rem; margin-left:auto;">✕</button>
+  </div>
 
   <!-- FOOTER E CAMPO DE TEXTO COM BOTÃO DINÂMICO -->
   <footer>
@@ -384,7 +429,97 @@
     const BACKEND_URL = "https://radamn.onrender.com";
     window.conversationHistory = [];
     let isProcessing = false;
+    let isRecording = false;
     let abortController = null;
+    let recognition = null;
+    let pendingAttachment = null; // { name: '', base64: '', mimeType: '' }
+
+    // 1. PERSISTÊNCIA LOCAL (LOCALSTORAGE)
+    function saveHistoryToStorage() {
+      try {
+        localStorage.setItem('radam_nox_history', JSON.stringify(window.conversationHistory));
+      } catch (e) {
+        console.warn('Não foi possível salvar o histórico localmente.', e);
+      }
+    }
+
+    function loadHistoryFromStorage() {
+      try {
+        const saved = localStorage.getItem('radam_nox_history');
+        if (saved) {
+          window.conversationHistory = JSON.parse(saved);
+          if (window.conversationHistory.length > 0) {
+            renderFullHistory();
+          }
+        }
+      } catch (e) {
+        console.warn('Erro ao carregar histórico salvo.', e);
+      }
+    }
+
+    function renderFullHistory() {
+      const chatContainer = document.getElementById('chatContainer');
+      const mainArea = document.getElementById('mainArea');
+      chatContainer.innerHTML = "";
+
+      if (window.conversationHistory.length === 0) {
+        chatContainer.style.display = "none";
+        mainArea.style.display = "flex";
+        return;
+      }
+
+      mainArea.style.display = "none";
+      chatContainer.style.display = "flex";
+
+      window.conversationHistory.forEach(item => {
+        const div = document.createElement('div');
+        div.className = item.role === 'user' ? 'msg-user' : 'msg-ai';
+
+        let htmlContent = '';
+        if (item.image) {
+          htmlContent += `<img src="${item.image}" class="msg-preview-img"><br>`;
+        }
+        htmlContent += item.content || '';
+        div.innerHTML = htmlContent;
+
+        chatContainer.appendChild(div);
+      });
+
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    // 2. RECONHECIMENTO DE VOZ (WEB SPEECH API)
+    function initSpeechRecognition() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) return null;
+
+      const rec = new SpeechRecognition();
+      rec.lang = 'pt-BR';
+      rec.continuous = false;
+      rec.interimResults = true;
+
+      rec.onresult = function(event) {
+        let transcript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          transcript += event.results[i][0].transcript;
+        }
+        const messageInput = document.getElementById('messageInput');
+        messageInput.value = transcript;
+        updateButtonState();
+      };
+
+      rec.onend = function() {
+        isRecording = false;
+        updateButtonState();
+      };
+
+      rec.onerror = function() {
+        isRecording = false;
+        updateButtonState();
+      };
+
+      return rec;
+    }
 
     window.onload = function() {
       const sidebar = document.getElementById('sidebar');
@@ -396,13 +531,23 @@
       const chatContainer = document.getElementById('chatContainer');
       const mainArea = document.getElementById('mainArea');
       const btnActionDynamic = document.getElementById('btnActionDynamic');
+      const attachmentPreviewBar = document.getElementById('attachmentPreviewBar');
+      const attachmentFileName = document.getElementById('attachmentFileName');
+      const btnRemoveAttachment = document.getElementById('btnRemoveAttachment');
+
+      recognition = initSpeechRecognition();
+
+      loadHistoryFromStorage();
 
       // Atualizar o estado do botão de ação
       function updateButtonState() {
         if (isProcessing) {
           btnActionDynamic.className = "btn-dynamic stop";
           btnActionDynamic.innerHTML = "⏹";
-        } else if (messageInput.value.trim().length > 0) {
+        } else if (isRecording) {
+          btnActionDynamic.className = "btn-dynamic recording";
+          btnActionDynamic.innerHTML = "🎙️";
+        } else if (messageInput.value.trim().length > 0 || pendingAttachment) {
           btnActionDynamic.className = "btn-dynamic";
           btnActionDynamic.innerHTML = "↑";
         } else {
@@ -413,7 +558,36 @@
 
       messageInput.oninput = updateButtonState;
 
-      // 1. Sidebar (Menu Lateral)
+      // 3. GERENCIAMENTO DE ANEXOS / IMAGENS
+      function clearAttachment() {
+        pendingAttachment = null;
+        fileInput.value = '';
+        attachmentPreviewBar.style.display = 'none';
+        updateButtonState();
+      }
+
+      btnRemoveAttachment.onclick = clearAttachment;
+
+      fileInput.onchange = function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          pendingAttachment = {
+            name: file.name,
+            mimeType: file.type,
+            base64: evt.target.result
+          };
+
+          attachmentFileName.innerText = `📎 ${file.name}`;
+          attachmentPreviewBar.style.display = 'flex';
+          updateButtonState();
+        };
+        reader.readAsDataURL(file);
+      };
+
+      // 4. CONTROLE DA SIDEBAR
       document.getElementById('btnOpenSidebar').onclick = function() {
         sidebar.style.left = "0px";
         sidebarOverlay.style.display = "block";
@@ -427,7 +601,7 @@
       document.getElementById('btnCloseSidebar').onclick = closeSidebar;
       sidebarOverlay.onclick = closeSidebar;
 
-      // 2. Menu Três Pontos Superior
+      // 5. MENU TRÊS PONTOS
       document.getElementById('btnTopMenu').onclick = function(e) {
         e.stopPropagation();
         const isVisible = topMenuDropdown.style.display === "flex";
@@ -444,7 +618,7 @@
       document.getElementById('btnActionRename').onclick = function() { alert("Opção de renomear ativada."); };
       document.getElementById('btnActionDelete').onclick = function() { resetChat(); };
 
-      // 3. Modal de Anexos
+      // 6. MODAL DE ANEXOS (+)
       document.getElementById('btnOpenTools').onclick = function() {
         toolsModalOverlay.style.display = "flex";
       };
@@ -465,21 +639,48 @@
       document.getElementById('btnToolFile').onclick = triggerFile;
       document.getElementById('btnToolDrive').onclick = triggerFile;
 
-      // 4. Lógica de Limpeza e Envio Real
+      // 7. LIMPEZA E NOVO CHAT
       function resetChat() {
         window.conversationHistory = [];
+        localStorage.removeItem('radam_nox_history');
         chatContainer.innerHTML = "";
         chatContainer.style.display = "none";
         mainArea.style.display = "flex";
         isProcessing = false;
+        clearAttachment();
         updateButtonState();
       }
 
+      // 8. LÓGICA DE ENVIAR MENSAGEM / GRAVAR VOZ / CANCELAR
       async function send(textToSend) {
         const txt = textToSend || messageInput.value.trim();
-        if (!txt && !isProcessing) return;
 
-        // Se estiver a processar e o utilizador clicar no quadrado, cancela
+        // Se estiver a gravar voz e clicar no botão, para a gravação
+        if (isRecording && recognition) {
+          recognition.stop();
+          isRecording = false;
+          updateButtonState();
+          return;
+        }
+
+        // Se não tiver texto nem anexo e não estiver processando -> Inicia Gravação de Voz
+        if (!txt && !pendingAttachment && !isProcessing) {
+          if (recognition) {
+            try {
+              isRecording = true;
+              updateButtonState();
+              recognition.start();
+            } catch(e) {
+              isRecording = false;
+              updateButtonState();
+            }
+          } else {
+            alert('Reconhecimento de voz não é suportado neste navegador.');
+          }
+          return;
+        }
+
+        // Se estiver processando e o usuário clicar no quadrado -> Aborta
         if (isProcessing) {
           if (abortController) abortController.abort();
           isProcessing = false;
@@ -490,89 +691,4 @@
         isProcessing = true;
         updateButtonState();
 
-        mainArea.style.display = "none";
-        chatContainer.style.display = "flex";
-
-        const userDiv = document.createElement('div');
-        userDiv.className = "msg-user";
-        userDiv.innerText = txt;
-        chatContainer.appendChild(userDiv);
-
-        window.conversationHistory.push({ role: "user", content: txt });
-        messageInput.value = "";
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-
-        const loadingDiv = document.createElement('div');
-        loadingDiv.className = "msg-loading";
-        loadingDiv.innerText = "Radam Nox está pensando...";
-        chatContainer.appendChild(loadingDiv);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-
-        abortController = new AbortController();
-
-        try {
-          const endpoint = `${BACKEND_URL.replace(/\/$/, '')}/api/chat`;
-          const response = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              messages: window.conversationHistory,
-              message: txt
-            }),
-            signal: abortController.signal
-          });
-
-          if (chatContainer.contains(loadingDiv)) {
-            chatContainer.removeChild(loadingDiv);
-          }
-
-          if (!response.ok) {
-            throw new Error(`Servidor respondeu com status ${response.status}`);
-          }
-
-          const data = await response.json();
-          const reply = data.reply || data.response || data.message || data.text || "Sem resposta do servidor.";
-
-          window.conversationHistory.push({ role: "assistant", content: reply });
-
-          const aiDiv = document.createElement('div');
-          aiDiv.className = "msg-ai";
-          aiDiv.innerText = reply;
-          chatContainer.appendChild(aiDiv);
-
-        } catch (err) {
-          if (chatContainer.contains(loadingDiv)) {
-            chatContainer.removeChild(loadingDiv);
-          }
-          if (err.name !== 'AbortError') {
-            const errDiv = document.createElement('div');
-            errDiv.className = "msg-ai";
-            errDiv.style.borderColor = "#f87171";
-            errDiv.innerText = `Servidor indisponível ou em inicialização. (${err.message})`;
-            chatContainer.appendChild(errDiv);
-          }
-        }
-
-        isProcessing = false;
-        updateButtonState();
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-      }
-
-      btnActionDynamic.onclick = function() { send(); };
-      messageInput.onkeypress = function(e) {
-        if (e.key === 'Enter') send();
-      };
-
-      document.getElementById('btnNewChat').onclick = function() {
-        closeSidebar();
-        resetChat();
-      };
-
-      document.getElementById('btnHist1').onclick = function() {
-        closeSidebar();
-        send("Análise de código");
-      };
-    };
-  </script>
-</body>
-</html>
+        main
