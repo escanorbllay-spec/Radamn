@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Radam Nox</title>
+  <title>Radam Nox - Teste Direto</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -29,33 +29,26 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    html, body {
-      width: 100%;
-      height: 100%;
+    body {
+      width: 100vw;
+      height: 100vh;
       background-color: var(--bg-dark);
       color: var(--text-main);
-      overflow: hidden;
-    }
-
-    body {
       display: flex;
       flex-direction: column;
-      height: 100dvh;
-      background: radial-gradient(circle at 50% 100%, #111025 0%, #050508 70%);
-      position: relative;
+      overflow: hidden;
     }
 
     /* HEADER */
     header {
       padding: 14px 18px;
-      background: rgba(17, 17, 24, 0.8);
-      backdrop-filter: blur(10px);
+      background: #111118;
       border-bottom: 1px solid var(--border-color);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      z-index: 10;
       position: relative;
+      z-index: 10;
     }
 
     .header-left {
@@ -64,23 +57,19 @@
       gap: 12px;
     }
 
-    .icon-btn {
-      background: transparent;
-      border: none;
+    .btn-action {
+      background: #181824;
+      border: 1px solid var(--border-color);
       color: var(--text-main);
-      font-size: 1.3rem;
+      font-size: 1.1rem;
       cursor: pointer;
-      padding: 8px;
+      padding: 10px 14px;
       border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.2s ease;
-      touch-action: manipulation;
+      user-select: none;
     }
 
-    .icon-btn:active {
-      background: rgba(255, 255, 255, 0.15);
+    .btn-action:active {
+      background: var(--purple-accent);
     }
 
     .title-area {
@@ -97,45 +86,32 @@
       height: 8px;
       background-color: #10b981;
       border-radius: 50%;
-      box-shadow: 0 0 10px #10b981;
     }
 
-    /* MENU DROPDOWN SUPERIOR */
+    /* DROPDOWN SUPERIOR */
     #topMenuDropdown {
-      opacity: 0;
-      pointer-events: none;
+      display: none;
       position: absolute;
-      top: 55px;
+      top: 60px;
       right: 16px;
       background: var(--card-bg);
       border: 1px solid var(--border-color);
       border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.6);
       padding: 8px;
-      z-index: 800;
-      display: flex;
+      z-index: 500;
       flex-direction: column;
       min-width: 180px;
-      transition: opacity 0.2s ease;
-    }
-
-    #topMenuDropdown.show {
-      opacity: 1;
-      pointer-events: auto;
     }
 
     .dropdown-item {
-      padding: 12px 14px;
-      font-size: 0.88rem;
+      padding: 12px;
+      font-size: 0.9rem;
       color: var(--text-main);
       border: none;
       background: transparent;
       text-align: left;
       cursor: pointer;
       border-radius: 8px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
       width: 100%;
     }
 
@@ -143,329 +119,124 @@
       background: rgba(255, 255, 255, 0.1);
     }
 
-    .dropdown-item.danger {
-      color: #f87171;
-    }
-
-    /* MENU LATERAL (SIDEBAR) */
+    /* SIDEBAR (MENU LATERAL) */
     #sidebarOverlay {
-      opacity: 0;
-      pointer-events: none;
+      display: none;
       position: fixed;
-      inset: 0;
+      top: 0; left: 0; width: 100vw; height: 100vh;
       background: rgba(0, 0, 0, 0.7);
       z-index: 900;
-      backdrop-filter: blur(4px);
-      transition: opacity 0.3s ease;
-    }
-
-    #sidebarOverlay.show {
-      opacity: 1;
-      pointer-events: auto;
     }
 
     #sidebar {
       position: fixed;
-      top: 0;
-      left: -290px;
-      width: 290px;
-      height: 100%;
+      top: 0; left: -290px;
+      width: 290px; height: 100%;
       background: #0a0a10;
       border-right: 1px solid var(--border-color);
       z-index: 1000;
-      transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      display: flex;
-      flex-direction: column;
+      transition: left 0.25s ease;
       padding: 18px;
-    }
-
-    #sidebar.show {
-      left: 0;
-    }
-
-    .sidebar-header {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
+      flex-direction: column;
     }
 
-    .new-chat-btn {
-      width: 100%;
-      padding: 12px;
-      background: var(--purple-accent);
-      border: none;
-      color: white;
-      border-radius: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      margin-bottom: 20px;
-      box-shadow: 0 4px 12px var(--purple-glow);
-    }
-
-    .history-section {
-      flex: 1;
-      overflow-y: auto;
-    }
-
-    .history-title {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      letter-spacing: 1px;
-      margin-bottom: 12px;
-    }
-
-    .history-item {
-      padding: 10px 12px;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      color: var(--text-main);
-      cursor: pointer;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      margin-bottom: 6px;
-    }
-
-    .history-item:active {
-      background: rgba(255, 255, 255, 0.1);
-    }
-
-    /* TELA DE BOAS-VINDAS CENTRAL */
-    #welcomeScreen {
+    /* MAIN / WELCOME */
+    #mainArea {
       flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      text-align: center;
       padding: 20px;
-      gap: 20px;
-    }
-
-    .pyramid-container {
-      width: 80px;
-      height: 80px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      animation: pyramidPulse 2.5s infinite ease-in-out;
-    }
-
-    .pyramid-svg {
-      width: 100%;
-      height: 100%;
-      filter: drop-shadow(0 0 14px rgba(124, 58, 237, 0.8));
-    }
-
-    @keyframes pyramidPulse {
-      0%, 100% {
-        transform: scale(1);
-        filter: drop-shadow(0 0 10px rgba(124, 58, 237, 0.6));
-      }
-      50% {
-        transform: scale(1.08);
-        filter: drop-shadow(0 0 24px rgba(168, 85, 247, 0.95));
-      }
+      text-align: center;
+      gap: 15px;
     }
 
     .welcome-title {
-      font-size: 2.2rem;
+      font-size: 2rem;
       font-weight: 800;
-      color: #ffffff;
-      letter-spacing: 2px;
-      margin-bottom: 4px;
-      text-transform: uppercase;
       background: linear-gradient(180deg, #ffffff 0%, #a855f7 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
-    .welcome-sub {
-      font-size: 1.05rem;
-      font-weight: 500;
-      color: var(--text-muted);
-      line-height: 1.4;
-      max-width: 360px;
-    }
-
-    /* CHAT CONTAINER */
+    /* CHAT MESSAGES CONTAINER */
     #chatContainer {
       flex: 1;
       padding: 16px;
       overflow-y: auto;
       display: none;
       flex-direction: column;
-      gap: 16px;
-    }
-
-    .message-wrapper {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .message {
-      max-width: 85%;
-      padding: 12px 16px;
-      border-radius: 16px;
-      font-size: 0.95rem;
-      line-height: 1.5;
-      word-break: break-word;
-    }
-
-    .user-wrapper {
-      align-items: flex-end;
-    }
-
-    .user-msg {
-      background: var(--user-msg);
-      color: #ffffff;
-      border-bottom-right-radius: 4px;
-    }
-
-    .ai-wrapper {
-      align-items: flex-start;
-    }
-
-    .ai-msg {
-      background: var(--panel-bg);
-      border: 1px solid var(--border-color);
-      border-bottom-left-radius: 4px;
-    }
-
-    .msg-actions {
-      display: flex;
-      gap: 8px;
-      padding: 0 4px;
-    }
-
-    .action-icon {
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      font-size: 0.85rem;
-      cursor: pointer;
-    }
-
-    .chat-img {
-      max-width: 100%;
-      max-height: 220px;
-      border-radius: 10px;
-      margin-bottom: 8px;
-      display: block;
-    }
-
-    /* PREVIEW DA IMAGEM */
-    #imagePreviewContainer {
-      display: none;
-      padding: 8px 16px;
-      background: var(--panel-bg);
-      border-top: 1px solid var(--border-color);
-      align-items: center;
       gap: 12px;
     }
 
-    #imagePreview {
-      max-height: 50px;
-      border-radius: 8px;
-      border: 1px solid var(--purple-accent);
+    .msg-user {
+      align-self: flex-end;
+      background: var(--user-msg);
+      color: white;
+      padding: 10px 14px;
+      border-radius: 12px;
+      max-width: 80%;
     }
 
-    .remove-btn {
-      background: rgba(239, 68, 68, 0.2);
-      color: #f87171;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.8rem;
+    .msg-ai {
+      align-self: flex-start;
+      background: var(--panel-bg);
+      border: 1px solid var(--border-color);
+      color: white;
+      padding: 10px 14px;
+      border-radius: 12px;
+      max-width: 80%;
     }
 
-    /* MODAL DE FERRAMENTAS (+) */
+    /* MODAL ANEXOS */
     #toolsModalOverlay {
-      opacity: 0;
-      pointer-events: none;
+      display: none;
       position: fixed;
-      inset: 0;
+      top: 0; left: 0; width: 100vw; height: 100vh;
       background: rgba(0,0,0,0.7);
       z-index: 950;
-      display: flex;
       align-items: flex-end;
-      backdrop-filter: blur(2px);
-      transition: opacity 0.2s ease;
-    }
-
-    #toolsModalOverlay.show {
-      opacity: 1;
-      pointer-events: auto;
     }
 
     #toolsModal {
       width: 100%;
       background: #111118;
-      border-top-left-radius: 24px;
-      border-top-right-radius: 24px;
-      padding: 24px 20px 32px 20px;
+      border-top-left-radius: 20px;
+      border-top-right-radius: 20px;
+      padding: 20px;
       border-top: 1px solid var(--border-color);
       display: flex;
       flex-direction: column;
-      gap: 14px;
-      max-height: 50vh;
-      overflow-y: auto;
-    }
-
-    .modal-title {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      margin-bottom: 6px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      gap: 12px;
     }
 
     .tool-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
+      gap: 10px;
     }
 
     .tool-card {
       background: var(--card-bg);
       border: 1px solid var(--border-color);
-      border-radius: 14px;
-      padding: 14px 8px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
+      padding: 15px 5px;
+      border-radius: 10px;
+      text-align: center;
       cursor: pointer;
       font-size: 0.8rem;
-      text-align: center;
     }
 
-    .tool-card:active {
-      background: rgba(255, 255, 255, 0.1);
-    }
-
-    .tool-card-icon {
-      font-size: 1.5rem;
-    }
-
-    /* FOOTER / INPUT */
+    /* FOOTER */
     footer {
-      padding: 12px 16px;
-      background: rgba(17, 17, 24, 0.9);
+      padding: 12px;
+      background: #111118;
       border-top: 1px solid var(--border-color);
       display: flex;
       gap: 10px;
-      align-items: center;
-      z-index: 20;
+      position: relative;
+      z-index: 10;
     }
 
     .input-bar {
@@ -474,150 +245,118 @@
       align-items: center;
       background: #08080d;
       border: 1px solid var(--border-color);
-      border-radius: 24px;
-      padding: 4px 14px;
-    }
-
-    .input-bar:focus-within {
-      border-color: var(--purple-accent);
-      box-shadow: 0 0 12px var(--purple-glow);
+      border-radius: 20px;
+      padding: 0 10px;
     }
 
     input[type="text"] {
       flex: 1;
-      padding: 10px 8px;
+      padding: 10px;
       border: none;
       background: transparent;
-      color: #ffffff;
+      color: white;
       outline: none;
-      font-size: 0.95rem;
     }
 
-    .send-btn {
-      padding: 10px 20px;
-      background: var(--purple-accent);
-      border: none;
-      color: white;
-      border-radius: 20px;
-      font-weight: 600;
-      cursor: pointer;
-      box-shadow: 0 2px 8px var(--purple-glow);
-      touch-action: manipulation;
+    /* DEBUG LOG CONSOLE (PAINEL DE TESTE) */
+    #debugLog {
+      position: fixed;
+      bottom: 70px;
+      left: 10px;
+      right: 10px;
+      background: rgba(0, 0, 0, 0.85);
+      border: 1px solid #7c3aed;
+      color: #00ff88;
+      font-family: monospace;
+      font-size: 0.75rem;
+      padding: 8px;
+      border-radius: 8px;
+      max-height: 80px;
+      overflow-y: auto;
+      z-index: 9999;
+      pointer-events: none;
     }
   </style>
 </head>
 <body>
 
-  <!-- OVERLAY E SIDEBAR DO MENU LATERAL -->
+  <!-- CONSOLE DE DIAGNÓSTICO EM TEMPO REAL -->
+  <div id="debugLog">> Sistema iniciado. Aguardando cliques...</div>
+
+  <!-- OVERLAY E SIDEBAR -->
   <div id="sidebarOverlay"></div>
   <div id="sidebar">
-    <div class="sidebar-header">
-      <div class="title-area">Radam Nox</div>
-      <button class="icon-btn" id="btnCloseSidebar">✕</button>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+      <h3>Radam Nox</h3>
+      <button class="btn-action" id="btnCloseSidebar">✕</button>
     </div>
-    <button class="new-chat-btn" id="btnNewChat">+ Nova conversa</button>
-    <div class="history-section">
-      <div class="history-title">Recentes</div>
-      <div class="history-item" data-history="Análise de Código">💻 Análise de Código</div>
-      <div class="history-item" data-history="Planejamento de Projeto">🚀 Planejamento de Projeto</div>
-    </div>
+    <button class="btn-action" id="btnNewChat" style="width:100%; margin-bottom:15px; background:var(--purple-accent);">+ Nova conversa</button>
+    <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">RECENTES</div>
+    <div class="btn-action" id="btnHist1" style="margin-bottom:8px; text-align:left;">💻 Análise de Código</div>
   </div>
 
-  <!-- HEADER DA PÁGINA -->
+  <!-- HEADER -->
   <header>
     <div class="header-left">
-      <button class="icon-btn" id="btnOpenSidebar">☰</button>
+      <button class="btn-action" id="btnOpenSidebar">☰</button>
       <div class="title-area">
         <div class="status-dot"></div>
         Radam Nox
       </div>
     </div>
-    <button class="icon-btn" id="btnTopMenu">⋮</button>
+    <button class="btn-action" id="btnTopMenu">⋮</button>
 
-    <!-- MENU DROPDOWN SUPERIOR -->
     <div id="topMenuDropdown">
-      <button class="dropdown-item" data-action="Compartilhar">🔗 Compartilhar</button>
-      <button class="dropdown-item" data-action="Renomear">✏️ Renomear</button>
-      <button class="dropdown-item danger" data-action="Excluir">🗑 Excluir conversa</button>
+      <button class="dropdown-item" id="btnActionShare">🔗 Compartilhar</button>
+      <button class="dropdown-item" id="btnActionRename">✏️ Renomear</button>
+      <button class="dropdown-item" id="btnActionDelete" style="color:#f87171;">🗑 Excluir conversa</button>
     </div>
   </header>
 
-  <!-- TELA DE BOAS-VINDAS CENTRAL -->
-  <div id="welcomeScreen">
+  <!-- ÁREA CENTRAL -->
+  <div id="mainArea">
     <div class="welcome-title">RADAM NOX</div>
-    <div class="pyramid-container">
-      <svg class="pyramid-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="pyramidGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#c084fc" />
-            <stop offset="100%" stop-color="#7c3aed" />
-          </linearGradient>
-          <linearGradient id="pyramidGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#6366f1" />
-            <stop offset="100%" stop-color="#3b82f6" />
-          </linearGradient>
-        </defs>
-        <polygon points="50,15 15,80 50,80" fill="url(#pyramidGrad1)" />
-        <polygon points="50,15 50,80 85,80" fill="url(#pyramidGrad2)" opacity="0.85" />
-        <line x1="50" y1="15" x2="50" y2="80" stroke="#ffffff" stroke-width="1.5" opacity="0.6" />
-      </svg>
-    </div>
-    <div class="welcome-sub">Boas-vindas, KALNOOX RADAMN! No que posso ajudar?</div>
+    <p style="color:var(--text-muted)">Boas-vindas, KALNOOX RADAMN! No que posso ajudar?</p>
   </div>
 
-  <!-- ÁREA DE MENSAGENS DO CHAT -->
   <div id="chatContainer"></div>
 
-  <!-- PREVIEW DE IMAGEM -->
-  <div id="imagePreviewContainer">
-    <img id="imagePreview" src="" alt="Preview">
-    <button type="button" class="remove-btn" id="btnRemoveImage">✕ Remover</button>
-  </div>
-
-  <!-- MODAL DE FERRAMENTAS (+) -->
+  <!-- MODAL FERRAMENTAS -->
   <div id="toolsModalOverlay">
     <div id="toolsModal">
-      <div class="modal-title">Anexos e Arquivos</div>
+      <div style="font-size:0.8rem; color:var(--text-muted);">ANEXOS E ARQUIVOS</div>
       <div class="tool-grid">
-        <div class="tool-card trigger-file">
-          <div class="tool-card-icon">🖼️</div>
-          <div>Fotos</div>
-        </div>
-        <div class="tool-card trigger-file">
-          <div class="tool-card-icon">📷</div>
-          <div>Câmera</div>
-        </div>
-        <div class="tool-card trigger-file">
-          <div class="tool-card-icon">📁</div>
-          <div>Arquivos</div>
-        </div>
-        <div class="tool-card trigger-file">
-          <div class="tool-card-icon">☁️</div>
-          <div>Drive</div>
-        </div>
+        <div class="tool-card" id="btnToolPhoto">🖼️<br>Fotos</div>
+        <div class="tool-card" id="btnToolCamera">📷<br>Câmera</div>
+        <div class="tool-card" id="btnToolFile">📁<br>Arquivos</div>
+        <div class="tool-card" id="btnToolDrive">☁️<br>Drive</div>
       </div>
     </div>
   </div>
 
-  <!-- INPUT DE ARQUIVOS (INVISÍVEL) -->
-  <input type="file" id="fileInput" accept="image/*" style="display: none;">
+  <input type="file" id="fileInput" accept="image/*" style="display:none;">
 
-  <!-- RODAPÉ DE ENVIO -->
+  <!-- FOOTER -->
   <footer>
     <div class="input-bar">
-      <button class="icon-btn" id="btnOpenTools">+</button>
+      <button class="btn-action" id="btnOpenTools" style="border:none; background:transparent;">+</button>
       <input type="text" id="messageInput" placeholder="Peça ao Radam Nox...">
     </div>
-    <button class="send-btn" id="btnSend">Enviar</button>
+    <button class="btn-action" id="btnSend" style="background:var(--purple-accent);">Enviar</button>
   </footer>
 
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const BACKEND_URL = "https://radamn.onrender.com";
-      let selectedBase64Image = null;
-      window.conversationHistory = [];
+    function log(msg) {
+      const consoleEl = document.getElementById('debugLog');
+      consoleEl.innerHTML += `<br>> ${msg}`;
+      consoleEl.scrollTop = consoleEl.scrollHeight;
+      console.log(msg);
+    }
 
-      // ELEMENTOS DO DOM
+    // Vinculação de eventos onclick direta pelo JS sem depender de frameworks ou rotas externas
+    window.onload = function() {
+      log("Página completamente carregada.");
+
       const sidebar = document.getElementById('sidebar');
       const sidebarOverlay = document.getElementById('sidebarOverlay');
       const topMenuDropdown = document.getElementById('topMenuDropdown');
@@ -625,130 +364,123 @@
       const fileInput = document.getElementById('fileInput');
       const messageInput = document.getElementById('messageInput');
       const chatContainer = document.getElementById('chatContainer');
-      const welcomeScreen = document.getElementById('welcomeScreen');
-      const imagePreviewContainer = document.getElementById('imagePreviewContainer');
-      const imagePreview = document.getElementById('imagePreview');
+      const mainArea = document.getElementById('mainArea');
 
-      // SIDEBAR (MENU LATERAL)
-      const openSidebar = () => {
-        sidebar.classList.add('show');
-        sidebarOverlay.classList.add('show');
+      // 1. Sidebar (Menu Hambúrguer)
+      document.getElementById('btnOpenSidebar').onclick = function() {
+        log("Clique: Abrir Sidebar");
+        sidebar.style.left = "0px";
+        sidebarOverlay.style.display = "block";
       };
 
-      const closeSidebar = () => {
-        sidebar.classList.remove('show');
-        sidebarOverlay.classList.remove('show');
-      };
+      function closeSidebar() {
+        log("Ação: Fechar Sidebar");
+        sidebar.style.left = "-290px";
+        sidebarOverlay.style.display = "none";
+      }
 
-      document.getElementById('btnOpenSidebar').addEventListener('click', openSidebar);
-      document.getElementById('btnCloseSidebar').addEventListener('click', closeSidebar);
-      sidebarOverlay.addEventListener('click', closeSidebar);
+      document.getElementById('btnCloseSidebar').onclick = closeSidebar;
+      sidebarOverlay.onclick = closeSidebar;
 
-      // MENU TRÊS PONTOS (DROPDOWN)
-      document.getElementById('btnTopMenu').addEventListener('click', (e) => {
+      // 2. Menu Três Pontos
+      document.getElementById('btnTopMenu').onclick = function(e) {
         e.stopPropagation();
-        topMenuDropdown.classList.toggle('show');
-      });
-
-      document.addEventListener('click', (e) => {
-        if (!topMenuDropdown.contains(e.target) && e.target.id !== 'btnTopMenu') {
-          topMenuDropdown.classList.remove('show');
-        }
-      });
-
-      document.querySelectorAll('.dropdown-item').forEach(item => {
-        item.addEventListener('click', (e) => {
-          const action = e.currentTarget.dataset.action;
-          topMenuDropdown.classList.remove('show');
-          if (action === 'Excluir') {
-            newChat();
-          } else {
-            alert('Ação selecionada: ' + action);
-          }
-        });
-      });
-
-      // MODAL FERRAMENTAS (+)
-      const openToolsModal = () => toolsModalOverlay.classList.add('show');
-      const closeToolsModal = () => toolsModalOverlay.classList.remove('show');
-
-      document.getElementById('btnOpenTools').addEventListener('click', openToolsModal);
-      toolsModalOverlay.addEventListener('click', (e) => {
-        if (e.target === toolsModalOverlay) closeToolsModal();
-      });
-
-      document.querySelectorAll('.trigger-file').forEach(card => {
-        card.addEventListener('click', () => {
-          closeToolsModal();
-          fileInput.click();
-        });
-      });
-
-      // SELEÇÃO DE ARQUIVOS
-      fileInput.addEventListener('change', (event) => {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          selectedBase64Image = e.target.result;
-          imagePreview.src = selectedBase64Image;
-          imagePreviewContainer.style.display = 'flex';
-        };
-        reader.readAsDataURL(file);
-      });
-
-      document.getElementById('btnRemoveImage').addEventListener('click', () => {
-        selectedBase64Image = null;
-        fileInput.value = '';
-        imagePreviewContainer.style.display = 'none';
-      });
-
-      // GERENCIAMENTO DA CONVERSA
-      const newChat = () => {
-        window.conversationHistory = [];
-        chatContainer.innerHTML = '';
-        chatContainer.style.display = 'none';
-        welcomeScreen.style.display = 'flex';
-        closeSidebar();
+        log("Clique: Menu Três Pontos");
+        const isVisible = topMenuDropdown.style.display === "flex";
+        topMenuDropdown.style.display = isVisible ? "none" : "flex";
       };
 
-      document.getElementById('btnNewChat').addEventListener('click', newChat);
-
-      document.querySelectorAll('.history-item').forEach(item => {
-        item.addEventListener('click', (e) => {
-          const topic = e.currentTarget.dataset.history;
-          closeSidebar();
-          messageInput.value = `Continuar sobre: ${topic}`;
-          sendMessage();
-        });
-      });
-
-      // RENDERIZAÇÃO E ENVIO DE MENSAGENS
-      function renderMessage(text, imageBase64, isUser) {
-        welcomeScreen.style.display = 'none';
-        chatContainer.style.display = 'flex';
-
-        const wrapper = document.createElement('div');
-        wrapper.className = `message-wrapper ${isUser ? 'user-wrapper' : 'ai-wrapper'}`;
-
-        const msgDiv = document.createElement('div');
-        msgDiv.className = `message ${isUser ? 'user-msg' : 'ai-msg'}`;
-
-        if (imageBase64) {
-          const imgEl = document.createElement('img');
-          imgEl.src = imageBase64;
-          imgEl.className = 'chat-img';
-          msgDiv.appendChild(imgEl);
+      document.onclick = function() {
+        if (topMenuDropdown.style.display === "flex") {
+          topMenuDropdown.style.display = "none";
         }
+      };
 
-        if (text) {
-          const textEl = document.createElement('p');
-          textEl.textContent = text;
-          msgDiv.appendChild(textEl);
+      document.getElementById('btnActionShare').onclick = function() { log("Ação: Compartilhar clicado"); alert("Compartilhar"); };
+      document.getElementById('btnActionRename').onclick = function() { log("Ação: Renomear clicado"); alert("Renomear"); };
+      document.getElementById('btnActionDelete').onclick = function() {
+        log("Ação: Excluir conversa");
+        chatContainer.innerHTML = "";
+        chatContainer.style.display = "none";
+        mainArea.style.display = "flex";
+      };
+
+      // 3. Modal Ferramentas (+)
+      document.getElementById('btnOpenTools').onclick = function() {
+        log("Clique: Botão (+)");
+        toolsModalOverlay.style.display = "flex";
+      };
+
+      toolsModalOverlay.onclick = function(e) {
+        if (e.target === toolsModalOverlay) {
+          toolsModalOverlay.style.display = "none";
         }
+      };
 
-        wrapper.appendChild(msgDiv);
+      const triggerFile = function(type) {
+        log("Ação: Anexo " + type);
+        toolsModalOverlay.style.display = "none";
+        fileInput.click();
+      };
 
-        if (!isUser && text) {
- 
+      document.getElementById('btnToolPhoto').onclick = () => triggerFile("Fotos");
+      document.getElementById('btnToolCamera').onclick = () => triggerFile("Câmera");
+      document.getElementById('btnToolFile').onclick = () => triggerFile("Arquivos");
+      document.getElementById('btnToolDrive').onclick = () => triggerFile("Drive");
+
+      fileInput.onchange = function(e) {
+        if (e.target.files.length > 0) {
+          log("Arquivo selecionado: " + e.target.files[0].name);
+        }
+      };
+
+      // 4. Envio de Mensagens
+      function send() {
+        const txt = messageInput.value.trim();
+        if (!txt) return;
+
+        log("Enviando mensagem: " + txt);
+        mainArea.style.display = "none";
+        chatContainer.style.display = "flex";
+
+        const userDiv = document.createElement('div');
+        userDiv.className = "msg-user";
+        userDiv.innerText = txt;
+        chatContainer.appendChild(userDiv);
+
+        messageInput.value = "";
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+
+        // Resposta simulada de confirmação
+        setTimeout(() => {
+          const aiDiv = document.createElement('div');
+          aiDiv.className = "msg-ai";
+          aiDiv.innerText = "Recebido! Os eventos do sistema estão respondendo corretamente.";
+          chatContainer.appendChild(aiDiv);
+          chatContainer.scrollTop = chatContainer.scrollHeight;
+        }, 600);
+      }
+
+      document.getElementById('btnSend').onclick = send;
+      messageInput.onkeypress = function(e) {
+        if (e.key === 'Enter') send();
+      };
+
+      document.getElementById('btnNewChat').onclick = function() {
+        log("Ação: Nova conversa");
+        closeSidebar();
+        chatContainer.innerHTML = "";
+        chatContainer.style.display = "none";
+        mainArea.style.display = "flex";
+      };
+
+      document.getElementById('btnHist1').onclick = function() {
+        log("Ação: Histórico selecionado");
+        closeSidebar();
+        messageInput.value = "Análise de código";
+        send();
+      };
+    };
+  </script>
+</body>
+</html>
