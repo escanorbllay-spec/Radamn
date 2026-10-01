@@ -22,9 +22,9 @@ app.get('/health', checkMasterKey, (req, res) => {
   });
 });
 
-// PONTO DE CONEXÃO DIRETA: Roteamento para o Gateway (Radamn)
+// PONTO DE CONEXÃO DIRETA: Roteamento corrigido para /api/chat
 app.post('/v1/chat', checkMasterKey, async (req, res) => {
-  const GATEWAY_URL = process.env.RADAMN_GATEWAY_URL || 'https://radamn.vercel.app/api/generate';
+  const GATEWAY_URL = process.env.RADAMN_GATEWAY_URL || 'https://radamn.vercel.app/api/chat';
   const MASTER_KEY = process.env.RADAMN_MASTER_KEY || 'RADAMN_MASTER_KEY_2026';
 
   try {
