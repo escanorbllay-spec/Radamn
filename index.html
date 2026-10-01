@@ -31,7 +31,7 @@
 
     body {
       width: 100vw;
-      height: 100vh;
+      height: 100dvh;
       background-color: var(--bg-dark);
       color: var(--text-main);
       display: flex;
@@ -49,6 +49,7 @@
       justify-content: space-between;
       position: relative;
       z-index: 10;
+      flex-shrink: 0;
     }
 
     .header-left {
@@ -158,6 +159,7 @@
       padding: 20px;
       text-align: center;
       gap: 15px;
+      overflow-y: auto;
     }
 
     .welcome-title {
@@ -245,7 +247,7 @@
       font-size: 0.8rem;
     }
 
-    /* FOOTER */
+    /* FOOTER FIXO NA PARTE INFERIOR */
     footer {
       padding: 12px;
       background: #111118;
@@ -254,6 +256,8 @@
       gap: 10px;
       position: relative;
       z-index: 10;
+      flex-shrink: 0;
+      width: 100%;
     }
 
     .input-bar {
@@ -273,6 +277,7 @@
       background: transparent;
       color: white;
       outline: none;
+      font-size: 0.95rem;
     }
   </style>
 </head>
