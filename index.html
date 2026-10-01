@@ -217,7 +217,7 @@
       display: block;
     }
 
-    /* MODAL DE ANEXOS (+) COM SVG ATUALIZADO */
+    /* MODAL DE ANEXOS (+) */
     #toolsModalOverlay {
       display: none;
       position: fixed;
@@ -355,36 +355,36 @@
     }
   </style>
 </head>
-<body>
+<body onclick="closeDropdownIfOpen(event)">
 
   <!-- OVERLAY E SIDEBAR -->
-  <div id="sidebarOverlay"></div>
+  <div id="sidebarOverlay" onclick="closeSidebar()"></div>
   <div id="sidebar">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
       <h3 style="color:#fff;">Radam Nox</h3>
-      <button class="btn-action" id="btnCloseSidebar">✕</button>
+      <button class="btn-action" onclick="closeSidebar()">✕</button>
     </div>
-    <button class="btn-action" id="btnNewChat" style="width:100%; margin-bottom:15px; background:var(--purple-accent);">+ Nova conversa</button>
+    <button class="btn-action" onclick="btnNewChatAction()" style="width:100%; margin-bottom:15px; background:var(--purple-accent);">+ Nova conversa</button>
     <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">RECENTES</div>
-    <div class="btn-action" id="btnHist1" style="margin-bottom:8px; text-align:left; width:100%;">💻 Análise de Código</div>
+    <button class="btn-action" onclick="btnHistAction('Análise de código')" style="margin-bottom:8px; text-align:left; width:100%;">💻 Análise de Código</button>
   </div>
 
   <!-- HEADER -->
   <header>
     <div class="header-left">
-      <button class="btn-action" id="btnOpenSidebar">☰</button>
+      <button class="btn-action" onclick="openSidebar()">☰</button>
       <div class="title-area">
         <div class="status-dot"></div>
         Radam Nox
       </div>
     </div>
-    <button class="btn-action" id="btnTopMenu">⋮</button>
+    <button class="btn-action" onclick="toggleTopMenu(event)">⋮</button>
 
     <!-- MENU DROPDOWN -->
     <div id="topMenuDropdown">
-      <button class="dropdown-item" id="btnActionShare">🔗 Compartilhar</button>
-      <button class="dropdown-item" id="btnActionRename">✏️ Renomear</button>
-      <button class="dropdown-item" id="btnActionDelete" style="color:#f87171;">🗑 Excluir conversa</button>
+      <button class="dropdown-item" onclick="alert('Link copiado!')">🔗 Compartilhar</button>
+      <button class="dropdown-item" onclick="alert('Opção de renomear selecionada.')">✏️ Renomear</button>
+      <button class="dropdown-item" onclick="resetChat()" style="color:#f87171;">🗑 Excluir conversa</button>
     </div>
   </header>
 
@@ -397,14 +397,14 @@
   <!-- CONTAINER DE MENSAGENS DO CHAT -->
   <div id="chatContainer"></div>
 
-  <!-- MODAL DE ANEXOS ATUALIZADO COM SVG MODERNOS -->
-  <div id="toolsModalOverlay">
+  <!-- MODAL DE ANEXOS ATUALIZADO COM SVGs MODERNOS -->
+  <div id="toolsModalOverlay" onclick="closeToolsModal(event)">
     <div id="toolsModal">
       <div style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">ANEXOS E FERRAMENTAS</div>
       <div class="tool-grid">
         
         <!-- Fotos -->
-        <div class="tool-card" id="btnToolPhoto">
+        <div class="tool-card" onclick="triggerFilePicker()">
           <svg viewBox="0 0 24 24">
             <rect x="3" y="3" width="18" height="18" rx="5" ry="5"></rect>
             <circle cx="8.5" cy="8.5" r="1.5"></circle>
@@ -414,7 +414,7 @@
         </div>
 
         <!-- Câmera -->
-        <div class="tool-card" id="btnToolCamera">
+        <div class="tool-card" onclick="triggerFilePicker()">
           <svg viewBox="0 0 24 24">
             <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
             <circle cx="12" cy="13" r="4"></circle>
@@ -423,7 +423,7 @@
         </div>
 
         <!-- Arquivos -->
-        <div class="tool-card" id="btnToolFile">
+        <div class="tool-card" onclick="triggerFilePicker()">
           <svg viewBox="0 0 24 24">
             <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
             <polyline points="13 2 13 9 20 9"></polyline>
@@ -432,7 +432,7 @@
         </div>
 
         <!-- Nuvem / Drive -->
-        <div class="tool-card" id="btnToolDrive">
+        <div class="tool-card" onclick="triggerFilePicker()">
           <svg viewBox="0 0 24 24">
             <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
           </svg>
@@ -443,21 +443,21 @@
     </div>
   </div>
 
-  <input type="file" id="fileInput" accept="image/*,application/pdf,text/*" style="display:none;">
+  <input type="file" id="fileInput" accept="image/*,application/pdf,text/*" style="display:none;" onchange="handleFileSelected(event)">
 
   <!-- BARRA DE PREVIEW -->
   <div id="attachmentPreviewBar">
     <span id="attachmentFileName"></span>
-    <button id="btnRemoveAttachment" style="background:none; border:none; color:#f87171; cursor:pointer; font-size:1rem; margin-left:auto;">✕</button>
+    <button id="btnRemoveAttachment" onclick="clearAttachment()" style="background:none; border:none; color:#f87171; cursor:pointer; font-size:1rem; margin-left:auto;">✕</button>
   </div>
 
   <!-- FOOTER -->
   <footer>
     <div class="input-bar">
-      <button class="btn-action" id="btnOpenTools" style="border:none; background:transparent;">+</button>
-      <input type="text" id="messageInput" placeholder="Peça ao Radam Nox...">
+      <button class="btn-action" onclick="openToolsModal()" style="border:none; background:transparent;">+</button>
+      <input type="text" id="messageInput" placeholder="Peça ao Radam Nox..." oninput="updateButtonState()" onkeypress="handleKeyPress(event)">
     </div>
-    <button class="btn-dynamic waves" id="btnActionDynamic">❙❚❙</button>
+    <button class="btn-dynamic waves" id="btnActionDynamic" onclick="send()">❙❚❙</button>
   </footer>
 
   <script>
@@ -467,6 +467,7 @@
     let abortController = null;
     let pendingAttachment = null;
 
+    // PERSISTÊNCIA NO LOCALSTORAGE
     function saveHistoryToStorage() {
       try {
         localStorage.setItem('radam_nox_history', JSON.stringify(window.conversationHistory));
@@ -516,181 +517,196 @@
       chatContainer.scrollTop = chatContainer.scrollHeight;
     }
 
-    window.onload = function() {
-      const sidebar = document.getElementById('sidebar');
-      const sidebarOverlay = document.getElementById('sidebarOverlay');
-      const topMenuDropdown = document.getElementById('topMenuDropdown');
-      const toolsModalOverlay = document.getElementById('toolsModalOverlay');
-      const fileInput = document.getElementById('fileInput');
-      const messageInput = document.getElementById('messageInput');
+    // ESTADO DO BOTÃO DE ENVIAR / PARAR
+    function updateButtonState() {
+      const btn = document.getElementById('btnActionDynamic');
+      const input = document.getElementById('messageInput');
+      if (!btn || !input) return;
+
+      if (isProcessing) {
+        btn.className = "btn-dynamic stop";
+        btn.innerHTML = "⏹";
+      } else if (input.value.trim().length > 0 || pendingAttachment) {
+        btn.className = "btn-dynamic";
+        btn.innerHTML = "↑";
+      } else {
+        btn.className = "btn-dynamic waves";
+        btn.innerHTML = "❙❚❙";
+      }
+    }
+
+    // CONTROLE DE SIDEBAR
+    function openSidebar() {
+      document.getElementById('sidebar').style.left = "0px";
+      document.getElementById('sidebarOverlay').style.display = "block";
+    }
+
+    function closeSidebar() {
+      document.getElementById('sidebar').style.left = "-290px";
+      document.getElementById('sidebarOverlay').style.display = "none";
+    }
+
+    function btnNewChatAction() {
+      closeSidebar();
+      resetChat();
+    }
+
+    function btnHistAction(text) {
+      closeSidebar();
+      send(text);
+    }
+
+    // CONTROLE DO MENU DROPDOWN
+    function toggleTopMenu(e) {
+      if (e) e.stopPropagation();
+      const menu = document.getElementById('topMenuDropdown');
+      const isVisible = menu.style.display === "flex";
+      menu.style.display = isVisible ? "none" : "flex";
+    }
+
+    function closeDropdownIfOpen(e) {
+      const menu = document.getElementById('topMenuDropdown');
+      if (menu && menu.style.display === "flex") {
+        menu.style.display = "none";
+      }
+    }
+
+    // CONTROLE DE MODAL DE FERRAMENTAS (+)
+    function openToolsModal() {
+      document.getElementById('toolsModalOverlay').style.display = "flex";
+    }
+
+    function closeToolsModal(e) {
+      if (!e || e.target === document.getElementById('toolsModalOverlay')) {
+        document.getElementById('toolsModalOverlay').style.display = "none";
+      }
+    }
+
+    function triggerFilePicker() {
+      closeToolsModal();
+      document.getElementById('fileInput').click();
+    }
+
+    // GERENCIAMENTO DE ARQUIVOS
+    function handleFileSelected(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        pendingAttachment = {
+          name: file.name,
+          mimeType: file.type,
+          base64: evt.target.result
+        };
+
+        document.getElementById('attachmentFileName').innerText = `📎 ${file.name}`;
+        document.getElementById('attachmentPreviewBar').style.display = 'flex';
+        updateButtonState();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function clearAttachment() {
+      pendingAttachment = null;
+      document.getElementById('fileInput').value = '';
+      document.getElementById('attachmentPreviewBar').style.display = 'none';
+      updateButtonState();
+    }
+
+    // LIMPEZA DE CHAT
+    function resetChat() {
+      window.conversationHistory = [];
+      localStorage.removeItem('radam_nox_history');
+      const chatContainer = document.getElementById('chatContainer');
+      chatContainer.innerHTML = "";
+      chatContainer.style.display = "none";
+      document.getElementById('mainArea').style.display = "flex";
+      isProcessing = false;
+      clearAttachment();
+      updateButtonState();
+    }
+
+    function handleKeyPress(e) {
+      if (e.key === 'Enter') send();
+    }
+
+    // ENVIO DE MENSAGENS E REQUISIÇÕES
+    async function send(textToSend) {
+      const input = document.getElementById('messageInput');
       const chatContainer = document.getElementById('chatContainer');
       const mainArea = document.getElementById('mainArea');
-      const btnActionDynamic = document.getElementById('btnActionDynamic');
-      const attachmentPreviewBar = document.getElementById('attachmentPreviewBar');
-      const attachmentFileName = document.getElementById('attachmentFileName');
-      const btnRemoveAttachment = document.getElementById('btnRemoveAttachment');
+      const txt = textToSend || input.value.trim();
 
-      loadHistoryFromStorage();
+      if (!txt && !pendingAttachment && !isProcessing) return;
 
-      function updateButtonState() {
-        if (isProcessing) {
-          btnActionDynamic.className = "btn-dynamic stop";
-          btnActionDynamic.innerHTML = "⏹";
-        } else if (messageInput.value.trim().length > 0 || pendingAttachment) {
-          btnActionDynamic.className = "btn-dynamic";
-          btnActionDynamic.innerHTML = "↑";
-        } else {
-          btnActionDynamic.className = "btn-dynamic waves";
-          btnActionDynamic.innerHTML = "❙❚❙";
-        }
-      }
-
-      messageInput.oninput = updateButtonState;
-
-      function clearAttachment() {
-        pendingAttachment = null;
-        fileInput.value = '';
-        attachmentPreviewBar.style.display = 'none';
-        updateButtonState();
-      }
-
-      btnRemoveAttachment.onclick = clearAttachment;
-
-      fileInput.onchange = function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = function(evt) {
-          pendingAttachment = {
-            name: file.name,
-            mimeType: file.type,
-            base64: evt.target.result
-          };
-
-          attachmentFileName.innerText = `📎 ${file.name}`;
-          attachmentPreviewBar.style.display = 'flex';
-          updateButtonState();
-        };
-        reader.readAsDataURL(file);
-      };
-
-      document.getElementById('btnOpenSidebar').onclick = function() {
-        sidebar.style.left = "0px";
-        sidebarOverlay.style.display = "block";
-      };
-
-      function closeSidebar() {
-        sidebar.style.left = "-290px";
-        sidebarOverlay.style.display = "none";
-      }
-
-      document.getElementById('btnCloseSidebar').onclick = closeSidebar;
-      sidebarOverlay.onclick = closeSidebar;
-
-      document.getElementById('btnTopMenu').onclick = function(e) {
-        e.stopPropagation();
-        const isVisible = topMenuDropdown.style.display === "flex";
-        topMenuDropdown.style.display = isVisible ? "none" : "flex";
-      };
-
-      document.onclick = function() {
-        if (topMenuDropdown.style.display === "flex") {
-          topMenuDropdown.style.display = "none";
-        }
-      };
-
-      document.getElementById('btnActionShare').onclick = function() { alert("Link copiado!"); };
-      document.getElementById('btnActionRename').onclick = function() { alert("Opção de renomear selecionada."); };
-      document.getElementById('btnActionDelete').onclick = function() { resetChat(); };
-
-      document.getElementById('btnOpenTools').onclick = function() {
-        toolsModalOverlay.style.display = "flex";
-      };
-
-      toolsModalOverlay.onclick = function(e) {
-        if (e.target === toolsModalOverlay) {
-          toolsModalOverlay.style.display = "none";
-        }
-      };
-
-      const triggerFile = function() {
-        toolsModalOverlay.style.display = "none";
-        fileInput.click();
-      };
-
-      document.getElementById('btnToolPhoto').onclick = triggerFile;
-      document.getElementById('btnToolCamera').onclick = triggerFile;
-      document.getElementById('btnToolFile').onclick = triggerFile;
-      document.getElementById('btnToolDrive').onclick = triggerFile;
-
-      function resetChat() {
-        window.conversationHistory = [];
-        localStorage.removeItem('radam_nox_history');
-        chatContainer.innerHTML = "";
-        chatContainer.style.display = "none";
-        mainArea.style.display = "flex";
+      if (isProcessing) {
+        if (abortController) abortController.abort();
         isProcessing = false;
-        clearAttachment();
         updateButtonState();
+        return;
       }
 
-      async function send(textToSend) {
-        const txt = textToSend || messageInput.value.trim();
+      isProcessing = true;
+      updateButtonState();
 
-        if (!txt && !pendingAttachment && !isProcessing) return;
+      mainArea.style.display = "none";
+      chatContainer.style.display = "flex";
 
-        if (isProcessing) {
-          if (abortController) abortController.abort();
-          isProcessing = false;
-          updateButtonState();
-          return;
-        }
+      const userDiv = document.createElement('div');
+      userDiv.className = "msg-user";
 
-        isProcessing = true;
-        updateButtonState();
+      let userHtml = '';
+      let currentAttachment = pendingAttachment;
 
-        mainArea.style.display = "none";
-        chatContainer.style.display = "flex";
+      if (currentAttachment && currentAttachment.mimeType.startsWith('image/')) {
+        userHtml += `<img src="${currentAttachment.base64}" class="msg-preview-img"><br>`;
+      } else if (currentAttachment) {
+        userHtml += `<div style="font-size:0.8rem; opacity:0.8;">📎 ${currentAttachment.name}</div>`;
+      }
 
-        const userDiv = document.createElement('div');
-        userDiv.className = "msg-user";
+      userHtml += txt;
+      userDiv.innerHTML = userHtml;
+      chatContainer.appendChild(userDiv);
 
-        let userHtml = '';
-        let currentAttachment = pendingAttachment;
+      window.conversationHistory.push({
+        role: "user",
+        content: txt,
+        image: currentAttachment ? currentAttachment.base64 : null
+      });
+      saveHistoryToStorage();
 
-        if (currentAttachment && currentAttachment.mimeType.startsWith('image/')) {
-          userHtml += `<img src="${currentAttachment.base64}" class="msg-preview-img"><br>`;
-        } else if (currentAttachment) {
-          userHtml += `<div style="font-size:0.8rem; opacity:0.8;">📎 ${currentAttachment.name}</div>`;
-        }
+      input.value = "";
+      clearAttachment();
+      chatContainer.scrollTop = chatContainer.scrollHeight;
 
-        userHtml += txt;
-        userDiv.innerHTML = userHtml;
-        chatContainer.appendChild(userDiv);
+      const loadingDiv = document.createElement('div');
+      loadingDiv.className = "msg-loading";
+      loadingDiv.innerText = "Radam Nox está pensando...";
+      chatContainer.appendChild(loadingDiv);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
 
-        window.conversationHistory.push({
-          role: "user",
-          content: txt,
-          image: currentAttachment ? currentAttachment.base64 : null
+      abortController = new AbortController();
+
+      try {
+        const endpoint = `${BACKEND_URL.replace(/\/$/, '')}/api/chat`;
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages: window.conversationHistory,
+            message: txt,
+            attachment: currentAttachment
+          }),
+          signal: abortController.signal
         });
-        saveHistoryToStorage();
 
-        messageInput.value = "";
-        clearAttachment();
-        chatContainer.scrollTop = chatContainer.scrollHeight;
+        if (chatContainer.contains(loadingDiv)) {
+          chatContainer.removeChild(loadingDiv);
+        }
 
-        const loadingDiv = document.createElement('div');
-        loadingDiv.className = "msg-loading";
-        loadingDiv.innerText = "Radam Nox está pensando...";
-        chatContainer.appendChild(loadingDiv);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
+        if (!response.ok) {
+          throw new Error(`Status ${response.status}`);
+        }
 
-        abortController = new AbortController();
-
-        try {
-          const endpoint = `${BACKEND_URL.replace(/\/$/, '')}/api/chat`;
-          const response = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            bo
+        const data = awa
