@@ -4,7 +4,7 @@ const app = express();
 app.use(express.json());
 
 // Validação da Master Key na Ponte
-const checkMasterKey = (req, res, next) => {
+app.use((req, res, next) => {
   const masterKey = req.headers['x-master-key'];
   const VALID_KEY = process.env.RADAMN_MASTER_KEY || 'RADAMN_MASTER_KEY_2026';
 
@@ -12,19 +12,19 @@ const checkMasterKey = (req, res, next) => {
     return res.status(401).json({ error: 'Acesso não autorizado: Master Key inválida ou ausente.' });
   }
   next();
-};
+});
 
-// Endpoints de Saúde (suporta ambas as variações de rota)
-app.get(['/', '/health', '/api/chat/health'], checkMasterKey, (req, res) => {
+// Endpoint de Saúde
+app.get('*', (req, res) => {
   return res.status(200).json({
     status: 'ONLINE',
     system: 'Radam Nox PaaS Bridge'
   });
 });
 
-// Endpoint principal mapeado para corresponder a / e /api/chat
-app.post(['/', '/api/chat'], checkMasterKey, async (req, res) => {
-  const GATEWAY_URL = process.env.RADAMN_GATEWAY_URL || 'https://api.openai.com/v1/chat/completions';
+// Endpoint principal que captura qualquer rota POST enviada pela Vercel
+app.post('*', async (req, res) => {
+  const GATEWAY_URL = process.env.RADAMN_GATEWAY_URL || 'https://openrouter.ai/api/v1/chat/completions';
   const MASTER_KEY = process.env.RADAMN_MASTER_KEY || 'RADAMN_MASTER_KEY_2026';
 
   try {
@@ -36,7 +36,8 @@ app.post(['/', '/api/chat'], checkMasterKey, async (req, res) => {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY || ''}`,
-        'x-master-key': MASTER_KEY
+        'HTTP-Referer': 'https://github.com/escanorbllay-spec',
+        'X-Title': 'Radam Nox Bridge'
       },
       body: JSON.stringify({
         model: "deepseek/deepseek-chat",
